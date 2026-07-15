@@ -1,0 +1,33 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 缩减模式速度参数配置结构
+message SpeedReduceConfig_Grpc
+{
+    uint32 uSpeedLevel1 = 1;                // 缩减模式Level1速度值       
+    uint32 uSpeedLevel2 = 2;                // 缩减模式Level2速度值
+}
+
+// 缩减模式请求
+message SpeedReduceConfig_Request
+{
+    SpeedReduceConfig_Grpc config = 1;      // 缩减模式速度参数配置      
+}
+
+// 缩减模式应答
+message SpeedReduceConfig_Response
+{
+    int32 iRet = 1;                         // 缩减模式设置结果返回
+    SpeedReduceConfig_Grpc config = 2;      // 缩减模式速度参数配置
+}
+
+// 调试
+service SafeParaSettingMgrGrpc {
+    // 写入缩减模式速度缩减数值到A40i
+    rpc WriteSpeedReducing(SpeedReduceConfig_Request) returns (google.protobuf.Int32Value) {}
+
+    // 从A40i读取缩减模式速度缩减数值
+    rpc ReadSpeedReducing(google.protobuf.Empty) returns (SpeedReduceConfig_Response) {}
+}

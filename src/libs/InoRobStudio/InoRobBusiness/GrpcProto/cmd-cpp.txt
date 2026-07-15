@@ -1,0 +1,46 @@
+GlobalDataTypes
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe GlobalDataTypesGrpc.proto
+用户
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe UserGrpc.proto
+工作站
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe WorkstationGrpc.proto
+连接
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe ConnectionGrpc.proto
+监控（引用GlobalDataTypes）
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe MonitorGrpc.proto
+运动（引用GlobalDataTypes）
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe MotionGrpc.proto
+操控
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe ControlGrpc.proto
+控制权
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe ControlAuthorityGrpc.proto
+工具
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe ToolGrpc.proto
+工件
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe WobjGrpc.proto
+负载
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe LoadGrpc.proto
+位置（引用GlobalDataTypes）
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe PositionGrpc.proto
+机械单元
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe MechUnitGrpc.proto
+译码
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe TransforGrpc.proto
+工程
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe ProjectGrpc.proto
+调试
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe DebugerGrpc.proto
+任务
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe TaskGrpc.proto
+资源
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe ResourceGrpc.proto
+控制器配置
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe RCConfigGrpc.proto
+本体（引用GlobalDataTypes）
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe RobotArmGrpc.proto
+总线（引用GlobalDataTypes）
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe FieldBusGrpc.proto
+维保（引用GlobalDataTypes）
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe MaintenanceGrpc.proto
+工艺(跟随工艺、视觉标定)
+protoc --proto_path=./ --cpp_out=./gen-cpp --grpc_out=./gen-cpp --plugin=protoc-gen-grpc=./grpc_cpp_plugin.exe TechnologyGrpc.proto

@@ -1,0 +1,32 @@
+﻿<RCC>
+    <qresource prefix="/education">
+        <file>image/education/arrow/j1_down.svg</file>
+                <file>image/education/arrow/j1_up.svg</file>
+                <file>image/education/arrow/j2_down.svg</file>
+                <file>image/education/arrow/j3_down.svg</file>
+                <file>image/education/arrow/j4_down.svg</file>
+                <file>image/education/arrow/j5_down.svg</file>
+                <file>image/education/arrow/j6_down.svg</file>
+                <file>image/education/arrow/j2_up.svg</file>
+                <file>image/education/arrow/j3_up.svg</file>
+                <file>image/education/arrow/j4_up.svg</file>
+                <file>image/education/arrow/j5_up.svg</file>
+                <file>image/education/arrow/j6_up.svg</file>
+                <file>image/education/arrow/x_down.svg</file>
+                <file>image/education/arrow/x_up.svg</file>
+                <file>image/education/arrow/y_up.svg</file>
+                <file>image/education/arrow/y_down.svg</file>
+                <file>image/education/arrow/z_down.svg</file>
+                <file>image/education/arrow/z_up.svg</file>
+                <file>image/education/arrow/rz_up.svg</file>
+                <file>image/education/arrow/rx_down.svg</file>
+                <file>image/education/arrow/rx_up.svg</file>
+                <file>image/education/arrow/rz_down.svg</file>
+                <file>image/education/arrow/ry_down.svg</file>
+                <file>image/education/arrow/ry_up.svg</file>
+                <file>image/education/incmovedown.svg</file>
+                <file>image/education/incmoveup.svg</file>
+                <file>image/education/arrow/j7_down.svg</file>
+                <file>image/education/arrow/j7_up.svg</file>
+    </qresource>
+</RCC>

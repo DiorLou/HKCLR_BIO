@@ -1,0 +1,37 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 控制权类型
+enum CtrlAuthority_Grpc
+{
+    TEACHPAD_Grpc = 0;          // 机器人上位机软件（PC编程平台或示教器）
+    INOROBSHOP_Grpc = 1;        // 二次开发软件（InoRobShop，应该已弃用了）
+    RMT_ETHERNET_Grpc = 2;      // 远程以太网
+    RMT_IO_Grpc = 3;            // 远程IO
+    RMT_MODBUS_Grpc = 4;        // 远程Modbus
+    RMT_IO_AUTO_Grpc = 5;       // 远程IO（仅自动模式生效）
+    NOCTRL_Grpc = 6;            // 无控制权
+}
+
+// 获取当前控制权响应
+message ControlAuthorityGrpc_getCurrentAuthority_Response
+{
+    CtrlAuthority_Grpc authority = 1;          // 控制权类型
+}
+// 切换控制权请求
+message ControlAuthorityGrpc_changeAuthority_Request
+{
+    CtrlAuthority_Grpc authority = 1;   // 目标控制权
+    int32 speed = 2;                    // 预设速度（目前仅远程IO和远程Modbus需要设置，其他控制权即使输入，也不会设置到控制器）
+}
+
+// 控制权
+service ControlAuthorityGrpc {
+    // 获取当前控制权
+    rpc getCurrentAuthority(google.protobuf.Empty) returns (ControlAuthorityGrpc_getCurrentAuthority_Response) {}
+    // 切换控制权
+    // 成功返回0，其他请见错误码
+    rpc changeAuthority(ControlAuthorityGrpc_changeAuthority_Request) returns (google.protobuf.Int32Value) {}
+}

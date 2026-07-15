@@ -1,0 +1,17 @@
+﻿#pragma once
+
+#include "MechUnitsConfigFile.h"
+#include "MechUnitsCalibFile.h"
+#include "ToolCalibFile.h"
+#include "WobjCalibFile.h"
+#include "LoadUserFile.h"
+#include "FieldBusFunIoCfgFile.h"
+#include "BusinessFileCommon.h"
+#include "SelfLearningVibrationControlFile.h"
+#include "FunctionSafeConfigFile.h"
+#include "ForceCtrlCalibFile.h"
+#include "FCSensorFile.h"
+#include "FCCoordinateFile.h"
+#include "ForceCtrlConfigFile.h"
+#include "ForceCtrlMoveFile.h"
+#include "ForceCtrlLimitFile.h"

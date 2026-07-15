@@ -1,0 +1,5 @@
+﻿<RCC>
+    <qresource prefix="/">
+        <file>font/SourceHanSansCN-Heavy.otf</file>
+    </qresource>
+</RCC>

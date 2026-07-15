@@ -1,0 +1,71 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "GlobalDataTypesGrpc.proto";
+package InoRobBusinessGrpc;
+
+enum RobotHoldToolType_Grpc
+{
+    TOOL_TYPE_EXTERN_TOOL_Grpc = 0;  // 外部工具
+    TOOL_TYPE_ROBOT_HOLD_Grpc = 1;   // 夹持工具
+};
+
+// 当前工具是否为机器人夹持响应
+message CurrentIsRobotHold_Response
+{
+    bool ret = 1;    // 是否获取成功
+    bool result = 2; // 返回是否夹持结果
+}
+// 指定工具是否为机器人夹持响应
+message someoneIsRobotHold_Response
+{
+    bool ret = 1;    // 是否获取成功
+    bool result = 2; // 返回是否夹持结果
+}
+// 读取工具参数响应
+message GetToolParam_Response
+{
+    bool ret = 1;               // 是否获取成功
+    ToolData_Grpc toolData = 2; // 工具参数
+}
+// 设置工具参数请求
+message SetToolParam_Request
+{
+    uint32 toolNo = 1;          // 工具号
+    ToolData_Grpc toolData = 2; // 工具参数
+}
+
+// 工具标定请求
+message ToolCalibrate_Request
+{
+    uint32 toolID = 1;                      // 工具ID
+    CsCalibPoints_Grpc csCalibPoints = 2;   // 标定计算输入的中间点
+}
+
+// 工具标定响应
+message ToolCalibrate_Response
+{
+    bool ret = 1;               // 是否计算成功
+    Pose_Grpc calibResult = 2;  // 标定计算结果
+}
+
+// 工具
+service ToolGrpc {
+    // 获取当前工具号（返回0表示成功否则表示失败）
+    rpc GetCurrentId(google.protobuf.Empty) returns (google.protobuf.UInt32Value) {}
+    // 设定当前工具号
+    rpc SetCurrentId(google.protobuf.UInt32Value) returns (google.protobuf.BoolValue) {}
+
+    // 当前工具是否为机器人夹持
+    rpc CurrentIsRobotHold(google.protobuf.Empty) returns (CurrentIsRobotHold_Response) {}
+    // 指定工具是否为机器人夹持
+    rpc someoneIsRobotHold(google.protobuf.UInt32Value) returns (someoneIsRobotHold_Response) {}
+
+    // 读取工具参数
+    rpc GetToolParam(google.protobuf.UInt32Value) returns (GetToolParam_Response) {}
+    // 设置工具参数
+    rpc SetToolParam(SetToolParam_Request) returns (google.protobuf.BoolValue) {}
+
+   // 工具标定
+    rpc ToolCalibrate(ToolCalibrate_Request) returns (ToolCalibrate_Response) {}
+}

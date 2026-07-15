@@ -1,0 +1,1 @@
+﻿#include "../GlobalDataService/DataService/Crc/Crc32.h"

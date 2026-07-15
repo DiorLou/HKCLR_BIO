@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWidgetLogForm</class>
+ <widget class="QWidget" name="MainWidgetLogForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>943</width>
+    <height>878</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+    font-size: 16px;
+}
+
+QTextBrowser {
+    color: black;
+    background-color: rgb(255, 255, 255);
+    font: 16px;
+    border: 1px solid rgb(207, 207, 223);
+	border-radius: 4px;
+}
+
+QTabWidget::tab-bar {
+	alignment: center;
+    padding-right:8px;
+}
+
+QTabWidget::pane {
+    background-color: transparent;
+    border: none;
+    padding-top: 12px;
+}
+
+QScrollBar::vertical {
+	background: transparent;
+	width: 22px;
+	border-radius: 4px;
+	padding-left: 2px;
+}
+QScrollBar::horizontal {
+	background: transparent;
+	height: 22px;
+	border-radius: 4px;
+	padding-top: 2px;
+}
+QScrollBar::handle:vertical{ 
+    background: rgb(207, 207, 223);
+    width: 20px; 
+    min-height: 60px; 
+}
+QScrollBar::handle:horizontal{ 
+    background: rgb(207, 207, 223);
+    height: 20px; 
+	min-width: 60px; 
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+	background: transparent;
+	height: 20px;	
+}
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+	background: transparent;
+    width: 20px;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical,
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background: transparent; 
+}
+
+QScrollArea::corner {
+	background: white;
+}
+
+#MainWidgetLogForm{
+    color: black;
+    background-color: rgb(230, 230, 239);
+    /*background-color: rgba(0,0,0,0.6);*/
+    font: 16px;
+}
+
+#tabWidget{
+    color: black;
+    background-color: rgb(230, 230, 239);
+    font: 16px;
+}
+
+QScrollBar::vertical {
+	background: transparent;
+	width: 22px;
+	border-radius: 4px;
+	padding-left: 2px;
+	margin: 16px 0px 16px 0px;
+}
+QScrollBar::handle:vertical{ 
+    background: rgb(207, 207, 223);
+    width: 20px; 
+    min-height: 60px; 
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical,
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background: transparent; 
+}
+
+QScrollBar::add-line:vertical {
+    background: transparent;
+    height: 16px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical {
+    background: transparent;
+    height: 16px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::up-arrow:vertical {
+        image: url(:/mainwidget/image/mainwidget/uparrow.svg);
+        width: 12px;
+        height: 12px;
+       padding-left: 2px;
+}
+QScrollBar::down-arrow:vertical {
+        image: url(:/mainwidget/image/mainwidget/downarrow.svg);
+        width: 12px;
+        height: 12px;
+        padding-left: 2px;
+}
+
+QScrollBar{
+    border: none;
+}
+
+QTabBar::tab {
+    background: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+    padding: 0px 8px 0px 8px;
+    margin-right: 4px;
+    height: 32px;
+    border: none; 
+    border-left: 1px solid rgb(198, 205, 220);
+    border-right: 1px solid rgb(198, 205, 220);
+    border-top: 1px solid rgb(198, 205, 220);
+    border-bottom: none;
+    border-top-left-radius:4px;
+    border-top-right-radius:4px;
+}
+
+QTabBar::tab:disabled {
+    color: rgba(109, 109, 109);
+    background: rgb(109, 109, 109);
+}
+
+
+QTabBar::tab:selected {
+    color: rgb(41, 90, 176);
+    background: rgb(216, 228, 251);
+}
+
+QTabBar::tab:hover {
+    color: rgb(41, 90, 176);
+    background: rgb(216, 228, 251);
+}
+
+#tabWidget::tab-bar{
+	alignment:left;
+}
+
+#tabWidget::pane{
+ border-top: 1px solid rgb(198, 205, 220);
+}
+
+#pbn_clear{
+   	color: black;
+    background-color: rgb(230, 230, 239);
+border:none;
+}
+
+#pbn_close{
+   	color: black;
+    background-color: rgb(230, 230, 239);
+border:none;
+}
+
+#pbn_fixed{
+   	color: black;
+    background-color: rgb(230, 230, 239);
+    border:none;
+}
+
+#pbn_fixed:checked{
+   	color: black;
+    background-color: rgb(230, 230, 239);
+    border:none;
+}
+
+QRadioButton{
+background-color:rgb(255, 255, 255);
+color:rgb(20,20,20);
+font-weight:normal;
+}
+QRadioButton:checked{
+background-color:rgb(242, 246, 254);
+color:rgb(41, 90, 176);
+font-weight:bold;
+}
+    QRadioButton::indicator {
+        width: 0px;
+        height: 0px;
+        background-color: transparent;
+        border: none;
+        outline: none;
+    }</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_6" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="1,0,0,0,0">
+   <property name="leftMargin">
+    <number>12</number>
+   </property>
+   <property name="topMargin">
+    <number>12</number>
+   </property>
+   <property name="rightMargin">
+    <number>12</number>
+   </property>
+   <property name="bottomMargin">
+    <number>12</number>
+   </property>
+   <property name="spacing">
+    <number>12</number>
+   </property>
+   <item row="4" column="1" colspan="4">
+    <widget class="CCRadioButtonWithoutIndicator" name="radioButton_4">
+     <property name="minimumSize">
+      <size>
+       <width>120</width>
+       <height>36</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Output_Error</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="20">
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>6</number>
+     </property>
+     <widget class="QWidget" name="page">
+      <layout class="QGridLayout" name="gridLayout_9">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="TextBrowser" name="edit_outputAll"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_2">
+      <layout class="QGridLayout" name="gridLayout_10">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="TextBrowser" name="edit_outputInfornation"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_3">
+      <layout class="QGridLayout" name="gridLayout_11">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="TextBrowser" name="edit_outputWarning"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_4">
+      <layout class="QGridLayout" name="gridLayout_12">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="TextBrowser" name="edit_outputError"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_5">
+      <layout class="QGridLayout" name="gridLayout_13">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="TextBrowser" name="edit_operation"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_6">
+      <layout class="QGridLayout" name="gridLayout_14">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="0" column="0">
+        <widget class="TextBrowser" name="edit_historyAlarm"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="page_7">
+      <layout class="QGridLayout" name="gridLayout_15">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <item row="1" column="0">
+        <widget class="TextBrowser" name="edit_log"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="8" column="3" colspan="2">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="1" colspan="4">
+    <widget class="CCRadioButtonWithoutIndicator" name="radioButton_5">
+     <property name="minimumSize">
+      <size>
+       <width>120</width>
+       <height>36</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Operation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1" colspan="4">
+    <widget class="CCRadioButtonWithoutIndicator" name="radioButton_7">
+     <property name="minimumSize">
+      <size>
+       <width>120</width>
+       <height>36</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Log</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" colspan="4">
+    <widget class="CCRadioButtonWithoutIndicator" name="radioButton_3">
+     <property name="minimumSize">
+      <size>
+       <width>120</width>
+       <height>36</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Output_Warning</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="4">
+    <widget class="CCRadioButtonWithoutIndicator" name="radioButton">
+     <property name="minimumSize">
+      <size>
+       <width>120</width>
+       <height>36</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Output_All</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" colspan="4">
+    <widget class="CCRadioButtonWithoutIndicator" name="radioButton_6">
+     <property name="minimumSize">
+      <size>
+       <width>120</width>
+       <height>36</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Alarm history</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" colspan="4">
+    <widget class="CCRadioButtonWithoutIndicator" name="radioButton_2">
+     <property name="minimumSize">
+      <size>
+       <width>120</width>
+       <height>36</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Output_Info</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="5">
+    <widget class="QWidget" name="widget" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>24</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pbn_clear">
+        <property name="minimumSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset theme=":/mainwidget/image/mainwidget/logformclear.svg"/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pbn_fixed">
+        <property name="minimumSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pbn_close">
+        <property name="minimumSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset theme=":/mainwidget/image/mainwidget/logformclose.svg"/>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TextBrowser</class>
+   <extends>QTextBrowser</extends>
+   <header>textbrowser.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CCRadioButtonWithoutIndicator</class>
+   <extends>QRadioButton</extends>
+   <header>ccpushbutton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

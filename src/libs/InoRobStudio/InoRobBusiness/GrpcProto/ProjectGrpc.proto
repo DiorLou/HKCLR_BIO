@@ -1,0 +1,219 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "GlobalDataTypesGrpc.proto";
+package InoRobBusinessGrpc;
+
+// 工程类型
+enum ProjectType_Grpc
+{
+    PRO_Grpc = 0;    // pro工程(程序文件为.pro)
+    LUA_Grpc = 1;    // lua工程(程序文件为.lua)
+}
+
+// 多任务信息
+message MultiTaskInfo_Grpc
+{
+    int32 taskId = 1;               // 任务id
+    int32 taskType = 2;             // 任务类型（0：主任务， 1：静态任务， 2：动态任务， 3: Xqt任务）
+    string enterProgramFile = 3;    // 对应的程序文件名称
+    bool isActive = 4;              // 是否激活
+}
+
+// 工程文件夹信息
+message ProjectFolderInfo_Grpc
+{
+    string projectName = 1;  // 工程名称
+    string modifyTime = 2;   // 修改时间
+    int32 memorySize = 3;    // 工程文件夹内存大小(kb)
+}
+
+// 程序文件类型
+enum ProgramType_Grpc
+{
+    FUNCTION_Grpc = 0;   // 通用程序
+    START_END_Grpc = 1;  // 入口程序
+    INTERRUPT_Grpc = 2;  // 中断程序
+}
+
+// 创建工程（本地）请求
+message CreateLocalProject_Request
+{
+    string folder = 1;              // 目标文件夹路径
+    string name = 2;                // 工程名称
+    ProjectType_Grpc type = 3;      // 工程类型
+}
+
+// 从本地导入工程，下发到控制器请求
+message ImportProject_Request
+{
+    string ip = 1;      // 控制器ip
+    string path = 2;    // 本地工程路径(.prj文件路径)
+}
+
+// 获取控制器当前激活的工程响应
+message getActiveProject_Response
+{
+    int32 ret = 1;          // 成功返回0，其他请见错误码
+    string projName = 2;    // 返回工程名称
+}
+
+// 新增任务至工程配置中请求
+message AddTask_Request
+{
+    MultiTaskInfo_Grpc taskInfo = 1;
+}
+
+// 创建工程（控制器）请求
+message CreateProject_Request
+{
+    string name = 1;                    // 工程名称
+    ProjectType_Grpc projectType = 2;   // 工程类型
+}
+// 重命名工程（控制器）请求
+message RenameProject_Request
+{
+    string oldName = 1; // 原名称
+    string newName = 2; // 新名称
+}
+// 从控制器读取工程列表响应
+message ReadProjectList_Response
+{
+    int32 ret = 1;                              // 成功返回0，其他请见错误码
+    repeated ProjectFolderInfo_Grpc infos = 2;  // 工程文件夹信息合集
+}
+// 从控制器下载工程并导出到本地文件夹中请求
+message ExportProject_Request
+{
+    string ip = 1;      // 控制器ip
+    string name = 2;    // 工程名称(不带后缀)
+    string folder = 3;  // 本地路径
+}
+// 从控制器加载指定名称的工程请求
+message ReadProject_Request
+{
+    string ip = 1;          // 控制器ip
+    string name = 2;        // 工程名称
+    bool isReadSamePrj = 3; // 如果是和当前工程相同的，是否依旧从控制器读取
+}
+// 保存当前加载的工程的配置信息请求
+message SaveProjectConfig_Request
+{
+    bool isAllowInDebug = 1; // 是否允许在调试或者自动模式执行（默认为false）
+    bool isPrint = 2;        // 是否打印输出（默认为true）
+}
+
+// 获取程序文件列表响应
+message ProjectGrpc_GetProgramFileList_Response
+{
+    repeated string programFiles = 1;
+}
+// 新建程序文件请求
+message ProjectGrpc_NewFile_Request
+{
+    string name = 1;            // 文件名称
+    ProgramType_Grpc type = 2;  // 文件类型
+}
+// 重命名程序文件请求
+message ProjectGrpc_RenameFile_Request
+{
+    string oldName = 1; // 原程序文件名称
+    string newName = 2; // 新程序文件名称
+}
+
+// 获取指定序号的全局P点位数据请求
+message GetRPoint_Request
+{
+    string fileName = 1;    // 点位文件名称，如：P.pts
+    uint32 index = 2;       // 点位序号
+}
+
+// 获取指定序号的全局P点位数据响应
+message GetRPoint_Response
+{
+    int32 ret = 1;          // 成功返回0，其他请见错误码
+    RobPos_Grpc rPoint = 2; // 全局点位对象
+}
+
+// 工程
+service ProjectGrpc {
+    /**
+     * @brief 创建工程（本地）
+     * @return 成功返回0，其他请见错误码
+     */
+    rpc CreateLocalProject(CreateLocalProject_Request) returns (google.protobuf.Int32Value) {}
+    /**
+     * @brief 从本地加载工程
+     * @param .prj工程配置文件的路径
+     * @return 成功返回0，其他请见错误码
+     */
+    rpc ReadLocalProjcet(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+    // 从本地导入工程，下发到控制器
+    // 成功返回0，其他请见错误码
+    rpc ImportProject(ImportProject_Request) returns (google.protobuf.Int32Value) {}
+
+    // 从控制器读取工程列表
+    // 控制器ip
+    rpc ReadProjectList(google.protobuf.StringValue) returns (ReadProjectList_Response) {}
+    // 从控制器下载工程并导出到本地文件夹中
+    // 成功返回0，其他请见错误码
+    rpc ExportProject(ExportProject_Request) returns (google.protobuf.Int32Value) {}
+    // 从控制器加载指定名称的工程
+    // 成功返回0，其他请见错误码
+    rpc ReadProject(ReadProject_Request) returns (google.protobuf.Int32Value) {}
+    // 创建工程（控制器）
+    // 成功返回0，其他请见错误码
+    rpc CreateProject(CreateProject_Request) returns (google.protobuf.Int32Value) {}
+    // 删除工程（控制器）
+    // 工程名称
+    // 成功返回0，其他请见错误码
+    rpc DelProject(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+    // 重命名工程（控制器）
+    // 成功返回0，其他请见错误码
+    rpc RenameProject(RenameProject_Request) returns (google.protobuf.Int32Value) {}
+    // 拷贝工程（控制器）
+    // 工程名称
+    // 成功返回0，其他请见错误码
+    rpc CopyProject(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+    // 粘贴工程（控制器）
+    // 工程名称
+    // 成功返回0，其他请见错误码
+    rpc PasteProject(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+    // 设置控制器当前激活的工程
+    // 输入，工程名称
+    // 成功返回0，其他请见错误码
+    rpc setActiveProject(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+    // 获取控制器当前激活的工程
+    rpc getActiveProject(google.protobuf.Empty) returns (getActiveProject_Response) {}
+
+    // 新增任务至工程配置中
+    rpc AddTask(AddTask_Request) returns (google.protobuf.Int32Value) {}
+    // 从工程配置中移除任务
+    // 任务id
+    rpc DelTask(google.protobuf.Int32Value) returns (google.protobuf.Int32Value) {}
+    // 清空工程配置中的任务信息
+    rpc ClearTask(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    // 保存当前加载的工程的配置信息
+    // 成功返回0，其他请见错误码
+    rpc SaveProjectConfig(SaveProjectConfig_Request) returns (google.protobuf.Int32Value) {}
+
+    // 获取程序文件列表
+    rpc GetProgramFileList(google.protobuf.Empty) returns (ProjectGrpc_GetProgramFileList_Response) {}
+    // 指定的程序文件是否已存在
+    // 请求参数：程序文件名称
+    // 响应结果：已存在true,不存在false
+    rpc IsProgramFileExisted(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
+    // 新建程序文件
+    // 成功返回0，其他请见错误码
+    rpc NewFile(ProjectGrpc_NewFile_Request) returns (google.protobuf.Int32Value) {}
+    // 重命名程序文件
+    // 成功返回0，其他请见错误码
+    rpc RenameFile(ProjectGrpc_RenameFile_Request) returns (google.protobuf.Int32Value) {}
+    // 删除程序文件
+    // 输入，文件名称
+    // 成功返回0，其他请见错误码
+    rpc DelFile(google.protobuf.StringValue) returns (google.protobuf.Int32Value) {}
+
+    // 获取指定序号的全局P点位数据
+    rpc GetRPoint(GetRPoint_Request) returns (GetRPoint_Response) {}
+}

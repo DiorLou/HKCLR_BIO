@@ -1,0 +1,836 @@
+﻿FileInfo
+    FileType="SysIOFile"
+    Version="1.0"
+    SystemVersion="S03.24"
+    RobotName="Robot"
+    Time="2023-06-30 11:09:30.024"
+    CheckCode="15971730"
+EndFileInfo
+{
+  "InOut": [
+    {
+      "CabinetType": 1,
+      "In": [
+        {
+          "Description": "急停"
+        },
+        {
+          "Description": "使能"
+        },
+        {
+          "Description": "模式切换(手动/自动)"
+        },
+        {
+          "Description": "启动确认信号"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "ITP100使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ],
+      "Out": [
+        {
+          "Description": "软STO"
+        },
+        {
+          "Description": "机器人本体使能灯"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "EtherNet1连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet1帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "EtherNet2连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet2帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ]
+    },
+    {
+      "CabinetType": 2,
+      "In": [
+        {
+          "Description": "急停"
+        },
+        {
+          "Description": "使能"
+        },
+        {
+          "Description": "模式切换(手动/自动)"
+        },
+        {
+          "Description": "启动确认信号"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "ITP100使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ],
+      "Out": [
+        {
+          "Description": "软STO"
+        },
+        {
+          "Description": "机器人本体使能灯"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "EtherNet1连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet1帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "EtherNet2连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet2帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ]
+    },
+    {
+      "CabinetType": 3,
+      "In": [
+        {
+          "Description": "急停"
+        },
+        {
+          "Description": "使能"
+        },
+        {
+          "Description": "模式切换(手动/自动)"
+        },
+        {
+          "Description": "启动确认信号"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "ITP100使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ],
+      "Out": [
+        {
+          "Description": "软STO"
+        },
+        {
+          "Description": "机器人本体使能灯"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "EtherNet1连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet1帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "EtherNet2连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet2帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ]
+    },
+    {
+      "CabinetType": 4,
+      "In": [
+        {
+          "Description": "急停"
+        },
+        {
+          "Description": "使能"
+        },
+        {
+          "Description": "模式切换(手动/自动)"
+        },
+        {
+          "Description": "启动确认信号"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "ITP100使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ],
+      "Out": [
+        {
+          "Description": "软STO"
+        },
+        {
+          "Description": "机器人本体使能灯"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "EtherNet1连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet1帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "EtherNet2连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet2帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ]
+    },
+    {
+      "CabinetType": 5,
+      "In": [
+        {
+          "Description": "急停"
+        },
+        {
+          "Description": "使能"
+        },
+        {
+          "Description": "模式切换(手动/自动)"
+        },
+        {
+          "Description": "启动确认信号"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "ITP100使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ],
+      "Out": [
+        {
+          "Description": "软STO"
+        },
+        {
+          "Description": "机器人本体使能灯"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "EtherNet1连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet1帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "EtherNet2连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet2帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ]
+    },
+    {
+      "CabinetType": 6,
+      "In": [
+        {
+          "Description": "急停"
+        },
+        {
+          "Description": "使能"
+        },
+        {
+          "Description": "模式切换(手动/自动)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "ITP100使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ],
+      "Out": [
+        {
+          "Description": "系统运行指示"
+        },
+        {
+          "Description": "系统报警指示灯"
+        },
+        {
+          "Description": "系统使能指示"
+        },
+        {
+          "Description": "EtherNet1连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet1帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "EtherNet2连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet2帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "机器人本体使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ]
+    },
+    {
+      "CabinetType": 7,
+      "In": [
+        {
+          "Description": "急停"
+        },
+        {
+          "Description": "使能"
+        },
+        {
+          "Description": "模式切换(手动/自动)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "ITP100使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ],
+      "Out": [
+        {
+          "Description": "系统运行指示"
+        },
+        {
+          "Description": "系统报警指示灯"
+        },
+        {
+          "Description": "系统使能指示"
+        },
+        {
+          "Description": "EtherNet1连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet1帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "EtherNet2连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet2帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "机器人本体使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ]
+    },
+    {
+      "CabinetType": 8,
+      "In": [
+        {
+          "Description": "急停"
+        },
+        {
+          "Description": "使能"
+        },
+        {
+          "Description": "模式切换(手动/自动)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "安全门"
+        },
+        {
+          "Description": "ITP100使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ],
+      "Out": [
+        {
+          "Description": "系统运行指示"
+        },
+        {
+          "Description": "系统报警指示灯"
+        },
+        {
+          "Description": "系统使能指示"
+        },
+        {
+          "Description": "EtherNet1连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet1帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "EtherNet2连接指示(亮:连接/灭:未连接)"
+        },
+        {
+          "Description": "EtherNet2帧(闪烁:有数据/常亮:连接但没有数据)"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "机器人本体使能"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        },
+        {
+          "Description": "-"
+        }
+      ]
+    }
+  ]
+}

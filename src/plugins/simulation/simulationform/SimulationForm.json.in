@@ -1,0 +1,10 @@
+{
+    \"Name\" : \"$$COBOT_TP_PLUGIN_NAME\",
+    \"Version\" : \"$$COBOT_TP_VERSION\",
+    \"CompatVersion\" : \"$$COBOT_TP_COMPAT_VERSION\",
+    \"Copyright\" : \"(C) 2023-2025 Shenzhen Inovance Technology Co., Ltd\",
+    \"Category\" : \"simulation\",
+    \"Description\" : \"SimulationForm plugin\",
+    \"Url\" : \"https://www.inovance.com/\",
+    $$dependencyList
+}

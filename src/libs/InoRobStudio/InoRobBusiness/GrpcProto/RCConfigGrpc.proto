@@ -1,0 +1,59 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 读取急停触发方式响应
+message readEmgTrigMethod_Response
+{
+    int32 ret = 1;      // 0表示成功，其它表示失败
+    uint32 iMethod = 2; // 0-手持示教器触发 1-PC软急停触发
+}
+
+// 保存急停停机方式请求
+// nMode,nSecondMode: 
+// 0,0 - 0类停机
+// 1,0 - 1类停机（关节）
+// 1,1 - 1类停机（原轨迹）
+message saveEmgStopMode_Request
+{
+    uint32 nMode = 1; 
+    uint32 nSecondMode = 2; // 0-手持示教器触发 1-PC软急停触发
+}
+
+// 控制器配置
+service RCConfigGrpc {
+    // 读取急停触发方式
+    rpc readEmgTrigMethod(google.protobuf.Empty) returns (readEmgTrigMethod_Response) {}
+
+    // 保存急停触发方式
+    // 参数：0-手持示教器触发 1-PC软急停触发
+    // 返回：0表示成功，其它表示失败
+    rpc saveEmgTrigMethod(google.protobuf.UInt32Value) returns (google.protobuf.Int32Value) {}
+
+    // 保存急停触发方式权限检查
+    // 返回：true通过，false未通过
+    rpc checkPermissionBeforeSaveEmgTrigMethod(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+
+    // 设置控制器为服务器或客户端，0-作为客户端，1-作为服务器, 2-作为客户端和服务器
+    // 返回：0表示成功，其它表示失败
+    rpc setControllerAsClientOrServe(google.protobuf.UInt32Value) returns (google.protobuf.Int32Value) {}
+
+    // 检查控制器USB是否挂载
+    rpc checkControllerUSBIsConnected(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+
+    // 检查配置文件备份与加载权限
+    rpc checkProfileBackupAndLoadPermission(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+
+    // nMark: 1-save, 0-No parameter need save //ARM收到1之后进行保存，完成保存置0, 错误置-1
+    // 系统备份加载：nMark=2为进行中、nMakr=1到10为系统繁忙
+    // 系统备份加载返回成功的标志集合{ 61, 71, 81, 91 }
+    rpc readFileSaveFlag(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+
+    // 参数配置文件保存标示
+    // 参数： 6-备份配置文件、7-加载配置文件、8-备份程序、9-加载程序
+    rpc writeFileSaveFlag(google.protobuf.Int32Value) returns (google.protobuf.Int32Value) {}
+
+    // 保存急停停机方式
+    rpc saveEmgStopMode(saveEmgStopMode_Request) returns (google.protobuf.Int32Value) {}
+}

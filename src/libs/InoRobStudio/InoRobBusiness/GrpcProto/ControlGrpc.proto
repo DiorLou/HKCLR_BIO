@@ -1,0 +1,168 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "MonitorGrpc.proto";
+import "MotionGrpc.proto";
+package InoRobBusinessGrpc;
+
+// 设备模式
+enum DeviceMode_Grpc
+{
+    DEV_MODE_UNKNOW_Grpc = 0;        // 未知
+    DEV_MODE_MANUAL_LOW_Grpc = 1;    // 手动低速模式
+    DEV_MODE_MANUAL_HIGH_Grpc = 2;   // 手动高速模式
+    DEV_MODE_AUTO_Grpc = 3;          // 自动模式
+}
+
+// 协调状态
+enum CoordinationStateEnum_Grpc
+{
+    COORDINATION_SWITCH_DONE_Grpc = 0;  // 协调切换完成
+    COORDINATION_ON_Grpc = 1;           // 协调开启中
+    COORDINATION_OFF_Grpc = 2;          // 协调关闭中
+}
+
+// 系统更新信息（控制器升降级进度信息）
+message SystemUpdateInfo_Grpc
+{
+    int32 status = 1;    // 下位机通信：0正在升降级；1升降级成功；其它表示失败见文档
+    int32 progress = 2;  // 进度信息 0~100 %
+    bytes msg = 3;       // 描述信息（长度80）
+}
+
+// wifi信息
+message ControllerWifiInfo_Grpc
+{
+    bytes wifiName = 1;       // wifi名称（长度32）
+    bytes wifiIp = 2;         // wifi IP（长度16）
+    int32 wifiLinkStatus = 3; // wifi信息 0 - 5G 1 - 2.4G
+}
+
+// 获取wifi信息应答
+message ControllerWifiInfo_Response
+{
+    int32 ret = 1;          // 返回值
+    ControllerWifiInfo_Grpc wifiInfo = 2; // wifi信息
+}
+
+// 清除报警请求
+message ClearWarning_Request
+{
+    PressState_Grpc pressState = 1;
+}
+// 运行模式请求
+//message SetRunMode_Request
+//{
+//    RunMode_Grpc runMode = 1;
+//}
+// 设置设备（机器人）模式请求
+message SetDeviceMode_Request
+{
+    DeviceMode_Grpc deviceMode = 1;
+}
+// 设置设备（机器人）模式请求
+message GetDeviceMode_Response
+{
+    int32 retCode = 1;
+    DeviceMode_Grpc deviceMode = 2;
+}
+// 获取系统升降级的过程信息
+message readSystemUpdateInfo_Response
+{
+    int32 retCode = 1;
+    SystemUpdateInfo_Grpc systemUpdateInfo = 2;
+}
+
+// 操控
+service ControlGrpc {
+
+    // 使能
+	// 请求参数 true：上使能，false：下使能
+	// 返回：0表示成功，其它表示失败
+    rpc SetEnable(google.protobuf.BoolValue) returns (google.protobuf.Int32Value) {}
+    // 急停
+	// 请求参数 true：急停，false：去急停
+	// 返回：0表示成功，其它表示失败
+    rpc SetEmergency(google.protobuf.BoolValue) returns (google.protobuf.Int32Value) {}
+
+    // 清除报警
+	// 返回：0表示成功，其它表示失败
+    rpc ClearWarning(ClearWarning_Request) returns (google.protobuf.Int32Value) {}
+    // 运行模式（接口存在歧义）
+    //rpc SetRunMode(SetRunMode_Request) returns (google.protobuf.BoolValue) {}
+
+    // 设置设备（机器人）模式
+	// 返回：0表示成功，其它表示失败
+    rpc SetDeviceMode(SetDeviceMode_Request) returns (google.protobuf.Int32Value) {}
+    // 获取设备（机器人）模式
+    rpc GetDeviceMode(google.protobuf.Empty) returns (GetDeviceMode_Response) {}
+
+    // 开启限速
+    // 成功返回0，其他请见错误码
+    rpc activateSpeedLimit(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    // 关闭限速
+    // 成功返回0，其他请见错误码
+    rpc turnoffSpeedLimit(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    // 是否已经开启限速
+    rpc isActivatedSpeedLimit(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 机械锁定
+    rpc SetMechLock(google.protobuf.BoolValue) returns (google.protobuf.BoolValue) {}
+    // 动态制动（true：开启，false：关闭）
+    rpc SetDynamicBrake(google.protobuf.BoolValue) returns (google.protobuf.BoolValue) {}
+    // 机器人协调机械单元
+    // name：机械单元名称（为空表示关闭机器人协调）
+    rpc SetCooperate(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
+    /**
+     * @brief 设置协调状态
+     * @param coordSts 协调状态
+     */
+    rpc setCoordinationState(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
+    /**
+     * @brief 获取协调状态
+     * @return 协调状态
+     */
+    rpc getCoordinationState(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    /*!
+     * \brief 设置协调
+     * \param status 状态
+     * \return true成功 false失败
+     */
+    rpc setCooperate(google.protobuf.BoolValue) returns (google.protobuf.BoolValue) {}
+    /**
+     * @brief 系统升级（控制器升级）
+     * @param isUpdateBsp 是否更新bsp底层系统镜像，25版本及以后才能设置不更新
+     * @return 成功返回0，其他请见错误码
+     */
+    rpc systemUpgrade(google.protobuf.BoolValue) returns (google.protobuf.Int32Value) {}
+    /**
+     * @brief 将系统（控制器）降级为一个固定版本
+     * @return 成功返回0，其他请见错误码
+     */
+    rpc systemDegrade(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    /**
+     * @brief 状态检查，是否可以进行系统升降级
+     */
+    rpc isSystemCanUpdate(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    /**
+     * @brief 获取系统升降级的过程信息
+     * @param info 过程信息
+     * @return 成功返回0，其他请见错误码
+     */
+    rpc readSystemUpdateInfo(google.protobuf.Empty) returns (readSystemUpdateInfo_Response) {}
+	
+	/**
+     * @brief 设置本体上下电(协作)
+     */
+    rpc SetCoRobotBodyPowerState(SetCoRobotBodyPowerState_Request) returns (google.protobuf.Int32Value) {}
+
+    /**
+     * @brief 设置WIFI频段(协作)
+     * @param true - 2.4G  false - 5G
+     */
+    rpc SetControllerWifiFrequencyBand(google.protobuf.BoolValue) returns (google.protobuf.Int32Value) {}
+
+    /**
+     * @brief 获取Wifi信息
+     */
+    rpc GetControllerWifiInfo(google.protobuf.Empty) returns (ControllerWifiInfo_Response) {}
+}

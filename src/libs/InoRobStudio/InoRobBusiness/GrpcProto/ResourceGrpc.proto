@@ -1,0 +1,63 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 读取所有全局变量String响应
+message ResourceGrpc_readGlobalVarStringValues_Response
+{
+   repeated string stringValue = 1;
+}
+
+// 写入全局变量String请求
+message ResourceGrpc_writeGlobalVarStringValue_Request
+{
+    uint32 index = 1;    // 变量序号
+    string value = 2;    // 变量值
+}
+
+// 读取IO监控-Output状态请求
+message ResourceGrpc_readOutputStatusByByte_Reuest
+{
+   uint32 startIndex = 1;   // 以byte为单位的Output序号起始位置
+   uint32 byteNum = 2;      // 要读取的byte数量
+}
+
+// 读取IO监控-Output状态响应
+message ResourceGrpc_readOutputStatusByByte_Response
+{
+   repeated uint32 value = 1;
+}
+
+// 读取所有全局B变量值
+message ReadGlobalVarBValues_Response
+{
+   int32 ret = 1;
+   repeated int32 value = 2;
+}
+
+// 写入全局B变量值请求
+message WriteGlobalVarBValue_Request
+{
+    uint32 index = 1;    // 变量序号
+    int32 value = 2;     // 变量值
+}
+
+// 资源
+service ResourceGrpc {
+    // 读取所有全局变量String
+    rpc readGlobalVarStringValues(google.protobuf.Empty) returns (ResourceGrpc_readGlobalVarStringValues_Response) {}
+
+    // 写入全局变量String的值
+    rpc writeGlobalVarStringValue(ResourceGrpc_writeGlobalVarStringValue_Request) returns (google.protobuf.Int32Value) {}
+
+    // 读取IO状态-Output
+    // 返回：指定读取范围的byte数组
+    rpc readOutputStatusByByte(ResourceGrpc_readOutputStatusByByte_Reuest) returns (ResourceGrpc_readOutputStatusByByte_Response) {}
+
+    // 读取所有全局B变量值
+    rpc readGlobalVarBValues(google.protobuf.Empty) returns (ReadGlobalVarBValues_Response) {}
+
+    // 写入一个全局B变量值
+    rpc writeGlobalVarBValue(WriteGlobalVarBValue_Request) returns (google.protobuf.Int32Value) {}
+}

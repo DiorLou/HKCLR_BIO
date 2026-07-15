@@ -1,0 +1,30 @@
+<svg width="58.525391" height="23.945312" viewBox="0 0 58.5254 23.9453" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<desc>
+			Created with Pixso.
+	</desc>
+	<defs>
+		<filter id="filter_3744_51611_dd" x="4.269531" y="0.077148" width="50.056641" height="22.193359" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+			<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+			<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+			<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+			<feOffset dx="0" dy="0.495947"/>
+			<feGaussianBlur stdDeviation="0"/>
+			<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+			<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/>
+			<feBlend mode="normal" in2="shape" result="effect_innerShadow_1"/>
+		</filter>
+		<linearGradient x1="58.524998" y1="4.120712" x2="7.762604" y2="19.095978" id="paint_linear_3744_51610_0" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#0C3682"/>
+			<stop offset="1.000000" stop-color="#2B6DDC"/>
+		</linearGradient>
+		<linearGradient x1="35.430595" y1="16.118273" x2="18.320425" y2="0.000006" id="paint_linear_3744_51611_0" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#2165E4"/>
+			<stop offset="0.997218" stop-color="#A9DDFF"/>
+		</linearGradient>
+	</defs>
+	<path id="矢量 14" d="M29.91 1.82L5.12 11.5C4.1 11.9 4.39 13.42 5.48 13.42L13.03 13.42C13.67 13.42 14.14 14 14 14.62L12.23 22.74C12.1 23.36 12.57 23.94 13.2 23.94L44.18 23.94C44.78 23.94 45.24 23.41 45.16 22.82L44.09 14.54C44.01 13.95 44.47 13.42 45.07 13.42L53.55 13.42C54.64 13.42 54.94 11.93 53.93 11.51L30.65 1.82C30.41 1.72 30.15 1.72 29.91 1.82Z" fill="url(#paint_linear_3744_51610_0)" fill-opacity="1.000000" fill-rule="evenodd"/>
+	<g filter="url(#filter_3744_51611_dd)">
+		<path id="矢量 10" d="M29.68 0.14L4.9 9.83C3.87 10.23 4.16 11.75 5.26 11.75L12.81 11.75C13.44 11.75 13.91 12.33 13.78 12.95L12.01 21.06C11.87 21.68 12.34 22.27 12.98 22.27L43.95 22.27C44.55 22.27 45.01 21.74 44.94 21.15L43.86 12.87C43.79 12.27 44.25 11.75 44.85 11.75L53.33 11.75C54.41 11.75 54.71 10.25 53.71 9.84L30.42 0.15C30.19 0.05 29.92 0.05 29.68 0.14Z" fill="url(#paint_linear_3744_51611_0)" fill-opacity="1.000000" fill-rule="evenodd"/>
+	</g>
+	<path id="X-" d="M25.81 17.81L24.1 17.81L27.05 12.49L24.28 7.5L26.08 7.5L27.33 9.91C27.58 10.39 27.8 10.85 28.11 11.47L28.18 11.47C28.45 10.85 28.64 10.39 28.88 9.91L30.1 7.5L31.81 7.5L29.03 12.57L32 17.81L30.2 17.81L28.84 15.24C28.57 14.73 28.31 14.19 27.99 13.56L27.93 13.56C27.64 14.19 27.38 14.73 27.13 15.24L25.81 17.81ZM36.09 14.45L32.4 14.45L32.4 13.26L36.09 13.26L36.09 14.45Z" fill="#FFFFFF" fill-opacity="1.000000" fill-rule="evenodd"/>
+</svg>

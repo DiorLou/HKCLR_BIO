@@ -1,0 +1,33 @@
+<svg width="39.781250" height="39.780273" viewBox="0 0 39.7812 39.7803" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<desc>
+			Created with Pixso.
+	</desc>
+	<defs>
+		<filter id="filter_4367_64340_dd" x="0.000000" y="0.000000" width="39.781250" height="39.780273" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+			<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+			<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+			<feOffset dx="0" dy="0.951429"/>
+			<feGaussianBlur stdDeviation="1.05857"/>
+			<feComposite in2="hardAlpha" operator="out" k2="-1" k3="1"/>
+			<feColorMatrix type="matrix" values="0 0 0 0 0.17647 0 0 0 0 0.18039 0 0 0 0 0.18039 0 0 0 0.6 0"/>
+			<feBlend mode="normal" in2="BackgroundImageFix" result="effect_dropShadow_1"/>
+			<feBlend mode="normal" in="SourceGraphic" in2="effect_dropShadow_1" result="shape"/>
+		</filter>
+		<linearGradient x1="12.817522" y1="6.211161" x2="26.488953" y2="32.611160" id="paint_linear_4367_64339_0" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#89FECE"/>
+			<stop offset="0.526718" stop-color="#50D49D"/>
+			<stop offset="1.000000" stop-color="#0F8655"/>
+		</linearGradient>
+		<linearGradient x1="8.890629" y1="3.939457" x2="32.390625" y2="36.939453" id="paint_linear_4367_64341_0" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#FFFFFF"/>
+			<stop offset="0.533202" stop-color="#789AD6"/>
+			<stop offset="1.000000" stop-color="#4E668E"/>
+		</linearGradient>
+	</defs>
+	<circle id="Ellipse 1171" cx="19.890625" cy="18.939453" r="14.142858" fill="url(#paint_linear_4367_64339_0)" fill-opacity="1.000000"/>
+	<g filter="url(#filter_4367_64340_dd)">
+		<circle id="Ellipse 1171" cx="19.890625" cy="18.938477" r="15.428573" stroke="#124AAC" stroke-opacity="1.000000" stroke-width="2.571429"/>
+	</g>
+	<circle id="Ellipse 1171" cx="19.890625" cy="18.939453" r="16.714285" stroke="url(#paint_linear_4367_64341_0)" stroke-opacity="1.000000" stroke-width="2.571429"/>
+	<path id="OFF" d="M16.87 19.22C16.87 21.59 15.54 23.06 13.66 23.06C11.77 23.06 10.45 21.59 10.45 19.22C10.45 16.86 11.77 15.43 13.66 15.43C15.54 15.43 16.87 16.86 16.87 19.22ZM19.55 22.93L18.39 22.93L18.39 15.57L22.76 15.57L22.76 16.55L19.55 16.55L19.55 18.79L22.28 18.79L22.28 19.77L19.55 19.77L19.55 22.93ZM25.21 22.93L24.05 22.93L24.05 15.57L28.42 15.57L28.42 16.55L25.21 16.55L25.21 18.79L27.94 18.79L27.94 19.77L25.21 19.77L25.21 22.93ZM11.65 19.22C11.65 20.95 12.43 22.06 13.66 22.06C14.88 22.06 15.68 20.95 15.68 19.22C15.68 17.5 14.88 16.45 13.66 16.45C12.43 16.45 11.65 17.5 11.65 19.22Z" fill="#FFFFFF" fill-opacity="1.000000" fill-rule="evenodd"/>
+</svg>

@@ -1,0 +1,61 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 工作站类型
+enum WorkstationType_Grpc
+{
+    Unknow_Grpc = 0;  // 未知
+    TP_Grpc = 1;      // 示教器
+    PC_Grpc = 2;      // PC编程平台
+    TP2_Grpc = 3;     // 示教器2.0
+}
+
+// 打印信息类型
+enum InfoType_Grpc
+{
+    MESSAGE_INFO_Grpc = 0;   // 消息
+    WARNING_INFO_Grpc = 1;   // 警告
+    ERROR_INFO_Grpc = 2;     // 错误
+    InfoType_Grpc_All = -1;  // 全部
+}
+
+// 打印信息项
+message PrintInfoItem_Grpc
+{
+    InfoType_Grpc type = 1; // 类型
+    string dt = 2;          // 时间（H:m:s）
+    bytes cont = 3;         // 内容
+}
+// 获取打印信息请求
+message GetPrintInfo_Request
+{
+    InfoType_Grpc type = 1; // 请求的类型
+    uint32 num = 2;         // 获取数量，0表示全部
+}
+// 获取打印信息请求响应
+message GetPrintInfo_Response
+{
+    repeated PrintInfoItem_Grpc printInfoList = 1; // 打印信息列表
+}
+
+// 当前工作站类型响应
+message GetWorkstationType_Response
+{
+    WorkstationType_Grpc workstationType = 1;
+}
+
+// 工作站：工作站即上位机，一台PC，一台手持示教器，均视为一个工作站；
+service WorkstationGrpc {
+  // 工作站ID（唯一标识）
+  rpc GetID (google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+  // 工作站名称
+  rpc GetName(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+  // 当前工作站类型
+  rpc GetWorkstationType (google.protobuf.Empty) returns (GetWorkstationType_Response) {}
+  // 程序运行根目录（以反斜杠结尾如 c:\\test\\）
+  rpc GetAppRootPath(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+  // 获取打印信息
+  rpc GetPrintInfo(GetPrintInfo_Request) returns (GetPrintInfo_Response) {}
+}

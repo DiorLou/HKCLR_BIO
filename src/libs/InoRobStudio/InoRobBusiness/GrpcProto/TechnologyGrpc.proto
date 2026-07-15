@@ -1,0 +1,121 @@
+syntax = "proto3";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 视觉标定-配置视觉标定请求
+message writeVisionCalibFile_Request
+{
+    string filePath = 1;    // 配置文件路径
+    int32 visionIndex = 2;  // 配置更新的编号
+}
+
+// 视觉标定-标定结果
+message CalibResult_Grpc
+{
+    double averageErrorX = 1;  // x方向平均误差
+    double averageErrorY = 2;  // y方向平均误差
+    double maxErrorX = 3;      // x方向最大误差
+    double maxErrorY = 4;      // y方向最大误差
+    double pixelX = 5;         // x方向像素当量
+    double pixelY = 6;         // y方向像素当量
+    double offsetX = 7;        // 标定工具x方向偏移
+    double offsetY = 8;        // 标定工具y方向偏移
+}
+
+// 视觉标定-标定矩阵
+message MatrixList_Grpc
+{
+    repeated double matrix = 1;
+}
+
+// 视觉标定-计算标定结果请求
+message calCalibResult_Request
+{
+    string filePath = 1;        // 配置文件路径
+    int32 visionIndex = 2;      // 计算标定的编号
+}
+
+// 视觉标定-计算标定结果响应
+message calCalibResult_Response
+{
+    int32 ret = 1;      // 0表示成功，其它表示失败
+    MatrixList_Grpc matrixList = 2;     // 标定矩阵
+    CalibResult_Grpc calibResult = 3;   // 标定结果
+}
+
+// 跟随工艺-写入跟随工艺配置文件到控制器请求
+message writeFollowConfigFile_Request
+{
+    string filePath = 1;        // 配置文件路径
+    int32 beltIndex = 2;        // 配置更新的编号
+}
+
+// 跟随工艺-编码器取点类
+message EncoderPoint_Grpc
+{
+    double robotX = 1;
+    double robotY = 2;
+    double robotZ = 3;
+    int32 encoderPos = 4;
+}
+
+// 跟随工艺-标定输入点
+message FollowCaliPoint_Grpc
+{
+    double robotX = 1;
+    double robotY = 2;
+}
+
+// 跟随工艺-编码器分辨率计算请求
+message CalEncoderRatio_Request
+{
+    int32 beltType = 1;             // 传送带类型: 0-直线型、1-圆盘型
+    EncoderPoint_Grpc point1 = 2;   // 第一点
+    EncoderPoint_Grpc point2 = 3;   // 第二点
+}
+
+// 跟随工艺-编码器分辨率计算响应
+message CalEncoderRatio_Response
+{
+    int32 ret = 1;
+    double encoderRatio = 2;        // 编码器分辨率
+}
+
+// 跟随工艺-标定计算请求
+message FollowCalibResult_Request
+{
+    int32 beltType = 1;             // 传送带类型: 0-直线型、1-圆盘型
+    double encoderRatio = 2;        // 编码器分辨率
+    int64 beltCntPose = 3;          // 传送带当前位置
+    int64 beltPosForVision = 4;     // 相机取点时传送带的位置
+    int32 wobjCoorId = 5;           // 关联工件坐标系的Id
+    bool isOffset = 6;              // 是否偏移
+    repeated FollowCaliPoint_Grpc robotPoints = 7;  // 示教点
+    repeated FollowCaliPoint_Grpc visionPoints = 8; // 视觉点
+}
+
+// 跟随工艺-标定计算响应
+message FollowCalibResult_Response
+{
+    int32 ret = 1;
+    repeated double caliMatrix = 2; // 标定矩阵
+    repeated double caliError = 3;  // 标定误差
+}
+
+// 控制器配置
+service TechnologyGrpc {
+    // 视觉标定-配置视觉标定到控制器
+    rpc writeVisionCalibFile(writeVisionCalibFile_Request) returns (google.protobuf.Int32Value) {}
+
+    // 视觉标定-计算标定结果
+    rpc calCalibResult(calCalibResult_Request) returns (calCalibResult_Response) {}
+
+    // 跟随工艺-写入跟随工艺配置文件到控制器
+    rpc writeFollowConfigFile(writeFollowConfigFile_Request) returns (google.protobuf.Int32Value) {}
+
+    // 跟随工艺-编码器分辨率计算
+    rpc calEncoderRatio(CalEncoderRatio_Request) returns (CalEncoderRatio_Response) {}
+
+    // 跟随工艺-计算标定结果
+    rpc followCalibResult(FollowCalibResult_Request) returns (FollowCalibResult_Response) {}
+}

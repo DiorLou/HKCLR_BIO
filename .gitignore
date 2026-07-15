@@ -1,0 +1,55 @@
+# CMake build directories and generated files
+/build/
+/cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+*.ninja
+.ninja_deps
+.ninja_log
+compile_commands.json
+
+# Qt Creator user-specific settings and code-model caches
+/.qtcreator/
+*.user
+*.user.*
+.qtc_clangd/
+
+# C/C++ and Qt generated files
+*.o
+*.obj
+*.moc
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+*_autogen/
+
+# Runtime/debug output
+*.log
+*.dmp
+*.stackdump
+
+# Temporary and backup files
+*.tmp
+*.temp
+*.bak
+*.orig
+*~
+
+# Windows metadata
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDE/editor settings
+/.vs/
+/.vscode/
+*.suo
+*.sdf
+*.VC.db
+
+# Private signing keys
+*.keystore
+*.jks

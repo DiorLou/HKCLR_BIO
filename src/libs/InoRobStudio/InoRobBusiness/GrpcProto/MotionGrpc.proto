@@ -1,0 +1,202 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "GlobalDataTypesGrpc.proto";
+import "MonitorGrpc.proto";
+package InoRobBusinessGrpc;
+
+// 运动状态
+enum MotionStatus_Grpc
+{
+    MOTION_FINISHED_Grpc = 0;        // 运动完成
+    MOTIONING_Grpc = 1;              // 正在运动
+    IMPUTATION_FINISHED_Grpc = 2;    // 插补完成（不在运动中）
+}
+
+// 运动到点的状态
+enum MoveStatus_Grpc
+{
+    MoveStatus_Grpc_UnuseDefault = 0;
+    DIRMOVSTS_POSERR_Grpc = -2;         // 直接运动点位解析失败
+    DIRMOVSTS_SYSERR_Grpc = -1;         // 直接运动状态异常（系统有报错）
+    DIRMOVSTS_MOVING_Grpc = 1;          // 直接运动中
+    DIRMOVSTS_FINISH_Grpc = 2;          // 直接运动完成
+    DIRMOVSTS_BREAK_Grpc = 3;           // 直接运动中断
+    DIRMOVSTS_MAX_DIRMOV_STS_Grpc = 4;  // 控制器最大枚举值标识
+    DIRMOVSTS_TIMEOUT_Grpc = 5;         // 超时（非控制器返回）
+}
+
+// 运动到点类型
+enum MotionType_Grpc
+{
+    MotionType_Grpc_UnuseDefault = 0;
+    MOTION_TYPE_POSITION_Grpc = 1;  // 位置运动到点
+    MOTION_TYPE_JOINT_Grpc = 2;     // 关节运动到点
+    MOTION_TYPE_ZERO_Grpc = 3;      // 回零
+    MOTION_TYPE_ALIGN_Grpc = 4;     // 对准
+    MOTION_TYPE_VISION_Grpc = 5;    // 视觉标定（关节）
+}
+
+// 旋转方向
+enum RotateDir_Grpc
+{
+    POSITIVE_Grpc = 0;
+    REVERSE_Grpc = 1;
+}
+
+// 按下状态
+enum PressState_Grpc
+{
+    BTN_UP_Grpc = 0;
+    BTN_DOWN_Grpc = 1;
+}
+
+// 寸动步长参数
+message MoveStepSizePara_Grpc
+{
+    double JointSize = 1;     // 关节步长(°)
+    double PositionSize = 2;  // 位置步长(mm)
+    double PoseSize = 3;      // 姿态步长(°)
+}
+
+// 获取当前运动到点的状态（实时获取）响应
+message GetMoveToPointStatus_Response
+{
+    MoveStatus_Grpc moveStatus = 1;
+}
+// 设置寸动等级请求
+message SetMoveStepGrade_Request
+{
+    MoveStepGrade_Grpc moveStepGrade = 1;
+}
+// 设置当前寸动步长参数请求
+message SetMoveStepSizePara_Request
+{
+    MoveStepSizePara_Grpc moveStepSizePara = 1;
+}
+// 获取当前寸动步长参数响应
+message GetMoveStepSizePara_Response
+{
+    bool ret = 1;
+    MoveStepSizePara_Grpc moveStepSizePara = 2;
+}
+// 轴运动（开始/停止）请求
+message AxisMove_Request
+{
+    uint32 axisId = 1;
+    RotateDir_Grpc rotateDir = 2;
+    PressState_Grpc pressState = 3;
+}
+// 开始对准请求
+message MotionGrpc_AlignStart_Request
+{
+    CoordType_Grpc alignType = 1;
+}
+
+// 开始Movj运动到点请求
+message MovjToPointStart_Request
+{
+    RobPos_Grpc robPos = 1; // 目标点位置
+    int32 toolId = 2;       // 工具号
+    int32 referObj = 3;     // 参考对象（-2：Base，-1：flange，0至15：工件号）
+}
+
+// 开始Movjl运动到点请求
+message MovlToPointStart_Request
+{
+    RobPos_Grpc robPos = 1; // 目标点位置
+    int32 toolId = 2;       // 工具号
+    int32 referObj = 3;     // 参考对象（-2：Base，-1：flange，0至15：工件号）
+}
+
+// 开始Jump运动到点请求
+message JumpToPointStart_Request
+{
+    RobPos_Grpc robPos = 1; // 目标点位置
+    int32 toolId = 2;       // 工具号
+    int32 referObj = 3;     // 参考对象（-2：Base，-1：flange，0至15：工件号）
+    double lh = 4;          // lh运动参数
+    double mh = 5;          // mh运动参数
+    double rh = 6;          // rh运动参数
+}
+
+// 开始Jumpl运动到点请求
+message JumplToPointStart_Request
+{
+    RobPos_Grpc robPos = 1; // 目标点位置
+    int32 toolId = 2;       // 工具号
+    int32 referObj = 3;     // 参考对象（-2：Base，-1：flange，0至15：工件号）
+    double lh = 4;          // lh运动参数
+    double mh = 5;          // mh运动参数
+    double rh = 6;          // rh运动参数
+}
+
+// 运动
+service MotionGrpc {
+    /**
+     * @brief 设置全局速度
+     * @param speed 输入，速度（百分比1-100）
+     * @return 成功true，失败false
+     */
+    rpc SetSpeed(google.protobuf.UInt32Value) returns (google.protobuf.BoolValue) {}
+    // 获取当前运动到点的状态（实时获取）
+    rpc GetMoveToPointStatus(google.protobuf.Empty) returns (GetMoveToPointStatus_Response) {}
+
+    // 设置寸动等级
+    rpc SetMoveStepGrade(SetMoveStepGrade_Request) returns (google.protobuf.BoolValue) {}
+    // 设置当前寸动步长参数
+    rpc SetMoveStepSizePara(SetMoveStepSizePara_Request) returns (google.protobuf.BoolValue) {}
+    // 获取当前寸动步长参数
+    rpc GetMoveStepSizePara(google.protobuf.Empty) returns (GetMoveStepSizePara_Response) {}
+
+    // 开始关节回零
+    rpc JointMoveToZeroStart(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 停止关节回零
+    rpc JointMoveToZeroStop(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 轴运动（开始/停止）
+    // axisId:轴编号
+    // turnDir:运动方向
+    // pressState:运动/停止）
+    rpc AxisMove(AxisMove_Request) returns (google.protobuf.BoolValue) {}
+
+    // 与控制器通信 读取奇异穿越状态（由于奇异穿越并不属于实时数据，所以在某些情景下状态并不准确）
+    // @return true开启 false关闭
+    rpc getSingAreaHandleStatus(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 与控制器通信 设置奇异穿越状态
+    // @param true开启 false关闭
+    // @return true成功 false失败
+    rpc setSingAreaHandleStatus(google.protobuf.BoolValue) returns (google.protobuf.BoolValue) {}
+    // 开始对准
+    rpc AlignStart(MotionGrpc_AlignStart_Request) returns (google.protobuf.BoolValue) {}
+    // 停止对准
+    rpc AlignStop(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    
+    // 开始Movj运动到点
+    // robPos 目标点位置
+    // toolId 工具号
+    // referObj 参考对象（-2：Base，-1：flange，0至15：工件号）
+    rpc movjToPointStart(MovjToPointStart_Request) returns (google.protobuf.BoolValue) {}
+
+    // 停止运动到点
+    rpc moveToPointStop(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+
+    // 开始Movl运动到点
+    // robPos 目标点位置
+    // toolId 工具号
+    // referObj 参考对象（-2：Base，-1：flange，0至15：工件号）
+    rpc movlToPointStart(MovlToPointStart_Request) returns (google.protobuf.BoolValue) {}
+
+    // 开始Jump运动到点
+    // robPos 目标点位置
+    // toolId 工具号
+    // referObj 参考对象（-2：Base，-1：flange，0至15：工件号）
+    // lh，mh，rh Jump运动参数数值
+    rpc jumpToPointStart(JumpToPointStart_Request) returns (google.protobuf.BoolValue) {}
+
+    // 开始Jumpl运动到点
+    // robPos 目标点位置
+    // toolId 工具号
+    // referObj 参考对象（-2：Base，-1：flange，0至15：工件号）
+    // lh，mh，rh Jump运动参数数值
+    rpc jumplToPointStart(JumplToPointStart_Request) returns (google.protobuf.BoolValue) {}
+}

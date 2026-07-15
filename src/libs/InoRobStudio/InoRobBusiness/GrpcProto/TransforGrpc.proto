@@ -1,0 +1,121 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 工程信息
+message Project_Info_Grpc
+{
+    uint32 iErrorNum = 1;       // 错误总个数
+    uint32 iProNum = 2;         // 程序文件数
+    bytes prjFileName = 3;      // 工程配置prj文件名称（长度32）
+}
+// 控制器是否需要执行译码
+enum ParseDemand_Grpc
+{
+    NOT_NEED_Grpc = 0;   // 不需要译码
+    NEED_Grpc = 1;       // 需要译码
+}
+// 译码类型
+enum SyncProjcetInfoType_Grpc
+{
+    SYNC_PROJECT_INFO_Grpc = 0;         // 工程配置文件信息(包括静态任务)
+    SYNC_PROGRAM_FILES_Grpc = 1;        // 程序文件
+    SYNC_GOBAL_POINT_Grpc = 2;          // 全局P点位
+    SYNC_GOBAL_JPOINT_Grpc = 3;         // 全局JP点位
+    SYNC_LABEL_INFO_Grpc = 4;           // 标签信息
+    SYNC_USER_DEFINE_WARNING_Grpc = 5;  // 用户自定义报警
+    SYNC_PLUGIN_Grpc = 6;               // 插件修改编译
+    SYNC_PROGRAM_COMPILE_Grpc = 15;     // 程序是否译码，0-不编译，1-非静态任务编译（示教器编程切调试/自动，全部保存），2-全部编译
+}
+// 译码状态
+enum ParseStatus_Grpc
+{
+    PARSE_BUSY_Grpc = 0;                // 解析中
+    PARSE_UNKNOW_Grpc = -99;            // 未知
+    PARSE_PROGRAM_UNFOUND_Grpc = -3;    // 部分工程文件未找到
+    PARSE_PRJ_UNMATCH_Grpc = -2;        // .prj文件名称与工程文件夹名称不匹配
+    PARSE_ERR_Grpc = -1;                // 解析出错
+    PARSE_FINISHI_Grpc = 1;             // 解析完成
+}
+// 译码结果
+message PraseInfo_Grpc
+{
+    uint32 iErrorNum = 1;  // 是否有语法报错
+    uint32 iLineNum = 2;   // 程序总行数
+}
+
+// 编译工程请求
+message parseProject_Request
+{
+    repeated string taskFilePaths = 1; // 输入，任务相关程序文件路径集合（最大长度16）
+}
+// 编译工程响应
+message parseProject_Response
+{
+    bool ret = 1;
+    Project_Info_Grpc pInfo = 2;    // 输出，编译结果信息
+}
+// 设置机器人信息请求
+message TransforGrpc_setRobotInformation_Request
+{
+    uint32 axisNum = 1;     // 轴数
+    string robotName = 2;   // 机器人名称
+}
+// 编译单个程序文件响应
+message TransforGrpc_parseProgram_Response
+{
+    bool ret = 1;                 // 是否成功
+    PraseInfo_Grpc praseInfo = 2; // 编译结果信息
+}
+// 编译临时程序文件（不属于任何任务的公共程序文件）请求
+message TransforGrpc_parseTempProgram_Request
+{
+    string programFilePath = 1; // 程序文件路径
+    repeated string proArr = 2; // 程序文件对应的程序文本集合
+}
+
+// 通知控制器译码请求
+message TransforGrpc_syncProjectInfo_Request
+{
+    string ctrlPath = 1;        // 当前激活的工程路径
+    repeated int32 flags = 2;   // 各类文件是否需要译码的状态以及整体的译码状态，对应枚举SyncProjcetInfoType_Grpc（数组最大长度16）
+}
+// 读取控制器的译码状态响应
+message TransforGrpc_readCtrlProjectParseFlag_Response
+{
+    int32 ret = 1;             // 成功返回0，其他请见错误码
+    ParseStatus_Grpc flag = 2; // 控制器译码状态
+}
+// 读取控制器是否需要执行译码响应
+message TransforGrpc_readCtrlProjectNeedTrans_Response
+{
+    int32 ret = 1;             // 成功返回0，其他请见错误码
+    ParseDemand_Grpc flag = 2; // 控制器是否需要译码的状态
+}
+
+// 译码
+service TransforGrpc {
+    // 编译工程
+    rpc parseProject(parseProject_Request) returns (parseProject_Response) {}
+    // 设置机器人信息
+    rpc setRobotInformation(TransforGrpc_setRobotInformation_Request) returns (google.protobuf.Empty) {}
+    // 编译单个程序文件
+    // 请求：程序文件路径
+    rpc parseProgram(google.protobuf.StringValue) returns (TransforGrpc_parseProgram_Response) {}
+    // 编译临时程序文件（不属于任何任务的公共程序文件）
+    rpc parseTempProgram(TransforGrpc_parseTempProgram_Request) returns (google.protobuf.BoolValue) {}
+
+    // 通知控制器译码
+    // 成功返回0，其他请见错误码
+    rpc syncProjectInfo(TransforGrpc_syncProjectInfo_Request) returns (google.protobuf.Int32Value) {}
+    // 任务变更后通知控制器译码（注：非业务模型层方法，单独为测试API添加）
+    rpc syncProjectInfoAfterChanged(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 读取控制器的译码状态
+    rpc readCtrlProjectParseFlag(google.protobuf.Empty) returns (TransforGrpc_readCtrlProjectParseFlag_Response) {}
+    // 等待控制器译码结束并获取译码结果
+    // true-成功，false-失败
+    rpc waitForCtrlParseResult(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 读取控制器是否需要执行译码
+    rpc readCtrlProjectNeedTrans(google.protobuf.Empty) returns (TransforGrpc_readCtrlProjectNeedTrans_Response) {}
+}

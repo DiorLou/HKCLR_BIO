@@ -1,0 +1,1 @@
+﻿#include "../GlobalDataService/XmlQueryer/IErroQueryer.h"

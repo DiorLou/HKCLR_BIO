@@ -1,0 +1,19 @@
+<svg width="28.000000" height="28.000000" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<desc>
+			Created with Pixso.
+	</desc>
+	<defs>
+		<clipPath id="clip2756_45353">
+			<rect id="icon/搜索" width="20.000000" height="20.000000" transform="translate(4.000000 4.000000)" fill="white" fill-opacity="0"/>
+		</clipPath>
+		<linearGradient x1="14.000000" y1="0.000000" x2="14.000000" y2="28.000000" id="paint_linear_2756_45352_0" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#91B9FF"/>
+			<stop offset="1.000000" stop-color="#295AB0"/>
+		</linearGradient>
+	</defs>
+	<rect id="矩形 22" rx="4.000000" width="28.000000" height="28.000000" fill="url(#paint_linear_2756_45352_0)" fill-opacity="1.000000"/>
+	<g clip-path="url(#clip2756_45353)">
+		<path id="Union" d="M17.39 18.81C16.22 19.69 14.77 20.2 13.2 20.2C9.34 20.2 6.2 17.07 6.2 13.2C6.2 9.34 9.34 6.2 13.2 6.2C17.07 6.2 20.2 9.34 20.2 13.2C20.2 14.78 19.68 16.23 18.8 17.4L21.49 20.08C21.88 20.47 21.89 21.1 21.5 21.49C21.11 21.88 20.47 21.89 20.08 21.5L17.39 18.81ZM18.2 13.2C18.2 15.96 15.96 18.2 13.2 18.2C10.44 18.2 8.2 15.96 8.2 13.2C8.2 10.44 10.44 8.2 13.2 8.2C15.96 8.2 18.2 10.44 18.2 13.2Z" fill="#FFFFFF" fill-opacity="1.000000" fill-rule="evenodd"/>
+		<path id="直线 11" d="M10.6 13.11L15.6 13.11" stroke="#FFFFFF" stroke-opacity="1.000000" stroke-width="2.000000" stroke-linecap="round"/>
+	</g>
+</svg>

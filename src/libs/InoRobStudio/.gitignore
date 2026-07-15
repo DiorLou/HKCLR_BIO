@@ -1,0 +1,8 @@
+/build
+/out
+/VS2019-Debug
+/VS2019-Release
+/untitled
+third_party/boost
+CMakeLists.txt.user*
+README.md

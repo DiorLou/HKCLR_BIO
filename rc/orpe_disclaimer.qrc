@@ -1,0 +1,11 @@
+﻿<RCC>
+    <qresource prefix="/disclaimer">
+        <file>disclaimer/disclaimer_zh_TW</file>
+                <file>disclaimer/disclaimer_zh_CN</file>
+                <file>disclaimer/disclaimer_fr_FR</file>
+                <file>disclaimer/disclaimer_en_GB</file>
+                <file>disclaimer/disclaimer_de_DE</file>
+                <file>disclaimer/disclaimer_cs_CZ</file>
+                <file>disclaimer/disclaimer_ja_JP</file>
+    </qresource>
+</RCC>

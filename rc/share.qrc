@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>share/sdk/config/robot_error_info.conf</file>
+        <file>share/teachpendant/version_update_log</file>
+        <file>share/teachpendant/log/config/android/tracelog.properties</file>
+        <file>share/teachpendant/log/config/windows/tracelog.properties</file>
+        <!-- resources removed -->
+        <file>share/teachpendant/settings/authority.xml</file>
+        <file>share/teachpendant/translations/cobottp_en.qm</file>
+        <file>share/teachpendant/translations/cobottp_zh_CN.qm</file>
+        <file>share/studio/static_config/ErroCodeInfo.xml</file>
+        <file>share/studio/static_config/ControllerConfig/SysIO.dat</file>
+        <file>share/studio/TeachPadVersion.ini</file>
+        <file>share/studio/Language/Language.json</file>
+        <file>share/studio/Language/readme.txt</file>
+        <file>share/studio/Language/EN/EN.lang</file>
+        <file>share/studio/Language/EN/EN.sign</file>
+        <file>share/studio/Language/ZH-CN/ZH-CN.lang</file>
+        <file>share/studio/Language/ZH-CN/ZH-CN.sign</file>
+        <file>share/studio/config/translation.ini</file>
+    </qresource>
+</RCC>

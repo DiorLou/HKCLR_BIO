@@ -1,0 +1,16 @@
+<svg width="19.000000" height="19.000000" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<desc>
+			Created with Pixso.
+	</desc>
+	<defs>
+		<clipPath id="clip3464_43988">
+			<rect id="画板 37429" width="19.000000" height="19.000000" fill="white" fill-opacity="0"/>
+		</clipPath>
+	</defs>
+	<rect id="画板 37429" width="19.000000" height="19.000000" fill="#FFFFFF" fill-opacity="0"/>
+	<g clip-path="url(#clip3464_43988)">
+		<rect id="矩形 3198" width="1.000000" height="8.000000" transform="translate(19.000000 10.000000) rotate(90.000000)" fill="#D4D8E2" fill-opacity="1.000000"/>
+		<rect id="矩形 3199" width="1.000000" height="12.000000" transform="translate(12.000000 57.000000) rotate(90.000000)" fill="#D4D8E2" fill-opacity="1.000000"/>
+		<rect id="矩形 3197" width="1.000000" height="19.000000" transform="translate(11.000000 0.000000)" fill="#D4D8E2" fill-opacity="1.000000"/>
+	</g>
+</svg>

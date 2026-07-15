@@ -1,0 +1,78 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 控制器连接状态
+enum ControllerConnectionStatus_Grpc
+{
+    CONTROLLER_CONNECTION_STATUS_CLOSED_Grpc = 0;      // 未连接
+    CONTROLLER_CONNECTION_STATUS_CONNECTING_Grpc = 1;  // 连接中
+    CONTROLLER_CONNECTION_STATUS_CONNECTED_Grpc = 2;   // 已连接（控制器启动成功）
+}
+
+// 连接类型
+enum ConnentType_Grpc
+{
+    CONNECT_DEFAULT_TYPE_Grpc = 0;  // 初始值
+    CONNECT_PC_TYPE_Grpc = 1;       // PC 编程平台
+    CONNECT_TP_TYPE_Grpc = 2;       // PC 示教器
+    CONNECT_HAND_TP_TYPE_Grpc = 3;  // 手持 示教器
+}
+
+//连接版本
+enum ConnectVersion_Grpc
+{
+	CONNECT_DEFAULT_VER_Grpc = 0X0000;   // 初始值 默认为TP1.0
+	CONNECT_TP_1_0_Grpc = 0X0100;        // TP 1.0
+	CONNECT_TP_2_0_Grpc = 0X0200;        // TP 2.0
+}
+
+// 控制器连接状态响应
+message GetConnectionStatus_Response
+{
+    ControllerConnectionStatus_Grpc controllerConnectionStatus = 1;
+}
+
+// 连接请求
+message GetConnectionStatus_Request
+{
+    string ip = 1;
+    uint32 port = 2;
+    ConnentType_Grpc connentType = 3;
+    ConnectVersion_Grpc connectVersion = 4;
+}
+
+// 连接
+service ConnectionGrpc {
+    // 获取控制器IP
+	// 返回：控制器IP
+    rpc GetIp(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+	// 设置控制器IP
+	// 请求参数：控制器IP
+    rpc SetIp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+    // 获取控制器端口
+	// 返回：控制器端口
+    rpc GetPort(google.protobuf.Empty) returns (google.protobuf.UInt32Value) {}
+	// 设置控制器端口
+	// 请求参数：控制器端口
+    rpc setPort(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
+    // 获取控制器连接状态
+    rpc GetConnectionStatus(google.protobuf.Empty) returns (GetConnectionStatus_Response) {}
+    // 连接
+    rpc Connect(GetConnectionStatus_Request) returns (google.protobuf.BoolValue) {}
+    // 关闭连接
+    // 请求参数: true-正常断开 false-状态复位,每次连接后立即复位
+    rpc Close(google.protobuf.BoolValue) returns (google.protobuf.BoolValue) {}
+    /*
+        连接状态变化信号
+        注1：该信号持久阻塞，建议在单独的线程中进行调用
+        注2：调用该信号需要在ClientContext中设置client_id，client_id应保证全局唯一，建议使用GUID，示例代码如下：
+        ClientContext context;
+	    context.AddMetadata("client_id", "全局唯一的GUID");
+    */
+    rpc connectionStatusChanged(google.protobuf.Empty) returns (stream GetConnectionStatus_Response) {}
+
+    // 跳过启动软件时的连接过程
+    rpc skipBootConnect(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+}

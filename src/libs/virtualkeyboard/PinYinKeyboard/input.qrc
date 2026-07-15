@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/">
+        <file>image/btn_close_black.png</file>
+        <file>image/btn_close_white.png</file>
+        <file>image/btn_delete_black.png</file>
+        <file>image/btn_delete_white.png</file>
+        <file>image/btn_down_black.png</file>
+        <file>image/btn_down_white.png</file>
+        <file>image/btn_lower_black.png</file>
+        <file>image/btn_lower_white.png</file>
+        <file>image/btn_up_black.png</file>
+        <file>image/btn_up_white.png</file>
+        <file>image/btn_upper_black.png</file>
+        <file>image/btn_upper_white.png</file>
+        <file>image/delete_black.png</file>
+        <file>image/delete_white.png</file>
+        <file>image/btn_enter_black.png</file>
+        <file>image/btn_enter_white.png</file>
+        <file>data/chinese_fanti.txt</file>
+        <file>data/chinese_user.txt</file>
+        <file>data/dict_pinyin.dat</file>
+        <file>data/dict_pinyin_user.dat</file>
+        <file>image/type_cn.svg</file>
+        <file>image/type_cn_pressed.svg</file>
+        <file>image/type_en.svg</file>
+        <file>image/type_en_pressed.svg</file>
+        <file>image/right.svg</file>
+        <file>image/left.svg</file>
+        <file>image/right_pressed.svg</file>
+        <file>image/left_pressed.svg</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,1 @@
+﻿#include "..\InoRobLog\Include\IInoRobLog.h"

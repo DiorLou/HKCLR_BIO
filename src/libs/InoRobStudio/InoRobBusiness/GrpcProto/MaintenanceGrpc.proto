@@ -1,0 +1,60 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "GlobalDataTypesGrpc.proto";
+package InoRobBusinessGrpc;
+
+// 启动诊断请求
+message MaintenanceGrpc_startDiagnose_Request
+{
+    bool sys = 1;   // 是否选中系统
+    bool logic = 2; // 是否选中逻辑
+    bool track = 3; // 是否选中轨迹
+}
+// 停止诊断请求
+message MaintenanceGrpc_stopDiagnose_Request
+{
+    bool sys = 1;   // 是否选中系统
+    bool logic = 2; // 是否选中逻辑
+    bool track = 3; // 是否选中轨迹
+}
+// 启动导出报告请求
+message MaintenanceGrpc_startExportReport_Request
+{
+    bool sys = 1;       // 是否选中系统
+    bool logic = 2;     // 是否选中逻辑
+    bool track = 3;     // 是否选中轨迹
+    int32 expType = 4;  // 导出类型 0-导出全部 1-导出最后一段轨迹数据
+}
+// 获取诊断的保存状态响应
+message MaintenanceGrpc_ReadErrSaveSta_Response
+{
+    int32 ret = 1;              // 结果，0表示成功
+    ErrsaveSta_Grpc sta = 2;    // 系统诊断的保存状态
+}
+// 获取诊断报告的导出状态响应
+message MaintenanceGrpc_ReadErrExportSta_Response
+{
+    int32 ret = 1;              // 结果，0表示成功
+    ErrexportSta_Grpc sta = 2;  // 系统诊断报告的导出状态
+}
+
+// 维保
+service MaintenanceGrpc {
+    // 检查控制器USB是否连接
+    // return 连接状态
+    rpc checkControllerUSB(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 启动诊断
+    // return 是否诊断成功（0表示成功）
+    rpc startDiagnose(MaintenanceGrpc_startDiagnose_Request) returns (google.protobuf.Int32Value) {}
+    // 停止诊断
+    // return 是否停止成功（0表示成功）
+    rpc stopDiagnose(MaintenanceGrpc_stopDiagnose_Request) returns (google.protobuf.Int32Value) {}
+    // 启动导出报告
+    // return 是否成功（0表示成功）
+    rpc startExportReport(MaintenanceGrpc_startExportReport_Request) returns (google.protobuf.Int32Value) {}
+    // 获取诊断的保存状态
+    rpc ReadErrSaveSta(google.protobuf.Empty) returns (MaintenanceGrpc_ReadErrSaveSta_Response) {}
+    // 获取诊断报告的导出状态
+    rpc ReadErrExportSta(google.protobuf.Empty) returns (MaintenanceGrpc_ReadErrExportSta_Response) {}
+}

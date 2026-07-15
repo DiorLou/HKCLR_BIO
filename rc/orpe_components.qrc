@@ -1,0 +1,39 @@
+﻿<RCC>
+    <qresource prefix="/components">
+        <file>image/components/treewidget/vline.png</file>
+                <file>image/components/treewidget/branch-open.svg</file>
+                <file>image/components/treewidget/branch-more.png</file>
+                <file>image/components/treewidget/branch-end.png</file>
+                <file>image/components/treewidget/branch-closed.svg</file>
+                <file>image/components/spinbox/up_arrow_disabled.png</file>
+                <file>image/components/spinbox/up_arrow.png</file>
+                <file>image/components/spinbox/down_arrow_disabled.png</file>
+                <file>image/components/spinbox/down_arrow.png</file>
+                <file>image/components/slider/slider_handle.png</file>
+                <file>image/components/switch/switch_left.png</file>
+                <file>image/components/switch/switch_right.png</file>
+                <file>image/components/switch/lock.png</file>
+                <file>image/components/switch/unlock.png</file>
+                <file>image/components/toolbox/collapse.svg</file>
+                <file>image/components/toolbox/expand.svg</file>
+                <file>image/components/radiobutton/radiobutton_unchecked.svg</file>
+                <file>image/components/radiobutton/radiobutton_checked.svg</file>
+                <file>image/components/checkbox/checkbox_checked.svg</file>
+                <file>image/components/checkbox/checkbox_unchecked.svg</file>
+                <file>image/components/combobox/down_arrow.svg</file>
+                <file>image/components/combobox/down_arrow_disable.svg</file>
+                <file>image/components/checkbox/star_checked.svg</file>
+                <file>image/components/checkbox/star_unchecked.svg</file>
+                <file>image/components/window/close_window.svg</file>
+                <file>image/components/window/left_arrow.svg</file>
+                <file>image/components/checkbox/checkbox_partiallychecked.svg</file>
+                <file>image/components/checkbox/checkbox_checked_disabled.svg</file>
+                <file>image/components/checkbox/checkbox_unchecked_disabled.svg</file>
+                <file>image/components/radiobutton/radiobutton_checked_disabled.svg</file>
+                <file>image/components/radiobutton/radiobutton_unchecked_disabled.svg</file>
+                <file>image/components/treewidget/branch-end.svg</file>
+                <file>image/components/treewidget/branch-more.svg</file>
+                <file>image/components/treewidget/vline.svg</file>
+                <file>image/components/checkbox/detail.svg</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,25 @@
+
+get_filename_component(dst_dir "${dst}" DIRECTORY)
+file(MAKE_DIRECTORY "${dst_dir}")
+
+function(copy_if_different file destPath)
+    get_filename_component(TempName ${file} NAME)
+    set(src ${file})
+    set(dst "${destPath}/${TempName}")
+
+    if(EXISTS "${dst}")
+        file(SHA256 ${src} src_hash)
+        file(SHA256 ${dst} dst_hash)
+        if(NOT src_hash STREQUAL dst_hash)
+            message(STATUS "Copying ${src} to ${dst} (files differ)")
+            file(COPY "${src}" DESTINATION ${destPath} USE_SOURCE_PERMISSIONS)
+        else()
+            message(STATUS "Skipping copy of ${src} to ${dst} (files are identical)")
+        endif()
+    else()
+        message(STATUS "Copying ${src} to ${destPath} (destination does not exist)")
+        file(COPY ${src} DESTINATION ${destPath} USE_SOURCE_PERMISSIONS)
+    endif()
+endfunction()
+
+copy_if_different(${src} ${dst})

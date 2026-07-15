@@ -1,0 +1,82 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 调试模式
+enum DebugMode_Grpc
+{
+    EDIT_Grpc = 0;  // 编程
+    DEBUG_Grpc = 1; // 调试
+}
+
+// 轨迹恢复标识
+enum TrajectoryRecoveryFlag_Grpc
+{   
+    SETTED_OR_NEEDLESS_Grpc = 0;     // 已设置过了轨迹恢复的执行策略，后者不需要执行轨迹恢复
+    INVALID_Grpc = -1;               // 当前处于运行中，不允许清除轨迹，也不允许发启动命令
+    IN_MOVELINE_Grpc = 1;            // 需要轨迹恢复，且在运动行
+    NOT_IN_MOVELINE_Grpc = 2;        // 需要轨迹恢复，但不在运动行
+    DSP_NOT_HAVE_MSG_Grpc = 3;       // ARM缓存区有数据，但DSP未保存轨迹信息
+};
+
+// 设置用户的调试模式（编程or调试）请求
+message setDebugMode_Request
+{
+    DebugMode_Grpc mode = 1;
+}
+// 获取当前用户的调试模式（编程or调试）响应
+message getDebugMode_Response
+{
+    DebugMode_Grpc mode = 1;
+}
+
+// 启动运行（调试）响应
+message startRunningInDebug_Response
+{
+    int32 ret = 1;
+    TrajectoryRecoveryFlag_Grpc flag = 2;
+}
+// 启动运行（自动）响应
+message startRunningInAuto_Response
+{
+    int32 ret = 1;
+    TrajectoryRecoveryFlag_Grpc flag = 2;
+}
+
+// 执行下一步响应
+message nextStep_Response
+{
+    int32 ret = 1;
+    TrajectoryRecoveryFlag_Grpc flag = 2;
+}
+
+// 调试
+service DebugerGrpc {
+    // 设置用户的调试模式（编程or调试）
+    rpc setDebugMode(setDebugMode_Request) returns (google.protobuf.Empty) {}
+    // 获取当前用户的调试模式（编程or调试）
+    rpc getDebugMode(google.protobuf.Empty) returns (getDebugMode_Response) {}
+
+    // 启动运行（调试）
+    rpc startRunningInDebug(google.protobuf.Empty) returns (startRunningInDebug_Response) {}
+    // 启动运行（自动）
+    rpc startRunningInAuto(google.protobuf.Empty) returns (startRunningInAuto_Response) {}
+
+    // 停止运行（调试）
+    // isRmtIoEnable，远程IO控制权下是否可以停止
+    // 成功返回0，失败请查看错误码
+    rpc stopRunningInDebug(google.protobuf.BoolValue) returns (google.protobuf.Int32Value) {}
+    // 停止运行（自动）
+    // isRmtIoEnable，远程IO控制权下是否可以停止
+    // 成功返回0，失败请查看错误码
+    rpc stopRunningInAuto(google.protobuf.BoolValue) returns (google.protobuf.Int32Value) {}
+
+    // 执行下一步
+    rpc nextStep(google.protobuf.Empty) returns (nextStep_Response) {}
+
+    // 设置轨迹恢复的执行策略
+    // mode 0-放弃，1-执行
+    // 成功返回0
+    rpc trajectoryRecoveryExcute(google.protobuf.Int32Value) returns (google.protobuf.Int32Value) {}
+}

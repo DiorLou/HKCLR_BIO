@@ -1,0 +1,96 @@
+#!/bin/sh
+
+##input var define:
+##val 1 : mode(0:servo in the front; 1:remote io in the front)
+##val 2 : servo number
+##val 3 : remote io number
+
+##exit value define:
+##exit 1 : mode value error
+##exit 2 : servo num is out of range
+##exit 3 : remote io num is out of range
+##exit 4　: cat master_conf.xml error
+
+mode=$1
+servo_num=$2
+remote_io_num=$3
+servo_type=$4
+
+header_str="master_init.txt"
+end_str="end.txt"
+remote_io_cfg_str="remote_io_init.txt"
+temp1_str=""
+temp2_str=""
+all_cfg_str=""
+case $servo_type in 
+ 0 ) 
+servo_cfg_str="sv630n_init.txt" ;;
+ 1 )
+servo_cfg_str="sv660n_init.txt" ;;
+ * )
+servo_cfg_str="sv630n_init.txt" ;;
+esac
+
+
+
+cd /mnt/robotcfg/InoControlConf/robotConf/initConf/makeXml
+
+if [ $servo_num -gt 8 ] || [ $servo_num -lt 1 ];then
+	echo "servo num is out of range" > /dev/console
+	cd /mnt/robotsys/robotlib
+	exit 2
+fi
+
+if [ $remote_io_num -gt 3 ] || [ $remote_io_num -lt 1 ] ;then
+	echo "remote io num is out of range" > /dev/console
+	cd /mnt/robotsys/robotlib
+	exit 2
+fi
+
+
+if [ $mode -eq 0 ];then
+	echo "Ecat Config : servo is front!" > /dev/console
+	###### create servo xml file ######
+	for i in `seq 1 $servo_num`
+	do
+	  	temp1_str="${temp1_str} ${servo_cfg_str}"
+	done
+
+	###### create remote io xml file ######
+	for i in `seq 1 $remote_io_num`
+	do
+	  	temp2_str="${temp2_str} ${remote_io_cfg_str}"
+	done
+elif [ $mode -eq 1 ];then
+	echo "Ecat Config : remote io is front!" > /dev/console
+	###### create remote io xml file ######
+	for i in `seq 1 $remote_io_num`
+	do
+	  	temp1_str="${temp1_str} ${remote_io_cfg_str}"
+	done
+
+	###### create servo xml file ######
+	for i in `seq 1 $servo_num`
+	do
+	  	temp2_str="${temp2_str} ${servo_cfg_str}"
+	done
+else
+	echo "mode value error!" > /dev/console
+	exit 1
+fi
+
+##### create MASTET_CONF xml file ######
+all_cfg_str="${header_str} ${temp1_str} ${temp2_str} ${end_str}"
+echo $all_cfg_str
+#head -c -1 -q $all_cfg_str > MASTER_CONF.xml
+cat $all_cfg_str > MASTER_CONF.xml
+nval=$?
+if [ $nval = "0" ];then
+	echo "cat master_conf.xml file ok!"
+	cp MASTER_CONF.xml ../
+	cd /mnt/robotsys/robotlib
+else
+	echo "cat master_conf.xml file error!"
+	exit 4
+fi
+

@@ -1,0 +1,164 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "GlobalDataTypesGrpc.proto";
+package InoRobBusinessGrpc;
+
+// IO类型
+enum IOType_Grpc
+{
+    IOTP_IN_Grpc = 0;   // input
+    IOTP_OUT_Grpc = 1;  // output
+}
+
+// IO映射功能
+enum FieldBusFunc_InBit_Grpc
+{
+    PrgStart_Grpc = 0x0000;          // 程序启动
+    PrgStop_Grpc = 1;                // 程序停止
+    PrgReset_Grpc = 2;               // 程序复位
+    McEnable_Grpc = 3;               // 使能
+    McEmergeStop_Grpc = 4;           // 急停
+    McAlarmClear_Grpc = 5;           // 清除报警
+    VelIncr_Grpc = 6;                // 速度加
+    VelDecr_Grpc = 7;                // 速度减
+    Homing_Grpc = 8;                 // 原点回归
+    ToTeachOrReplayMode_Grpc = 9;    // 手动/自动模式切换
+    StartStaticTask_Grpc = 10;       // 启动所有静态任务
+    CurOpPosTypeIn_Grpc = 11;        // 设置当前操作的点位类型, 0-位置点， 1-关节点
+    DynBrakeSwitchIn_Grpc = 12;      // 动态制动
+    ExSignalTriggerColli_Grpc = 13;  // 外部信号触发碰检
+    Zero_Grpc = 14;                  // 回零
+    RobotBodyPower_Grpc = 15;        // 机器人本体上下电
+
+    J1XPosMov_Grpc = 16;             // 示教J1/X +
+    J2YPosMov_Grpc = 17;             // 示教J2/Y +
+    J3ZPosMov_Grpc = 18;             // 示教J3/Z +
+    J4APosMov_Grpc = 19;             // 示教J4/A +
+    J5PosMov_Grpc = 20;              // 示教J5 +
+    J6PosMov_Grpc = 21;              // 示教J6 +
+
+    ReserveIn2_Grpc = 22;            // 保留2，不在用户界面显示
+    ReserveIn3_Grpc = 23;            // 保留3，不在用户界面显示
+
+    J1XNegMov_Grpc = 24;             // 示教J1/X -
+    J2YNegMov_Grpc = 25;             // 示教J2/Y -
+    J3ZNegMov_Grpc = 26;             // 示教J3/Z -
+    J4ANegMov_Grpc = 27;             // 示教J4/A -
+    J5NegMov_Grpc = 28;              // 示教J5 -
+    J6NegMov_Grpc = 29;              // 示教J6 -
+
+    ReserveIn4_Grpc = 30;            // 保留4，不在用户界面显示
+    ReserveIn5_Grpc = 31;            // 保留5，不在用户界面显示
+
+    WrCurPosToP_Grpc = 32;           // 把当前位置写入当前P/JP变量
+    ReserveA1_Grpc = 33;             // 把输入点位写入当前P/JP变量
+    MoveToCurP_Grpc = 34;            // 直接运动到当前P/JP变量位置
+
+    DigIOOutSet0_Grpc = 35;          // OUT[0]控制命令
+    DigIOOutSet1_Grpc = 36;          // OUT[1]控制命令
+    DigIOOutSet2_Grpc = 37;          // OUT[2]控制命令
+    DigIOOutSet3_Grpc = 38;          // OUT[3]控制命令
+    DigIOOutSet4_Grpc = 39;          // OUT[4]控制命令
+    DigIOOutSet5_Grpc = 40;          // OUT[5]控制命令
+    DigIOOutSet6_Grpc = 41;          // OUT[6]控制命令
+    DigIOOutSet7_Grpc = 42;          // OUT[7]控制命令
+    DigIOOutSet8_Grpc = 43;          // OUT[8]控制命令
+    DigIOOutSet9_Grpc = 44;          // OUT[9]控制命令
+    DigIOOutSet10_Grpc = 45;         // OUT[10]控制命令
+    DigIOOutSet11_Grpc = 46;         // OUT[11]控制命令
+    DigIOOutSet12_Grpc = 47;         // OUT[12]控制命令
+    DigIOOutSet13_Grpc = 48;         // OUT[13]控制命令
+    DigIOOutSet14_Grpc = 49;         // OUT[14]控制命令
+    DigIOOutSet15_Grpc = 50;         // OUT[15]控制命令
+}
+
+// 内存长度
+enum MemoryLength_Grpc
+{
+    MemoryLength_Grpc_UnuseDefault = 0;
+    ML_BIT_Grpc = 1;    // Bit
+    ML_CHAR_Grpc = 4;   // Char
+    ML_BYTE_Grpc = 8;   // Byte
+    ML_WORD_Grpc = 16;  // Word
+    ML_DWORD_Grpc = 32; // DWord
+}
+
+// IO映射重置方式
+enum IOMapResetMethod_Grpc
+{
+    UNKNOW_IO_Grpc = 0;           // 未知IO（对应TP页面全部）
+    DIGITAL_IO_Grpc = 1;          // 标准IO（对应TP页面操作标准数字IO）
+    FIELDBUS_IO_Grpc = 2;         // 从站IO（对应TP页面操作现场总线IO）
+    MEMORY_IO_Grpc = 3;           // 内存IO
+    SYSTEM_IO_Grpc = 4;           // 系统IO
+    FIELDBUS_MASTER_IO_Grpc = 5;  // 主站IO
+}
+
+// 总线IO映射数据
+message FieldbusIOMapData_Grpc
+{
+    IOType_Grpc ioType = 1;         // IO类型
+    uint32 funcId = 2;              // funID（参照FieldBusFunc_InBit_Grpc枚举）
+    int32 memAddr = 3;              // 内存地址
+    MemoryLength_Grpc length = 4;   // 内存长度
+    string name = 5;                // 名称
+}
+
+// 读取Modbus的连接状态响应
+message FieldBusGrpc_readModbusConnStatus_Response
+{
+    int32 ret = 1;                          // 0-成功
+    ModbusConnectSts_Grpc modbusPara = 2;   // 读取结构体
+}
+// 写入Modbus配置请求
+message FieldBusGrpc_writeModbusConfig_Request
+{
+    ModbusParaConfig_Grpc modbusConfig = 1; // 写入结构体
+}
+
+// 获取IO映射数据响应
+message FieldBusGrpc_getFieldbusIOMapDatas_Response
+{
+    repeated FieldbusIOMapData_Grpc mapDatas = 1;
+}
+// 保存IO映射请求
+message FieldBusGrpc_saveFieldbusIOMap_Request
+{
+    repeated FieldbusIOMapData_Grpc mapDatas = 1;
+}
+// 重置IO映射请求
+message FieldBusGrpc_resetFieldbusIOMap_Request
+{
+    IOMapResetMethod_Grpc method = 1; // 重置方式
+}
+
+// 总线主站配置文件写入请求
+message FieldBusGrpc_putFieldBusMasterCfgToController_Request
+{
+    string localDir = 1;            // 配置文件本地存放路径
+    bool bDeviceNet = 2;            // 是否存在DeviceNet文件
+    bool bCanOpen = 3;              // 是否存在CanOpen文件
+    bool bFollwCraftCfg = 4;        // 是否存在FollwCraftCfg文件
+    bool bEip = 5;                  // 是否存在Eip文件
+}
+
+// 总线
+service FieldBusGrpc {
+    // 读取Modbus的连接状态
+    rpc readModbusConnStatus(google.protobuf.Empty) returns (FieldBusGrpc_readModbusConnStatus_Response) {}
+    // 写入Modbus配置
+    // 返回：0-成功
+    rpc writeModbusConfig(FieldBusGrpc_writeModbusConfig_Request) returns (google.protobuf.Int32Value) {}
+
+    // 获取IO映射数据
+    rpc getFieldbusIOMapDatas(google.protobuf.Empty) returns (FieldBusGrpc_getFieldbusIOMapDatas_Response) {}
+    // 保存IO映射
+    rpc saveFieldbusIOMap(FieldBusGrpc_saveFieldbusIOMap_Request) returns (google.protobuf.BoolValue) {}
+    // 重置IO映射
+    // true成功 false失败
+    rpc resetFieldbusIOMap(FieldBusGrpc_resetFieldbusIOMap_Request) returns (google.protobuf.BoolValue) {}
+
+    // 将总线主站配置文件放入控制器中
+    rpc putFieldBusMasterCfgToController(FieldBusGrpc_putFieldBusMasterCfgToController_Request) returns(google.protobuf.Int32Value) {}
+}

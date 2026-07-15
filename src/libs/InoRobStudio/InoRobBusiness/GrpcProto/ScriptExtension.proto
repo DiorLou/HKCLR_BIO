@@ -1,0 +1,19 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 调试
+service ScriptExtensionGrpc {
+    // 开始
+    rpc Start(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+	
+	// 暂停
+    rpc Pause(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+	
+	// 停止
+    rpc Abort(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+	
+	// 单步
+    rpc StepBlock(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+}

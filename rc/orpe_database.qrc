@@ -1,0 +1,6 @@
+﻿<RCC>
+    <qresource prefix="/database">
+        <file>database/system_info.sql</file>
+                <file>database/config_info.sql</file>
+    </qresource>
+</RCC>

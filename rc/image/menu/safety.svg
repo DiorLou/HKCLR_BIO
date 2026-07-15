@@ -1,0 +1,15 @@
+<svg width="32.000000" height="32.000000" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<desc>
+			Created with Pixso.
+	</desc>
+	<defs>
+		<clipPath id="clip2576_12468">
+			<rect id="属性 1=安全" width="32.000000" height="32.000000" transform="translate(-0.500000 -0.999023)" fill="white" fill-opacity="0"/>
+		</clipPath>
+	</defs>
+	<rect id="属性 1=安全" width="32.000000" height="32.000000" transform="translate(-0.500000 -0.999023)" fill="#FFFFFF" fill-opacity="0"/>
+	<g clip-path="url(#clip2576_12468)">
+		<path id="Ellipse 875" d="M27 8.86C27 26.04 20.6 26.04 15.5 28.5C10.39 26.04 4 26.04 4 8.86C4 3.95 7.83 6.41 15.5 1.5C23.16 6.41 27 3.95 27 8.86Z" fill="#FFFFFF" fill-opacity="1.000000" fill-rule="nonzero"/>
+		<path id="Vector 1663 (边框)" d="M14.99 16.34L11.81 12.8L9.76 14.34L14.71 20.23L22.14 12.8L20.33 11L14.99 16.34Z" fill="#295AB0" fill-opacity="1.000000" fill-rule="evenodd"/>
+	</g>
+</svg>

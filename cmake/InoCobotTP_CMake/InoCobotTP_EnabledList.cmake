@@ -1,0 +1,458 @@
+#Depend
+set(Target_Depends_List)
+list(APPEND Target_Depends_List
+    Authority
+    CobotLog
+    Utils
+    GeneralTools
+    CustomComponent
+    DataBase
+    Tcp
+    Simulator
+    Instance
+    Metatype
+    MultiThreadTools
+    Common
+    Communication
+    PluginEngine
+    Dialog
+    VirtualKeyboard
+    InoRobLog
+    FlowWidget
+    ${BreakPad_Depend}
+    ${APP_ALL_QT_COMPONENTS} Qt${QT_VERSION_MAJOR}::CorePrivate
+)
+
+
+
+#TargetEnabled
+target_funcMacro_definitions(Core PRIVATE InoCobotTP_Windows_x64 1)
+
+#U4
+target_funcMacro_definitions(Simulator PRIVATE CommonLib_Simulator_DOF6_U4_Enabled 0)
+#U13
+target_funcMacro_definitions(Simulator PRIVATE CommonLib_Simulator_DOF6_U13_Enabled 0)
+#u18
+target_funcMacro_definitions(Simulator PRIVATE CommonLib_Simulator_DOF6_U18_Enabled 0)
+
+
+
+
+
+
+if (Composition_ItemDropConfig_Enabled)
+    target_funcMacro_definitions(DisplayForm PRIVATE PluginLib_DisplayForm_ItemDropConfig_Enabled 1)
+elseif()
+    target_funcMacro_definitions(DisplayForm PRIVATE PluginLib_DisplayForm_ItemDropConfig_Enabled 0)
+endif()
+
+if(Composition_DragDropItem_Enabled)
+    target_funcMacro_definitions(ProgrammingForm PRIVATE PluginLib_ProgrammingForm_DragDropItem_Enabled 1)
+endif()
+
+if(Composition_ItemDragDropCheck_Enabled)
+    target_funcMacro_definitions(ConditionSetContainerForm PRIVATE PluginLib_ConditionSetContainerForm_ItemDragDropCheck_Enabled 1)
+
+    target_funcMacro_definitions(TaskConditionForm PRIVATE PluginLib_TaskConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(IfConditionForm PRIVATE PluginLib_IfConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(InstallArgsConditionForm PRIVATE PluginLib_InstallArgsConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(DefaultConditionForm PRIVATE PluginLib_DefaultConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(LoopConditionForm PRIVATE PluginLib_LoopConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(CommentConditionForm PRIVATE PluginLib_CommentConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(MoveJConditionForm PRIVATE PluginLib_MoveJConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(MoveLConditionForm PRIVATE PluginLib_MoveLConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(MoveCConditionForm PRIVATE PluginLib_MoveCConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(WaypointConditionForm PRIVATE PluginLib_WaypointConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(VelsetCondForm PRIVATE PluginLib_VelsetCondForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(SetConditionForm PRIVATE PluginLib_SetConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(WaitConditionForm PRIVATE PluginLib_WaitConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(TimerConditionForm PRIVATE PluginLib_TimerConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(PrintConditionForm PRIVATE PluginLib_PrintConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(SocketConditionForm PRIVATE PluginLib_SocketConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(ModbusConditionForm PRIVATE PluginLib_ModbusConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(WaitConditionForm PRIVATE PluginLib_WaitConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(PalletConditionForm PRIVATE PluginLib_PalletConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(AlarmConditionForm PRIVATE PluginLib_AlarmConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(SprintfConditionForm PRIVATE PluginLib_SprintfConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(PauseConditionForm PRIVATE PluginLib_PauseConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(GotoConditionForm PRIVATE PluginLib_GotoConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(ScriptConditionForm PRIVATE PluginLib_ScriptConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(HomeConditionForm PRIVATE PluginLib_HomeConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(IoConditionForm PRIVATE PluginLib_IoConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(CollMonitorCondForm PRIVATE PluginLib_CollMonitorCondForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FccConditionForm PRIVATE PluginLib_FccConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FCfigConditionForm PRIVATE PluginLib_FCfigConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FLimitConditionForm PRIVATE PluginLib_FLimitConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FCtrlConditionForm PRIVATE PluginLib_FCtrlConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FFTConditionForm PRIVATE PluginLib_FFTConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FTConditionForm PRIVATE PluginLib_FTConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FPConditionForm PRIVATE PluginLib_FPConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(GetCurForceConditionForm PRIVATE PluginLib_GetCurForceConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FTTConditionForm PRIVATE PluginLib_FTTConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FSCConditionForm PRIVATE PluginLib_FSCConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FResetConditionForm PRIVATE PluginLib_FResetConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(ForceSensorZeroResetConditionForm PRIVATE PluginLib_ForceSensorZeroResetConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FSetConditionConditionForm PRIVATE PluginLib_FSetConditionConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(ForceMonitoringConditionForm PRIVATE PluginLib_ForceMonitoringConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(SetForceDataSegmentConditionForm PRIVATE PluginLib_SetForceDataSegmentConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FSCLogStartConditionForm PRIVATE PluginLib_FSCLogStartConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FSCLogEndConditionForm PRIVATE PluginLib_FSCLogEndConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FSCLogSaveConditionForm PRIVATE PluginLib_FSCLogSaveConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FSCDiagLogSaveConditionForm PRIVATE PluginLib_FSCDiagLogSaveConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FTSConditionForm PRIVATE PluginLib_FTSConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FTFConditionForm PRIVATE PluginLib_FTFConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(FTPConditionForm PRIVATE PluginLib_FTPConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(GetFSCForceConditionForm PRIVATE PluginLib_GetFSCForceConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(WaitFTConditionForm PRIVATE PluginLib_WaitFTConditionForm_ItemDragDropCheck_Enabled 1)
+    target_funcMacro_definitions(StrGetDataConditionForm PRIVATE PluginLib_StrGetDataConditionForm_ItemDragDropCheck_Enabled 1)
+
+
+    target_funcMacro_definitions(PalletizingConditionForm PRIVATE PluginLib_PalletizingConditionForm_ItemDragDropCheck_Enabled 1)
+endif()
+
+set(Aggregation_GraphicalProgramming_Enabled ON)
+if(Aggregation_GraphicalProgramming_Enabled)
+    set(Composition_EditMode_Enabled ON)
+    set(Composition_ConditionBtnToConditionSetContainerForm_Enabled ON)
+    set(Composition_RegistConditionSetDialog_Enabled ON)
+    set(Composition_ItemEdit_Enabled ON)
+else()
+    set(Composition_EditMode_Enabled ON)
+    set(Composition_ConditionBtnToConditionSetContainerForm_Enabled ON)
+    set(Composition_RegistConditionSetDialog_Enabled OFF)
+    set(Composition_ItemEdit_Enabled OFF)
+endif()
+
+#FuncEnabled
+if(Composition_EditMode_Enabled)
+    target_funcMacro_definitions(ProgrammingForm PRIVATE PluginLib_ProgrammingForm_EditMode_Enabled 1)
+    target_funcMacro_definitions(ConditionContainerForm PUBLIC PluginLib_ConditionContainerForm_EditMode_Enabled 1)
+    target_funcMacro_definitions(BasicConditionContainerForm PRIVATE PluginLib_BasicConditionContainerForm_EditMode_Enabled 1)
+    target_funcMacro_definitions(AdvancedConditionContainerForm PRIVATE PluginLib_AdvancedConditionContainerForm_EditMode_Enabled 1)
+    target_funcMacro_definitions(MoveToReadyPointForm PRIVATE PluginLib_MoveToReadyPointForm_EditMode_Enabled 1)
+    target_funcMacro_definitions(StateContainerForm PUBLIC PluginLib_StateContainerForm_EditMode_Enabled 1)
+    target_funcMacro_definitions(ProjectManageForm PRIVATE PluginLib_ProjectManageForm_EditMode_Enabled 1)
+    target_funcMacro_definitions(ProgramPersistence PRIVATE PluginLib_ProgramPersistence_EditMode_Enabled 1)
+endif()
+
+if(Composition_ConditionBtnToConditionSetContainerForm_Enabled)
+    target_funcMacro_definitions(LoopConditionForm PRIVATE PluginLib_LoopConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(DefaultConditionForm PRIVATE PluginLib_DefaultConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(IfConditionForm PRIVATE PluginLib_IfConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(SetConditionForm PRIVATE PluginLib_SetConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(InstallArgsConditionForm PRIVATE PluginLib_InstallArgsConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(WaitConditionForm PRIVATE PluginLib_WaitConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(VelsetCondForm PRIVATE PluginLib_VelsetCondForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(TimerConditionForm PRIVATE PluginLib_TimerConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(CommentConditionForm PRIVATE PluginLib_CommentConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(WaypointConditionForm PRIVATE PluginLib_WaypointConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(MoveJConditionForm PRIVATE PluginLib_MoveJConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(MoveLConditionForm PRIVATE PluginLib_MoveLConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(MoveCConditionForm PRIVATE PluginLib_MoveCConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(MovSConditionForm PRIVATE PluginLib_MovSConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(CurveConditionForm PRIVATE PluginLib_CurveConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(PrintConditionForm PRIVATE PluginLib_PrintConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(MessageConditionForm PRIVATE PluginLib_MessageConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(SocketOpenConditionForm PRIVATE PluginLib_SocketOpenConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(SocketCloseConditionForm PRIVATE PluginLib_SocketCloseConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(SocketSendConditionForm PRIVATE PluginLib_SocketSendConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(SocketReceiveConditionForm PRIVATE PluginLib_SocketReceiveConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(SocketProcessConditionForm PRIVATE PluginLib_SocketProcessConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(SocketConditionForm PRIVATE PluginLib_SocketConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(SetAccuracyModeConditionForm PRIVATE PluginLib_SetAccuracyModeConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(ModbusConditionForm PRIVATE PluginLib_ModbusConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(PalletConditionForm PRIVATE PluginLib_PalletConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(AlarmConditionForm PRIVATE PluginLib_AlarmConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(SprintfConditionForm PRIVATE PluginLib_SprintfConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(PauseConditionForm PRIVATE PluginLib_PauseConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(HomeConditionForm PRIVATE PluginLib_HomeConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(GotoConditionForm PRIVATE PluginLib_GotoConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 0)
+    target_funcMacro_definitions(LabelConditionForm PRIVATE PluginLib_LabelConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 0)
+    target_funcMacro_definitions(CollMonitorCondForm PRIVATE PluginLib_CollMonitorCondForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(IoConditionForm PRIVATE PluginLib_IOConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FccConditionForm PRIVATE PluginLib_FccConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FCfigConditionForm PRIVATE PluginLib_FCfigConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FLimitConditionForm PRIVATE PluginLib_FLimitConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FCtrlConditionForm PRIVATE PluginLib_FCtrlConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FFTConditionForm PRIVATE PluginLib_FFTConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FTConditionForm PRIVATE PluginLib_FTConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FPConditionForm PRIVATE PluginLib_FPConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(GetCurForceConditionForm PRIVATE PluginLib_GetCurForceConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FTTConditionForm PRIVATE PluginLib_FTTConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FSCConditionForm PRIVATE PluginLib_FSCConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FResetConditionForm PRIVATE PluginLib_FResetConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(ForceSensorZeroResetConditionForm PRIVATE PluginLib_ForceSensorZeroResetConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FSetConditionConditionForm PRIVATE PluginLib_FSetConditionConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(ForceMonitoringConditionForm PRIVATE PluginLib_ForceMonitoringConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(SetForceDataSegmentConditionForm PRIVATE PluginLib_SetForceDataSegmentConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FSCLogStartConditionForm PRIVATE PluginLib_FSCLogStartConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FSCLogEndConditionForm PRIVATE PluginLib_FSCLogEndConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FSCLogSaveConditionForm PRIVATE PluginLib_FSCLogSaveConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FSCDiagLogSaveConditionForm PRIVATE PluginLib_FSCDiagLogSaveConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FTSConditionForm PRIVATE PluginLib_FTSConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FTFConditionForm PRIVATE PluginLib_FTFConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(FTPConditionForm PRIVATE PluginLib_FTPConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(GetFSCForceConditionForm PRIVATE PluginLib_GetFSCForceConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(WaitFTConditionForm PRIVATE PluginLib_WaitFTConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(StrGetDataConditionForm PRIVATE PluginLib_StrGetDataConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+
+
+    target_funcMacro_definitions(TaskConditionForm PRIVATE PluginLib_TaskConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+    target_funcMacro_definitions(ScriptConditionForm PRIVATE PluginLib_ScriptConditionForm_ConditionBtnToConditionSetContainerForm_Enabled 1)
+endif()
+
+if(Composition_RegistConditionSetDialog_Enabled)
+    target_funcMacro_definitions(ProgrammingContainer PRIVATE PluginLib_ProgrammingContainer_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(ProgrammingForm PRIVATE PluginLib_ProgrammingForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(ProgramManagementForm PRIVATE PluginLib_ProgramManagementForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(PointFileForm PRIVATE PluginLib_PointFileForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(ConditionSetContainerForm PRIVATE PluginLib_ConditionSetContainerForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(ScriptFileForm PRIVATE PluginLib_ScriptFileForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(LabelForm PRIVATE PluginLib_LabelForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(DefineWarningFileForm PRIVATE PluginLib_DefineWarningFileForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(TaskManagementForm PRIVATE PluginLib_TaskManagementForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(TemporaryVariablesForm PRIVATE PluginLib_TemporaryVariablesForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(TimerConditionStateForm PRIVATE PluginLib_TimerConditionStateForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(SimulatorForm PRIVATE PluginLib_SimulatorForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(MoveToReadyPointForm PRIVATE PluginLib_MoveToReadyPointForm_RegistConditionSetDialog_Enabled 1)
+
+    target_funcMacro_definitions(VelsetCondForm PRIVATE PluginLib_VelsetCondForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(MoveJConditionForm PRIVATE PluginLib_MoveJConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(MoveLConditionForm PRIVATE PluginLib_MoveLConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(MoveCConditionForm PRIVATE PluginLib_MoveCConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(WaypointConditionForm PRIVATE PluginLib_WaypointConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(SetConditionForm PRIVATE PluginLib_SetConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(SocketConditionForm PRIVATE PluginLib_SocketConditionForm_RegistConditionSetDialog_Enabled 1)
+
+    target_funcMacro_definitions(TaskConditionForm PRIVATE PluginLib_TaskConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(ScriptConditionForm PRIVATE PluginLib_ScriptConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(SprintfConditionForm PRIVATE PluginLib_SprintfConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(PalletizingConditionForm PRIVATE PluginLib_PalletizingConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(FCfigConditionForm PRIVATE PluginLib_FCfigConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(FLimitConditionForm PRIVATE PluginLib_FLimitConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(FCtrlConditionForm PRIVATE PluginLib_FCtrlConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(FFTConditionForm PRIVATE PluginLib_FFTConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(FPConditionForm PRIVATE PluginLib_FPConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(FTSConditionForm PRIVATE PluginLib_FTSConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(FTFConditionForm PRIVATE PluginLib_FTFConditionForm_RegistConditionSetDialog_Enabled 1)
+    target_funcMacro_definitions(FTPConditionForm PRIVATE PluginLib_FTPConditionForm_RegistConditionSetDialog_Enabled 1)
+endif()
+
+if(Composition_ItemEdit_Enabled)
+    target_funcMacro_definitions(ProgrammingForm PRIVATE PluginLib_ProgrammingForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(SetConditionForm PRIVATE PluginLib_SetConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(LoopConditionForm PRIVATE PluginLib_LoopConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(WaitConditionForm PRIVATE PluginLib_WaitConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(IfConditionForm PRIVATE PluginLib_IfConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(DefaultConditionForm PRIVATE PluginLib_DefaultConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(VelsetCondForm PRIVATE PluginLib_VelsetCondForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(TimerConditionForm PRIVATE PluginLib_TimerConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(MoveJConditionForm PRIVATE PluginLib_MoveJConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(MoveLConditionForm PRIVATE PluginLib_MoveLConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(MoveCConditionForm PRIVATE PluginLib_MoveCConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(WaypointConditionForm PRIVATE PluginLib_WaypointConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(InstallArgsConditionForm PRIVATE PluginLib_InstallArgsConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(CommentConditionForm PRIVATE PluginLib_CommentConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(PrintConditionForm PRIVATE PluginLib_PrintConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(SocketConditionForm PRIVATE PluginLib_SocketConditionForm_ItemEdit_Enabled 1)
+
+    target_funcMacro_definitions(TaskConditionForm PRIVATE PluginLib_TaskConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(ScriptConditionForm PRIVATE PluginLib_ScriptConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(ModbusConditionForm PRIVATE PluginLib_ModbusConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(PalletConditionForm PRIVATE PluginLib_PalletConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(AlarmConditionForm PRIVATE PluginLib_AlarmConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(SprintfConditionForm PRIVATE PluginLib_SprintfConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(PauseConditionForm PRIVATE PluginLib_PauseConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(HomeConditionForm PRIVATE PluginLib_HomeConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(PalletizingConditionForm PRIVATE PluginLib_PalletizingConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(GotoConditionForm PRIVATE PluginLib_GotoConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(LabelConditionForm PRIVATE PluginLib_LabelConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(IoConditionForm PRIVATE PluginLib_IoConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(CollMonitorCondForm PRIVATE PluginLib_CollMonitorCondForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FccConditionForm PRIVATE PluginLib_FccConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FCfigConditionForm PRIVATE PluginLib_FCfigConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FLimitConditionForm PRIVATE PluginLib_FLimitConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FCtrlConditionForm PRIVATE PluginLib_FCtrlConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FFTConditionForm PRIVATE PluginLib_FFTConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FTConditionForm PRIVATE PluginLib_FTConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FPConditionForm PRIVATE PluginLib_FPConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(GetCurForceConditionForm PRIVATE PluginLib_GetCurForceConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FTTConditionForm PRIVATE PluginLib_FTTConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FSCConditionForm PRIVATE PluginLib_FSCConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FResetConditionForm PRIVATE PluginLib_FResetConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(ForceSensorZeroResetConditionForm PRIVATE PluginLib_ForceSensorZeroResetConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FSetConditionConditionForm PRIVATE PluginLib_FSetConditionConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(ForceMonitoringConditionForm PRIVATE PluginLib_ForceMonitoringConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(SetForceDataSegmentConditionForm PRIVATE PluginLib_SetForceDataSegmentConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FSCLogStartConditionForm PRIVATE PluginLib_FSCLogStartConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FSCLogEndConditionForm PRIVATE PluginLib_FSCLogEndConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FSCLogSaveConditionForm PRIVATE PluginLib_FSCLogSaveConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FSCDiagLogSaveConditionForm PRIVATE PluginLib_FSCDiagLogSaveConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FTSConditionForm PRIVATE PluginLib_FTSConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FTFConditionForm PRIVATE PluginLib_FTFConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(FTPConditionForm PRIVATE PluginLib_FTPConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(GetFSCForceConditionForm PRIVATE PluginLib_GetFSCForceConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(WaitFTConditionForm PRIVATE PluginLib_WaitFTConditionForm_ItemEdit_Enabled 1)
+    target_funcMacro_definitions(StrGetDataConditionForm PRIVATE PluginLib_StrGetDataConditionForm_ItemEdit_Enabled 1)
+
+
+endif()
+
+target_funcMacro_definitions(ConditionSetContainerForm PRIVATE PluginLib_ConditionSetContainerForm_ProcessPack_Enabled 1)
+target_funcMacro_definitions(ConditionSetContainerForm PRIVATE PluginLib_ConditionSetContainerForm_ForcePack_Enabled 1)
+
+#tree item needbackline
+set(Composition_ItemNeedBackLine_Enabled ON)
+if(Composition_ItemNeedBackLine_Enabled)
+    target_funcMacro_definitions(ProgramPersistence PUBLIC PluginLib_ScriptWriter_ItemNeedBackLine_Enabled 0)
+endif()
+
+set(Composition_NotWriteBlockStep_Enabled ON)
+if(Composition_NotWriteBlockStep_Enabled)
+    target_funcMacro_definitions(ProgramPersistence PUBLIC PluginLib_ScriptWriter_NotWriteBlockStep_Enabled 1)
+endif()
+
+#load local project
+set(Composition_LoadLocalProject_Enabled ON)
+if(Composition_LoadLocalProject_Enabled)
+    target_funcMacro_definitions(Authority PRIVATE CommonLib_Authority_LoadLocalProject_Enabled 0)
+    target_funcMacro_definitions(Dialog PRIVATE CommonLib_Dialog_LoadLocalProject_Enabled 0)
+    target_funcMacro_definitions(ProjectManageForm PRIVATE PluginLib_ProjectManageForm_LoadLocalProject_Enabled 0)
+endif()
+
+#composite Search
+set(Composition_CompositeSearch_Enabled ON)
+if(Composition_CompositeSearch_Enabled)
+    target_funcMacro_definitions(CustomComponent PRIVATE CommonLib_CustomComponent_CompositeSearch_Enabled 1)
+    target_funcMacro_definitions(ProgrammingForm PRIVATE PluginLib_ProgrammingForm_CompositeSearch_Enabled 1)
+endif()
+
+#app patch update
+set(Composition_AppPatchUpdate_Enabled OFF)
+if(Composition_AppPatchUpdate_Enabled)
+    target_funcMacro_definitions(UpdateForm PRIVATE PluginLib_UpdateForm_AppPatchUpdate_Enabled 1)
+endif()
+
+#developer mode
+set(Composition_DeveloperMode_Enabled OFF)
+if(Composition_DeveloperMode_Enabled)
+    target_funcMacro_definitions(AuthorityManageForm PRIVATE PluginLib_AuthorityManageForm_DeveloperMode_Enabled 1)
+    target_funcMacro_definitions(Common PUBLIC CommonLib_Common_DeveloperMode_Enabled 1)
+    target_funcMacro_definitions(Core PRIVATE PluginLib_Core_DeveloperMode_Enabled 1)
+    target_funcMacro_definitions(Dialog PRIVATE CommonLib_Dialog_DeveloperMode_Enabled 1)
+    target_funcMacro_definitions(DisplayForm PRIVATE PluginLib_DisplayForm_DeveloperMode_Enabled 1)
+    target_funcMacro_definitions(SafetyContainer PRIVATE PluginLib_SafetyContainer_DeveloperMode_Enabled 1)
+    target_funcMacro_definitions(VersionForm PRIVATE PluginLib_VersionForm_DeveloperMode_Enabled 1)
+endif()
+
+#search project
+set(Composition_SearchProject_Enabled ON)
+if(Composition_SearchProject_Enabled)
+    target_funcMacro_definitions(ProjectManageForm PRIVATE PluginLib_ProjectManageForm_SearchProject_Enabled 1)
+endif()
+
+set(Composition_CollectEveryTypeLogicTreeItem_Enabled OFF)
+if(Composition_CollectEveryTypeLogicTreeItem_Enabled)
+    target_funcMacro_definitions(ProgrammingForm PRIVATE PluginLib_ProgrammingForm_CollectEveryTypeLogicTreeItem_Enabled 1)
+endif()
+
+#Pallet
+set(Composition_PalletEdit_Enabled ON)
+if(Composition_PalletEdit_Enabled)
+    target_funcMacro_definitions(ProjectManageForm PRIVATE PluginLib_ProjectManageForm_PalletEdit_Enabled 1)
+    set(Composition_CollectEveryTypeLogicTreeItem_Enabled ON)
+    target_funcMacro_definitions(ProgrammingForm PRIVATE PluginLib_ProgrammingForm_CollectEveryTypeLogicTreeItem_Enabled 1)
+endif()
+
+#load point file
+set(Composition_LoadPointFile_Enabled OFF)
+if(Composition_LoadPointFile_Enabled)
+    target_funcMacro_definitions(SystemBackupLoadForm PRIVATE PluginLib_SystemBackupLoadForm_LoadPointFile_Enabled 1)
+endif()
+
+#local variable
+target_funcMacro_definitions(ProgramPersistence PRIVATE PluginLib_ProgramPersistence_ReadLocalVariables_Enabled 1)
+
+message(STATUS "__COBOT_LIBRARIES = ${__COBOT_LIBRARIES}")
+message(STATUS "__COBOT_PLUGINS = ${__COBOT_PLUGINS}")
+
+#libEnabled
+set(LIB_ENABLED_LIST)
+foreach(Lib ${__COBOT_LIBRARIES})
+   set(Lib_Enabled "CommonLib_${Lib}_Enabled")
+   option(${Lib_Enabled} ${Lib_Enabled} OFF)
+   list(APPEND LIB_ENABLED_LIST ${Lib_Enabled})
+endforeach()
+
+foreach(Lib ${LIB_ENABLED_LIST})
+   set(${Lib} ON)
+endforeach()
+
+set(LIB_ENABLED_LIST_ON)
+foreach(LIB ${LIB_ENABLED_LIST})
+    if(${LIB})
+        list(APPEND LIB_ENABLED_LIST_ON ${LIB})
+    endif()
+endforeach()
+
+string(REPLACE ";" "," LIB_ENABLED_LIST_ON_STR "${LIB_ENABLED_LIST_ON}")
+
+#other dll
+file(GLOB ALL_LIB_FILES "${SOURCE_FILE_BIN}/*.dll")
+foreach(LIB ${ALL_LIB_FILES})
+   get_filename_component(LIB_FILE_NAME ${LIB} NAME_WE)
+   list(APPEND BIN_LIB_DLL_LIST ${LIB_FILE_NAME})
+endforeach()
+
+foreach(LIB ${__COBOT_LIBRARIES})
+    set(LIB_DLL_NAME "lib${LIB}")
+    list(APPEND LIB_DLL_LIST ${LIB_DLL_NAME})
+endforeach()
+
+set(BIN_LIB_DLL_DIFFERENCE)
+foreach(Lib ${BIN_LIB_DLL_LIST})
+    list(FIND LIB_DLL_LIST ${Lib} index)
+    if(index EQUAL -1)
+        list(APPEND BIN_LIB_DLL_DIFFERENCE ${Lib})
+    endif()
+endforeach()
+string(REPLACE ";" "," BIN_LIB_DLL_DIFFERENCE_STR "${BIN_LIB_DLL_DIFFERENCE}")
+
+#pluginEnabled
+set(PLUGIN_ENABLED_LIST)
+foreach(Plugin ${__COBOT_PLUGINS})
+   set(Plugin_Enabled "PluginLib_${Plugin}_Enabled")
+   option(${Plugin_Enabled} ${Plugin_Enabled} OFF)
+   list(APPEND PLUGIN_ENABLED_LIST ${Plugin_Enabled})
+endforeach()
+
+foreach(PLUGIN ${PLUGIN_ENABLED_LIST})
+   set(${PLUGIN} ON)
+endforeach()
+
+set(PluginLib_MessageConditionForm_Enabled OFF)
+set(PluginLib_SetAccuracyModeConditionForm_Enabled OFF)
+set(PluginLib_SevenRobotParametersForm_Enabled OFF)
+set(PluginLib_DragTeachingForm_Enabled OFF)
+
+if(ANDROID)
+    set(PluginLib_UserManualForm_Enabled OFF)
+else()
+    set(PluginLib_UserManualForm_Enabled ON)
+endif()
+
+set(PLUGIN_ENABLED_LIST_ON)
+foreach(PLUGIN ${PLUGIN_ENABLED_LIST})
+    if(${PLUGIN})
+        list(APPEND PLUGIN_ENABLED_LIST_ON ${PLUGIN})
+    endif()
+endforeach()
+
+string(REPLACE ";" "," PLUGIN_ENABLED_LIST_ON_STR "${PLUGIN_ENABLED_LIST_ON}")
+
+if(TARGET PluginEngine)
+  get_target_property(_pe_imported PluginEngine IMPORTED)
+  if(NOT _pe_imported)
+    target_compile_definitions(PluginEngine PRIVATE "-DPluginsListEnabled=\"${PLUGIN_ENABLED_LIST_ON_STR}\"")
+  endif()
+endif()

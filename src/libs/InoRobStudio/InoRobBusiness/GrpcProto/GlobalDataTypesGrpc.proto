@@ -1,0 +1,212 @@
+syntax = "proto3";
+package InoRobBusinessGrpc;
+
+// 机器人位置点
+message RobPos_Grpc
+{
+    repeated double RPosData = 1;   // XYZABC，长度6
+    repeated int32 ArmParm = 2;     // 臂参数，长度4
+    repeated double EPosData = 3;   // E1-E6，长度6
+}
+
+// 机器人关节点
+message JPos_Grpc
+{
+    repeated double JointData = 1;  // J1-J8，长度8
+    repeated double EPosData = 2;   // E1-E6，长度6
+}
+
+// 位姿 用于描述坐标系的值 在PR,Tool,WObj有用到
+message Pose_Grpc
+{
+    repeated double Data = 1; // 长度6
+}
+
+// 负载参数
+message LoadData_Grpc
+{
+    double Mass = 1;              // Mass
+    repeated double Cog = 2;      // centre of Mass expressed in referenced coordinate 负载参数质心位置（Cog）长度3
+    repeated double Orient = 3;   // Orient of work-object coordinate expressed in referenced coordinate 负载参数质心的姿态（Orient）长度3
+    repeated double Inertia = 4;  // Inertia relative to centre of Mass: Ixx,  Iyy,  Izz  负载惯量（Inertia）长度3
+}
+
+// 工具参数
+message ToolData_Grpc
+{
+    bool RobHold = 1;           // True-夹持工具   False-外部工具
+    Pose_Grpc TFrame = 2;
+    LoadData_Grpc TLoad = 3;
+}
+
+// 工件参数
+message WobjData_Grpc
+{
+    bool RobHold = 1;       // 工件是否夹持  true 夹持； FALSE 非夹持
+    bool UFFix = 2;         // 工件是否固定（是否相对于大地坐标系固定、是否相对于法兰盘固定）
+    bytes UFMec = 3;        // 关联的机械单元名称（长度18）
+    Pose_Grpc UFrame = 4;
+    Pose_Grpc OFrame = 5;
+}
+
+// 机械臂型号
+enum RBTTYPE_E_Grpc
+{
+    RBTYPE_INVALID_Grpc = 0;
+    // 3轴
+    RBTYPE_SCARA_C_Grpc = 46;            // 3关节串联scara无Z轴；
+    RBTYPE_SCARA_E_Grpc = 47;            // 3关节串联scara无A轴；
+    RBTYPE_DELTA_A_Grpc = 41;            // 3轴对称并联+1轴旋转的delta
+    RBTYPE_DELTA_B_Grpc = 45;            // 3轴对称并联的delta
+    RBTYPE_SCARA_SCREW_THREE_Grpc = 48;  // 3轴+外司电批轴（三轴挂于EtherCat总线上，电批独立）
+    RBTYPE_SCARA_SCREW_FOUR_Grpc = 44;   // 3轴+本司电批轴（全部挂于EtherCat总线上，电批非独立）
+    // 4轴
+    RBTYPE_SCARA_A_Grpc = 4;      // 4关节串联scara
+    RBTYPE_SCARA_R_Grpc = 4110;   // 倒装scara
+    RBTYPE_PALLET_A_Grpc = 42;    // 码垛一型
+    RBTYPE_PALLET_B_Grpc = 43;    // 码垛二型
+    RBTYPE_SCARA_D_Grpc = 4140;   // 平面SCARA，不联动
+    RBTYPE_TRIPOD_A_Grpc = 4710;  // tripod，3D打印机械手A
+    RBTYPE_TRIPOD_B_Grpc = 4720;  // tripod，3D打印机械手B
+    RBTYPE_PUNCH_A_Grpc = 4800;   // 冲压机械手
+    RBTYPE_FOUR_NA_Grpc = 4900;   // 四轴联动，无模型 PPRR
+    // 5轴
+    RBTYPE_FIVE_A_Grpc = 5;   // 3p2r
+    RBTYPE_FIVE_B_Grpc = 51;  // 3p2r
+    // 6轴
+    RBTYPE_SIXR_A_Grpc = 6;   // 通用串联6R
+    RBTYPE_SIXR_B_Grpc = 61;  // 通用串联6R减去两轴
+    RBTYPE_SIXR_C_Grpc = 62;  // 变异SCARA+2直线轴 科瑞
+    RBTYPE_SIXR_D_Grpc = 63;  // 6轴并联机器人 Stewart
+}
+
+// 坐标系
+enum CoordType_Grpc
+{
+    COORD_UNKNOW_Grpc = 0;    // 未知
+    COORD_JOINT_Grpc = 1;     // 关节
+    COORD_BASE_Grpc = 2;      // 基
+    COORD_TOOL_Grpc = 3;      // 工具
+    COORD_WOBJ_Grpc = 4;      // 工件
+    COORD_WORLD_Grpc = 5;     // 世界
+    COORD_FLANGLE_Grpc = -1;  // 法兰（对准功能使用）
+}
+
+// 位置显示格式
+enum PosFormat_Grpc
+{
+    PosFormat_Grpc_UnuseDefault = 0;
+    FORMAT_JOINT_Grpc = 1;    // 关节坐标格式
+    FORMAT_BASE_Grpc = 2;     // 基坐标格式
+    FORMAT_FLANGLE_Grpc = 3;  // 法兰坐标格式
+    FORMAT_WOBJ_Grpc = 4;     // 工件坐标格式
+    FORMAT_WORLD_Grpc = 5;    // 世界坐标格式
+}
+
+// Modbus TCP 配置
+message ModbusTCP_Para_Grpc
+{
+    int32 owner = 1;        // 控制权 0-未开启，1-二次开发，2-控制器
+    int32 sts = 2;          // 运行情况 0-未运行，1-运行
+    uint32 port = 3;        // 端口号（只读）
+    uint32 framedelay = 4;  // 帧间隔
+}
+
+// Modbus RTU 配置
+message ModbusRTU_Para_Grpc
+{
+    int32 owner = 1;        // 开关（0关闭，2开启）
+    int32 sts = 2;          // Modbus 运行情况 0-未运行，1-运行
+    int32 baud = 3;         // 波特率，索引值（参见UI界面，索引从4开始，如4-4800,5-9600,6-19200以此类推）
+    int32 stopbits = 4;     // 停止位 0-1位 1-2位
+    int32 databits = 5;     // 数据位 0-7位 1-8位
+    int32 parity = 6;       // 奇偶校验 0-无校验 1-奇校验 2-偶校验
+    int32 tmode = 7;        // 传输模式 0-RTU 1-ASCII
+    int32 slaveid = 8;      // 站点号
+    uint32 framedelay = 9;  // 帧间隔
+    uint32 timeout = 10;    // 超时时间
+}
+
+// Modbus 写入配置
+message ModbusParaConfig_Grpc
+{
+    int32 ModbusAddrType = 1;                   // Modbus地址类型 0-旧版地址，1-新版地址
+    ModbusTCP_Para_Grpc stModbusTcpPara = 2;    // Modbus配置结构体
+    ModbusRTU_Para_Grpc stModbusRtuPara = 3;    // ModbusRtu配置结构体
+}
+
+// Modbus 读取配置
+message ModbusConnectSts_Grpc
+{
+    int32 ModbusAddrType = 1;                   // Modbus地址类型 0-旧版地址，1-新版地址
+    ModbusTCP_Para_Grpc stModbusTcpPara = 2;    // Modbus配置结构体
+    ModbusRTU_Para_Grpc stModbusRtuPara = 3;    // ModbusRtu配置结构
+    repeated int32 ModbusTcpConnectFlag = 4;    // modbusTcp连接状态，0表示未连接，1表示已连（数组长度16）
+    repeated string ModbusTcpClientIP = 5;      // 主站IP地址（连接上的主站的IP，数组长度16）
+    repeated uint32 ModbusTcpClientPort = 6;    // 主站端口（连接上的主站的端口，数组长度16）
+}
+// 系统诊断的保存状态
+message ErrsaveSta_Grpc
+{
+    int32 saveRes = 1;       // 诊断结果  -1-保存失败  0-null 1-保存中  2-保存成功  3-保存终止
+    int32 saveProgress = 2;  // 保存进度条值 0-100
+}
+// 系统诊断报告的导出状态
+message ErrexportSta_Grpc
+{
+    int32 exportRes = 1;       // 诊断结果  -1-导出失败 0-null 1-导出中  2-导出成功
+    int32 exportProgress = 2;  // 导出进度条值 0-100
+}
+
+// 机械单元类型
+enum MechUnitType_Grpc
+{
+    MECH_UNIT_ROBOT_Grpc = 0;              // 机器人
+    MECH_UNIT_X_AXIS_TRACK_Grpc = 1;       // X轴导轨
+    MECH_UNIT_ROT_DEVICE_1_AXIS_Grpc = 2;  // 单轴旋转变位机
+    MECH_UNIT_ROT_DEVICE_2_AXIS_Grpc = 3;  // 双轴旋转变位机
+    MECH_UNIT_XYZ_AXIS_TRACK_Grpc = 4;     // XYZ轴导轨
+    MECH_UNIT_XZ_AXIS_TRACK_Grpc = 5;      // XZ轴导轨
+    MECH_UNIT_YZ_AXIS_TRACK_Grpc = 6;      // YZ轴导轨
+    MECH_UNIT_NO_MODEL_1_AXIS_Grpc = 101;  // 无模型1轴
+    MECH_UNIT_NO_MODEL_2_AXIS_Grpc = 102;  // 无模型2轴
+    MECH_UNIT_NO_MODEL_3_AXIS_Grpc = 103;  // 无模型3轴
+    MECH_UNIT_NO_MODEL_4_AXIS_Grpc = 104;  // 无模型4轴
+    MECH_UNIT_NO_MODEL_5_AXIS_Grpc = 105;  // 无模型5轴
+    MECH_UNIT_NO_MODEL_6_AXIS_Grpc = 106;  // 无模型6轴
+};
+
+// 机械单元状态
+enum MechUnitStatus_Grpc
+{
+    MECH_UNIT_STATUS_NORMAL_Grpc = 0;            // 普通
+    MECH_UNIT_STATUS_ACTIVE_Grpc = 1;            // 激活
+    MECH_UNIT_STATUS_COORDINATION_Grpc = 2;      // 协同
+    MECH_UNIT_STATUS_DISABLED_Grpc = 3;          // 禁用
+    MECH_UNIT_STATUS_NORMAL_HOT_Grpc = 4;        // 普通-热机
+    MECH_UNIT_STATUS_ACTIVE_HOT_Grpc = 5;        // 激活-热机
+    MECH_UNIT_STATUS_COORDINATION_HOT_Grpc = 6;  // 协同-热机
+};
+
+// 机械单元信息
+message MechUnitInfo_Grpc
+{
+    bytes Name = 1;                  // 名称（长度18）
+    MechUnitType_Grpc Type = 2;      // 类型
+    uint32 AxisNum = 3;              // 轴数量
+    MechUnitStatus_Grpc Status = 4;  // 当前状态
+}
+
+// 工具/工件标定输入
+// methodType：工具/工件标定类型
+//     夹持工具：0-三点TCP、1-三点TCP+ZX
+//               6-三点TCP+X（适用于四轴机器人）
+//     外部工具：2-已知工具一点TCP、3-已知工具一点TCP+ZX、
+//               4-未知工具三点TCP、5-未知工具三点TCP+ZX
+//               7-已知工具一点TCP+X（适用于四轴机器人）
+//               8-未知工具三点TCP+X（适用于四轴机器人）
+message CsCalibPoints_Grpc
+{
+    int32 methodType = 1;               // 标定类型
+    repeated RobPos_Grpc points = 2;    // 中间点-用于计算标定的输入
+}

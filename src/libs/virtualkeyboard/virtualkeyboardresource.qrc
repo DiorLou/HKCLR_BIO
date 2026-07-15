@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>virtualkeyboardresource/keyboard_backspace.svg</file>
+        <file>virtualkeyboardresource/keyboard_capslock.svg</file>
+        <file>virtualkeyboardresource/keyboard_movecursorleft.svg</file>
+        <file>virtualkeyboardresource/keyboard_movecursorright.svg</file>
+        <file>virtualkeyboardresource/keyboard_redo.svg</file>
+        <file>virtualkeyboardresource/keyboard_undo.svg</file>
+        <file>virtualkeyboardresource/keyboard_capslocked.svg</file>
+    </qresource>
+</RCC>

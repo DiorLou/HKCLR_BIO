@@ -1,0 +1,18 @@
+<svg width="20.000000" height="20.000000" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<desc>
+			Created with Pixso.
+	</desc>
+	<defs>
+		<clipPath id="clip3300_41029">
+			<rect id="组件集 283" width="20.000000" height="20.000000" fill="white" fill-opacity="0"/>
+		</clipPath>
+	</defs>
+	<rect id="组件集 283" width="20.000000" height="20.000000" fill="#3F6BB8" fill-opacity="0"/>
+	<g clip-path="url(#clip3300_41029)">
+		<g opacity="0.700000">
+			<rect id="矩形 3190" x="4.250000" y="8.550781" rx="2.000000" width="11.500000" height="8.500000" stroke="#F15A5A" stroke-opacity="1.000000" stroke-width="1.500000"/>
+			<path id="矩形 3191" d="M5.75 8L5.75 6.5C5.75 5.92 5.86 5.37 6.08 4.84C6.3 4.33 6.6 3.88 6.99 3.49C7.38 3.1 7.83 2.79 8.34 2.58C8.87 2.36 9.42 2.25 10 2.25C10.57 2.25 11.12 2.36 11.65 2.58C12.16 2.79 12.61 3.1 13 3.49C13.39 3.88 13.69 4.33 13.91 4.84C14.13 5.37 14.25 5.92 14.25 6.5L14.25 8L12.75 8L12.75 6.5C12.75 6.12 12.67 5.76 12.53 5.42C12.39 5.1 12.19 4.8 11.94 4.55C11.69 4.3 11.39 4.1 11.07 3.96C10.73 3.82 10.37 3.75 10 3.75C9.62 3.75 9.26 3.82 8.92 3.96C8.6 4.1 8.3 4.3 8.05 4.55C7.8 4.8 7.6 5.1 7.46 5.42C7.32 5.76 7.25 6.12 7.25 6.5L7.25 8L5.75 8Z" fill="#F15A5A" fill-opacity="1.000000" fill-rule="evenodd"/>
+			<path id="矢量 598" d="M10 12L10 14" stroke="#F15A5A" stroke-opacity="1.000000" stroke-width="1.670000" stroke-linecap="round"/>
+		</g>
+	</g>
+</svg>

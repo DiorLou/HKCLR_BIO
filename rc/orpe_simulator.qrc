@@ -1,0 +1,17 @@
+﻿<RCC>
+    <qresource prefix="/simulator">
+        <file>image/simulator/blue/coord.svg</file>
+                <file>image/simulator/blue/down_move.svg</file>
+                <file>image/simulator/blue/front.svg</file>
+                <file>image/simulator/blue/ground.svg</file>
+                <file>image/simulator/blue/left_move.svg</file>
+                <file>image/simulator/blue/left_rotate.svg</file>
+                <file>image/simulator/blue/realtime_model.svg</file>
+                <file>image/simulator/blue/right_move.svg</file>
+                <file>image/simulator/blue/right_rotate.svg</file>
+                <file>image/simulator/blue/target_model.svg</file>
+                <file>image/simulator/blue/up_move.svg</file>
+                <file>image/simulator/blue/zoom_in.svg</file>
+                <file>image/simulator/blue/zoom_out.svg</file>
+    </qresource>
+</RCC>

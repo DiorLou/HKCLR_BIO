@@ -1,0 +1,19 @@
+<svg width="20.000000" height="20.000000" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<desc>
+			Created with Pixso.
+	</desc>
+	<defs>
+		<clipPath id="clip4680_79335">
+			<rect id="大头钉" width="20.000000" height="20.000000" fill="white" fill-opacity="0"/>
+		</clipPath>
+	</defs>
+	<g clip-path="url(#clip4680_79335)">
+		<mask id="mask4680_79337" mask-type="alpha" maskUnits="userSpaceOnUse" x="0.000000" y="0.000000" width="20.000000" height="20.000000">
+			<rect id="rect" width="20.000000" height="20.000000" fill="#000000" fill-opacity="1.000000"/>
+		</mask>
+		<g mask="url(#mask4680_79337)">
+			<path id="path" d="M4.46 7.29C5.56 6.19 6.86 6.22 8.28 7L13.59 4.06L13.29 1.99L18 6.7L15.94 6.41L13 11.71C13.74 13.23 13.81 14.44 12.71 15.54C12.71 15.54 10.93 13.76 9.46 12.3L2.68 17.31L7.68 10.51C6.21 9.05 4.46 7.29 4.46 7.29Z" fill="#000000" fill-opacity="0" fill-rule="nonzero"/>
+			<path id="path" d="M8.28 7L13.59 4.06L13.29 1.99L18 6.7L15.94 6.41L13 11.71C13.74 13.23 13.81 14.44 12.71 15.54C12.71 15.54 10.93 13.76 9.46 12.3L2.68 17.31L7.68 10.51C6.21 9.05 4.46 7.29 4.46 7.29C5.56 6.19 6.86 6.22 8.28 7Z" stroke="#454E66" stroke-opacity="1.000000" stroke-width="1.700000" stroke-linejoin="round"/>
+		</g>
+	</g>
+</svg>

@@ -1,0 +1,220 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "GlobalDataTypesGrpc.proto";
+package InoRobBusinessGrpc;
+
+// 设备状态（可用于设备状态灯）
+enum EDevState_Grpc
+{
+    OFFLINE_Grpc = 0;      // 离线
+    ENABLE_Grpc = 1;       // 使能
+    ESTOP_Grpc = 2;        // 急停
+    ERR_Grpc = 3;          // 报警
+    WARN_Grpc = 4;         // 警告
+    STANDBY_Grpc = 5;      // 待机
+}
+
+// 控制器（程序）运行状态
+enum ControllerRunStatus_Grpc
+{
+    CONTROLLER_RUN_STATUS_STOP_Grpc = 0;     // 停止
+    CONTROLLER_RUN_STATUS_START_Grpc = 1;    // 启动
+    CONTROLLER_RUN_STATUS_FORWARD_Grpc = 2;  // 前进
+    CONTROLLER_RUN_STATUS_BACK_Grpc = 3;     // 后退
+    CONTROLLER_RUN_STATUS_PAUSE_Grpc = 4;    // 暂停
+}
+
+// 电柜类型
+enum ElectricControlCabinetType_Grpc
+{
+    ELECTRIC_CONTROL_CABINET_TYPE_UNKNOW_Grpc = 0;      // 未知
+    ELECTRIC_CONTROL_CABINET_TYPE_NORMAL_Grpc = 1;      // 默认老电柜
+    ELECTRIC_CONTROL_CABINET_TYPE_MULTI_PASS_Grpc = 2;  // 小多传
+    ELECTRIC_CONTROL_CABINET_TYPE_J6_20KGV_Grpc = 3;    // 20公斤6关节立柜
+    ELECTRIC_CONTROL_CABINET_TYPE_UNIT_Grpc = 4;        // 驱控一体
+    ELECTRIC_CONTROL_CABINET_TYPE_JIUZHOU_Grpc = 6;     // 九州电柜
+    ELECTRIC_CONTROL_CABINET_TYPE_UROBOT_Grpc = 8;      // 协作U8电柜类型
+};
+
+// 工具工件匹配状态
+enum ToolWobjMatchStatus_Grpc
+{
+    TOOL_WOBJ_MATCH_Grpc = 0;              // 工具与工件匹配
+    TOOL_WOBJ_NOT_MATCH_Grpc = 1;          // 工具与工件不匹配
+    TOOL_WOBJ_NOT_MATCH_IN_WOBJ_Grpc = 2;  // 工件参数不匹配
+};
+
+// 运行模式（参考MODE_TYPE枚举）
+enum RunMode_Grpc
+{
+    RUN_MODE_UNKNOW_Grpc = 0;       // 未知
+    RUN_MODE_TEACH_Grpc = 1;        // 示教
+    RUN_MODE_REAPPEAR_Grpc = 2;     // 再现
+    RUN_MODE_TEACH_CHECK_Grpc = 3;  // 单步示教检查
+    RUN_MODE_FOUR_Grpc = 4;         // 前进
+    RUN_MODE_TEACH_RUN_Grpc = 5;    // 连续示教运行
+    RUN_MODE_HOMING_Grpc = 6;       // 回零
+    RUN_MODE_TYPE_BUTT_Grpc = 7;
+};
+
+// 寸动等级
+enum MoveStepGrade_Grpc
+{
+    MOVE_STEP_GRADE_NONE_Grpc = 0;  // 关闭寸动（点动）
+    MOVE_STEP_GRADE_G1_Grpc = 1;    // 等级1（关节步长0.05°，位置步长0.05mm，姿态步长0.05°）
+    MOVE_STEP_GRADE_G2_Grpc = 2;    // 等级2（关节步长0.5°，位置步长0.5mm，姿态步长0.5°）
+    MOVE_STEP_GRADE_G3_Grpc = 3;    // 等级3（关节步长2.0°，位置步长2.0mm，姿态步长2.0°）
+    MOVE_STEP_GRADE_U_Grpc = 4;     // 自定义
+};
+
+// 本体上下电(协作)
+enum CoRobotBodyPowerStateEnum_Grpc
+{
+    ROBOT_BODY_POWER_DISENABLE = 0;     // 工业机器人 未启用该功能
+    ROBOT_BODY_POWER_OFF = 1;           // 协作 未上电
+    ROBOT_BODY_POWERING_ON_IN_PROCESS = 2;            // 协作 正在上电
+    ROBOT_BODY_POWER_ON = 3;            // 协作 已上电
+    ROBOT_BODY_DISCONNECTED_STATE = 4; // 未连接时的默认值
+    ROBOT_BODY_POWER_STATE_CONTROLLER_RESEREVE1 = 5;    //控制柜内部状态1
+    ROBOT_BODY_POWER_STATE_CONTROLLER_RESEREVE2 = 6; //控制柜内部状态2
+    ROBOT_BODY_POWER_STATE_CONTROLLER_RESEREVE3 = 7;  //控制柜内部状态3
+    ROBOT_BODY_POWERING_OFF_IN_PROCESS = 8; //协作 本体下电中
+}
+
+// 本体上下电请求
+message SetCoRobotBodyPowerState_Request
+{
+    CoRobotBodyPowerStateEnum_Grpc status = 1;      // 本体上下电枚举
+}
+
+// 本体上下电应答
+message SetCoRobotBodyPowerState_Response
+{
+    CoRobotBodyPowerStateEnum_Grpc status = 1;      // 本体上下电枚举
+}
+
+// 机器人名称响应
+message GetRobotName_Response
+{
+    bool ret = 1;
+    string robotName = 2;
+}
+// 机型（机械臂型号）响应
+message GetRobotType_Response
+{
+    RBTTYPE_E_Grpc robotType = 1;
+}
+// 电柜类型响应
+message GetElectricControlCabinetType_Response
+{
+    ElectricControlCabinetType_Grpc cabinetType = 1;
+}
+// 运行状态响应
+message GetRunStatus_Response
+{
+    ControllerRunStatus_Grpc runStatus = 1;
+}
+// 获取当前寸动等级响应
+message GetMoveStepGrade_Response
+{
+    MoveStepGrade_Grpc moveStepGrade = 1;
+}
+// 获取当前坐标系类型响应
+message GetCurrentCoordType_Response
+{
+    CoordType_Grpc coordType = 1;
+}
+// 当前位置格式响应
+message GetPosFormat_Response
+{
+    PosFormat_Grpc posFormat = 1;
+}
+// 获取当前位置（机械单元）响应
+message GetCurrentPosition_Response
+{
+    bool ret = 1;
+    repeated double position = 2; // 当前位置，长度8
+}
+// 获取运行模式响应
+message GetRunMode_Response
+{
+    RunMode_Grpc runMode = 1;
+}
+// 获取设备状态响应
+message getDeviceState_Response
+{
+    EDevState_Grpc eDevState = 1;
+}
+// 机械单元列表响应
+message GetMechUnitList_Response
+{
+    repeated MechUnitInfo_Grpc mechUnitlist = 1;
+}
+// 获取当前激活（选中）的机械单元响应
+message GetActiveMechUnit_Response
+{
+    MechUnitInfo_Grpc mechUnitInfo = 1;
+}
+
+// 监控
+service MonitorGrpc {
+    // 机器人名称
+    rpc GetRobotName(google.protobuf.Empty) returns (GetRobotName_Response) {}
+    // 机型（机械臂型号）
+    rpc GetRobotType(google.protobuf.Empty) returns (GetRobotType_Response) {}
+    // 电柜类型
+    rpc GetElectricControlCabinetType(google.protobuf.Empty) returns (GetElectricControlCabinetType_Response) {}
+    // 是否掉电保存
+    rpc GetIsPowerDownSave(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // IO数量
+    rpc GetInputNum(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    rpc GetOutputNum(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    // AD、DA数量
+    rpc GetAdNum(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    rpc GetDaNum(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    // 控制器软件版本
+    rpc GetRCVersionName(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+
+    // 运行状态
+    rpc GetRunStatus(google.protobuf.Empty) returns (GetRunStatus_Response) {}
+    // 警告Id
+    rpc GetWarningId(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    // 错误Id
+    rpc GetErrorId(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+
+    // 获取速度值
+    rpc GetSpeed(google.protobuf.Empty) returns (google.protobuf.UInt32Value) {}
+    // 获取当前寸动等级
+    rpc GetMoveStepGrade(google.protobuf.Empty) returns (GetMoveStepGrade_Response) {}
+    // 获取当前坐标系类型
+    rpc GetCurrentCoordType(google.protobuf.Empty) returns (GetCurrentCoordType_Response) {}
+    // 当前位置格式
+    rpc GetPosFormat(google.protobuf.Empty) returns (GetPosFormat_Response) {}
+    // 获取当前位置（机械单元）
+    rpc GetCurrentPosition(google.protobuf.Empty) returns (GetCurrentPosition_Response) {}
+    // 获取当前负载号
+    rpc GetLoadId(google.protobuf.Empty) returns (google.protobuf.UInt32Value) {}
+    // 获取使能状态（true：已上使能，false：已下使能）
+    rpc GetEnable(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 获取急停状态（true：已急停，false：未急停）
+    rpc GetEmergency(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 获取运行模式
+    rpc GetRunMode(google.protobuf.Empty) returns (GetRunMode_Response) {}
+    // 获取当前机械锁定状态（true：锁定，false：未锁定）
+    rpc GetMechLock(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 获取当前动态制动状态（true：开启，false：关闭）
+    rpc GetDynamicBrake(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 获取机器人当前协调的机械单元名称（为空表示机器人未开启协调）
+    rpc GetCooperate(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+    // 获取设备状态
+    rpc getDeviceState(google.protobuf.Empty) returns (getDeviceState_Response) {}
+    // 机械单元列表
+    rpc GetMechUnitList(google.protobuf.Empty) returns (GetMechUnitList_Response) {}
+    // 获取当前激活（选中）的机械单元
+    rpc GetActiveMechUnit(google.protobuf.Empty) returns (GetActiveMechUnit_Response) {}
+    // 当前机械单元是否满足协调条件（可显示协调按钮）
+    rpc GetCooperateIsReady(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+    // 获取本体上下电(协作)
+    rpc GetCoRobotBodyPowerState(google.protobuf.Empty) returns (SetCoRobotBodyPowerState_Response) {}
+}

@@ -1,0 +1,19 @@
+﻿{
+	"Version":	"1.0",
+	"PackageVersion":	"1.0",
+	"IsInit":	true,
+	"Current":	{
+		"Code":	"EN",
+		"Name":	"English",
+		"IsFactory":	true
+	},
+	"Items":	[{
+			"Code":	"EN",
+			"Name":	"English",
+			"IsFactory":	true
+		}, {
+			"Code":	"ZH-CN",
+			"Name":	"简体中文",
+			"IsFactory":	true
+		}]
+}

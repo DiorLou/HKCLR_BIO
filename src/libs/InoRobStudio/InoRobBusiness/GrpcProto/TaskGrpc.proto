@@ -1,0 +1,103 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+package InoRobBusinessGrpc;
+
+// 任务状态
+enum TaskStatus_Grpc
+{
+    TASK_STOP_Grpc = 0;              // 停止
+    TASK_RUNNING_Grpc = 1;           // 运行
+    TASK_STEP_Grpc = 2;              // 单步
+    TASK_PAUSED_Grpc = 4;            // 暂停
+    TASK_FINISHED_Grpc = 10;         // 结束
+    TASK_INACTIVED_Grpc = 100;       // 未激活
+    TASK_FREE_Grpc = 255;            // 空闲
+}
+
+// 单个任务的信息
+message TaskRunInfoItem_Grpc
+{
+    uint32 startLineNum = 1;        // 启动行（对应黄色光标）
+    uint32 runLineNum = 2;          // 运行行（对应机器人光标）
+    uint32 status = 3;              // 任务状态（对应枚举TaskStatus）
+    uint32 breakpointFlag = 4;      // 断点标志，0未进入断点，1进入断点
+    bytes startLineProgram = 5;     // 启动行所在程序名称，如main.pro（长度32）
+    bytes runLineProgram = 6;       // 运行行所在程序名称，如main.pro（长度32）
+}
+// 所有任务的信息集合
+message TaskRunInfo_Grpc
+{
+    repeated TaskRunInfoItem_Grpc infos = 1; // 所有任务集合，数组长度16
+}
+
+// 获取单个任务的运行状态响应
+message getTaskStatus_Response
+{
+    int32 ret = 1;                // 成功返回0，失败请查看错误码
+    TaskStatus_Grpc status = 2;   // 任务状态
+}
+// 获取单个任务的运行信息响应
+message getTaskInfo_Response
+{
+    int32 ret = 1;                          // 成功返回0，失败请查看错误码
+    TaskRunInfoItem_Grpc taskInfo = 2;      // 单个任务的运行信息
+}
+
+// 设置起始行请求
+message setStartLine_Request
+{
+    int32 taskId = 1;       // 任务id
+    int32 lineNum = 2;      // 行号
+    string fileName = 3;    // 程序文件名称
+}
+
+// 获取所有任务的运行信息响应
+message TaskGrpc_getAllTaskInfo_Response
+{
+    int32 ret = 1;                      // 成功返回0，失败请查看错误码
+    TaskRunInfo_Grpc taskRunInfo = 2;   // 运行信息集合
+}
+
+// 设置所有任务的激活状态请求
+message TaskGrpc_setTaskActiveFlag_Request
+{
+    repeated uint32 flags = 1; // 任务激活状态集合，1-激活，0-不激活（数组长度16）
+}
+// 设置指定任务的激活状态请求
+message TaskGrpc_setTaskActiveFlagForSingle_Request
+{
+    int32 taskId = 1;   // 任务id
+    bool flag = 2;      // true-激活，false-不激活
+}
+
+// 任务
+service TaskGrpc {
+    // 所有任务返回起始行
+    // 成功返回0，失败请查看错误码
+    rpc returnStartLineAll(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+    // 单个任务返回起始行
+    // 任务id
+    // 成功返回0，失败请查看错误码
+    rpc returnStartLineSingle(google.protobuf.Int32Value) returns (google.protobuf.Int32Value) {}
+    // 设置起始行
+    // 成功返回0，失败请查看错误码
+    rpc setStartLine(setStartLine_Request) returns (google.protobuf.Int32Value) {}
+    
+    // 获取单个任务的运行状态
+    // 任务id
+    rpc getTaskStatus(google.protobuf.Int32Value) returns (getTaskStatus_Response) {}
+    // 获取单个任务的运行信息
+    // 任务id
+    rpc getTaskInfo(google.protobuf.Int32Value) returns (getTaskInfo_Response) {}
+    // 获取所有任务的运行信息
+    rpc getAllTaskInfo(google.protobuf.Empty) returns (TaskGrpc_getAllTaskInfo_Response) {}
+
+    // 设置所有任务的激活状态
+    // 成功返回0，失败请查看错误码
+    rpc setTaskActiveFlag(TaskGrpc_setTaskActiveFlag_Request) returns (google.protobuf.Int32Value) {}
+    // 设置指定任务的激活状态
+    // 成功返回0，失败请查看错误码
+    rpc setTaskActiveFlagForSingle(TaskGrpc_setTaskActiveFlagForSingle_Request) returns (google.protobuf.Int32Value) {}
+    
+}

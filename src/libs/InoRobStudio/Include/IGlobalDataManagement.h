@@ -1,0 +1,1 @@
+﻿#include "..\GlobalDataService\GlobalDataManagement\Interfaces\IGlobalDataManagement.h"

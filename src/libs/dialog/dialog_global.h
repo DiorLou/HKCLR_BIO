@@ -1,0 +1,12 @@
+#pragma once
+
+#include <QLoggingCategory>
+#include <qglobal.h>
+
+#if defined(DIALOG_LIBRARY)
+#  define DIALOG_EXPORT Q_DECL_EXPORT
+#else
+#  define DIALOG_EXPORT Q_DECL_IMPORT
+#endif
+
+Q_DECLARE_LOGGING_CATEGORY(pluginLog)

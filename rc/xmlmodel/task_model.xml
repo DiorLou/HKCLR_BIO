@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MainProgram>
+	<Condition ConditionType="Loop" ConditionAlias="Loop" ConditionUuid="11c738e5ee6d40439de1d50e4a71e8c5">
+		<Attribute>
+			<Exp></Exp>
+			<Model>Always</Model>
+			<Times></Times>
+		</Attribute>
+		<Condition ConditionType="Wait" ConditionAlias="Wait" ConditionUuid="4e343230b91043d797bf28e0b9b1d88b">
+			<Attribute>
+				<Exp></Exp>
+				<Model>Time</Model>
+				<Time>0.01</Time>
+			</Attribute>
+		</Condition>
+		<Condition ConditionType="Empty" ConditionAlias="Empty" ConditionUuid="f20fae8bfde0400384862811e7af7f4e">
+			<Attribute/>
+		</Condition>
+	</Condition>
+</MainProgram>

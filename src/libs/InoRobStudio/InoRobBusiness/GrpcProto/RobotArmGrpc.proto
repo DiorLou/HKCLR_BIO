@@ -1,0 +1,170 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "GlobalDataTypesGrpc.proto";
+package InoRobBusinessGrpc;
+
+// 碰撞检测设备模式
+enum DevModeEnum_Grpc
+{
+    MODE_MANUAL_Grpc = 0;   // 手动模式
+    MODE_UNKNOW_Grpc = -1;  // 无效
+    MODE_AUTO_Grpc = 1;     // 自动模式
+}
+
+// 碰撞检测参数
+message ColDetectPara_Grpc
+{
+    repeated uint32 iActive = 1;    // 8个轴的开关 0-关 1-开（数组长度8）
+    repeated double dDegree = 2;    // 每个轴的灵敏度 25-300（数组长度8）
+    uint32 iTrigEvent = 3;          // 碰撞触发事件 0-继续运行;1-轻微警告;2-暂停警告;3-规划停止;4-报警急停;5-报警返回;7-立即回退;8-立即停止
+    int32 i32CollDict = 4;          // 回退距离5-100mm
+    int32 i32ColliFlag = 5;         // IO触发碰撞检测
+}
+
+// 获取当前绝对零点值响应
+message getAbsZeroValue_Response
+{
+    int32 ret = 1;                  // 0表示成功，其它表示失败
+    repeated double absZero = 2;    // 绝对零点值（数组长度8）
+}
+// 保存绝对零点值至控制器请求
+message saveAbsZeroValue_Request
+{
+    repeated double absZero = 1;    // 绝对零点值（数组长度8）
+}
+// 获取当前电机位置响应
+message getCurrMotorPos_Response
+{
+    int32 ret = 1;                  // 0表示成功，其它表示失败
+    repeated double motorPos = 2;   // 当前电机位置（数组长度8）
+}
+
+// 从控制器中读取工作原点响应
+message ReadWorkOriginPts_Response
+{
+    int32 ret = 1;              // 0表示成功，其它表示失败
+    JPos_Grpc JAndEData = 2;    // 工作原点数据
+}
+// 保存工作原点的数据请求
+message saveWorkOriginData_Request
+{
+    repeated double jPoint = 1;     // 关节值（数组长度8）
+    repeated double ePoint = 2;     // 外部轴值（数组长度6）
+    uint32 ulIndex = 3;             // 工作原点序号
+}
+
+// 获取最大允许关节速度（运动）响应
+message getAxisMaxSpeed_Response
+{
+    int32 ret = 1;                      // 0表示成功，其它表示失败
+    repeated double AxisDbParam = 2;    // 最大允许关节速度值（数组长度8）
+}
+// 保存最大允许关节速度（运动）请求
+message saveAxisMaxSpeed_Request
+{
+    repeated double AxisDbParam = 1;    // 最大允许关节速度值（数组长度8）
+}
+
+// 读碰撞检测参数请求
+message readColDetectPara_Request
+{
+    DevModeEnum_Grpc mode = 1;  // 碰撞检测设备模式
+}
+// 读碰撞检测参数响应
+message readColDetectPara_Response
+{
+    int32 ret = 1;                  // 0表示成功，其它表示失败
+    ColDetectPara_Grpc para = 2;    // 碰撞检测参数
+}
+
+// 写碰撞检测参数请求
+message writeColDetectPara_Request
+{
+    DevModeEnum_Grpc mode = 1;      // 碰撞检测设备模式
+    ColDetectPara_Grpc para = 2;    // 碰撞检测参数
+}
+
+// 获取正向极限响应
+message RobotArmGrpc_getPosLimit_Response
+{
+    int32 ret = 1;                  // 0表示成功，其它表示失败
+    repeated double posLimit = 2;   // 各轴的正极限（数组长度8）
+}
+// 获取轴负极限响应
+message RobotArmGrpc_getNegLimit_Response
+{
+    int32 ret = 1;                  // 0表示成功，其它表示失败
+    repeated double negLimit = 2;   // 各轴的负极限（数组长度8）
+}
+// 保存设置的正极限和负极限请求
+message RobotArmGrpc_savePosLimitAndNegLimit_Request
+{
+    repeated double posLimit = 1;   // 各轴的正极限（数组长度8）
+    repeated double negLimit = 2;   // 各轴的负极限（数组长度8）
+}
+
+// 获取最大允许关节加速度响应
+message RobotArmGrpc_getAxisMaxAcc_Response
+{
+    int32 ret = 1;                     // 0表示成功，其它表示失败
+    repeated double AxisDbParam = 2;   // 各轴的最大允许关节加速度（数组长度8）
+}
+// 保存最大允许关节加速度请求
+message RobotArmGrpc_saveAxisMaxAcc_Request
+{
+    repeated double AxisDbParam = 1;   // 各轴的最大允许关节加速度（数组长度8）
+}
+
+// 本体
+service RobotArmGrpc {
+    // 获取当前绝对零点值
+    rpc getAbsZeroValue(google.protobuf.Empty) returns (getAbsZeroValue_Response) {}
+    // 保存绝对零点值至控制器
+    // 返回值：0表示成功，其它表示失败
+    rpc saveAbsZeroValue(saveAbsZeroValue_Request) returns (google.protobuf.Int32Value) {}
+    
+    // 从控制器中读取工作原点
+    // 参数：工作原点序号
+    rpc ReadWorkOriginPts(google.protobuf.UInt32Value) returns (ReadWorkOriginPts_Response) {}
+    // 保存工作原点的数据
+    // 返回值：0表示成功，其它表示失败
+    rpc saveWorkOriginData(saveWorkOriginData_Request) returns (google.protobuf.Int32Value) {}
+
+    // 获取最大允许关节速度（运动）
+    rpc getAxisMaxSpeed(google.protobuf.Empty) returns (getAxisMaxSpeed_Response) {}
+    // 保存最大允许关节速度（运动）
+    // 返回值：0表示成功，其它表示失败
+    rpc saveAxisMaxSpeed(saveAxisMaxSpeed_Request) returns (google.protobuf.Int32Value) {}
+
+    // 读碰撞检测参数
+    rpc readColDetectPara(readColDetectPara_Request) returns (readColDetectPara_Response) {}
+    // 写碰撞检测参数
+    // @return 0:成功 其他:错误码
+    rpc writeColDetectPara(writeColDetectPara_Request) returns (google.protobuf.Int32Value) {}
+
+    // 获取当前电机位置
+    rpc getCurrMotorPos(google.protobuf.Empty) returns (getCurrMotorPos_Response) {}
+
+    // 获取轴正向极限
+    rpc getPosLimit(google.protobuf.Empty) returns (RobotArmGrpc_getPosLimit_Response) {}
+    // 获取负极限
+    rpc getNegLimit(google.protobuf.Empty) returns (RobotArmGrpc_getNegLimit_Response) {}
+    // 保存设置的正极限和负极限
+    // return 0-保存成功
+    rpc savePosLimitAndNegLimit(RobotArmGrpc_savePosLimitAndNegLimit_Request) returns (google.protobuf.Int32Value) {}
+
+    // 获取最大允许关节加速度（示教）
+    rpc getTeachAxisMaxAcc(google.protobuf.Empty) returns (RobotArmGrpc_getAxisMaxAcc_Response) {}
+    // 保存最大允许关节加速度（示教）
+    // @return 0:成功 其他:错误码
+    rpc saveTeachAxisMaxAcc(RobotArmGrpc_saveAxisMaxAcc_Request) returns (google.protobuf.Int32Value) {}
+    // 获取最大允许关节加速度（运动）
+    rpc getAxisMaxAcc(google.protobuf.Empty) returns (RobotArmGrpc_getAxisMaxAcc_Response) {}
+    // 保存最大允许关节加速度（运动）
+    // @return 0:成功 其他:错误码
+    rpc saveAxisMaxAcc(RobotArmGrpc_saveAxisMaxAcc_Request) returns (google.protobuf.Int32Value) {}
+
+    // 向控制器发送保存文件命令
+    rpc saveFileCommond(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "GlobalDataTypesGrpc.proto";
+package InoRobBusinessGrpc;
+
+// 设定当前坐标系类型请求
+message SetCurrentCoordType_Request
+{
+    CoordType_Grpc coordType = 1;
+}
+
+// 位置
+service PositionGrpc {
+    // 设定当前坐标系类型
+    rpc SetCurrentCoordType(SetCurrentCoordType_Request) returns (google.protobuf.BoolValue) {}
+}

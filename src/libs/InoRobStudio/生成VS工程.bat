@@ -1,0 +1,3 @@
+cmake  -S .\ -B .\VS2019-Debug -G "Visual Studio 16 2019" -A Win32 -DCMAKE_CONFIGURATION_TYPES:STRING="Debug" -DCMAKE_BUILD_TYPE:STRING=Debug
+::cmake  -S .\ -B .\VS2019-Release -G "Visual Studio 16 2019" -A Win32 -DCMAKE_CONFIGURATION_TYPES:STRING="Release" -DCMAKE_BUILD_TYPE:STRING=Release
+pause

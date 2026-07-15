@@ -1,0 +1,45 @@
+set(COBOT_TP_APP_TARGET "TPBox")
+set(SOURCE_FILE_BIN ${CMAKE_BINARY_DIR}/bin)
+set(DESTINATION_FILE_BIN ${CMAKE_BINARY_DIR}/${COBOT_TP_APP_TARGET}/bin)
+set(SOURCE_FILE_SHARE ${CMAKE_BINARY_DIR}/share)
+set(DESTINATION_FILE_SHARE ${CMAKE_BINARY_DIR}/${COBOT_TP_APP_TARGET}/share)
+
+#Delete other .exe
+file(GLOB ALL_EXE_FILES "${SOURCE_FILE_BIN}/*.exe")
+foreach(EXE ${ALL_EXE_FILES})
+   get_filename_component(EXE_FILE_NAME ${EXE} NAME_WE)
+   if(NOT EXE_FILE_NAME STREQUAL COBOT_TP_APP_TARGET)
+       file(REMOVE ${EXE})
+   endif()
+endforeach()
+
+include(TPBox_CMake/TPBox_EnabledList)
+
+if(MINGW)
+    add_custom_target(CreatTarget ALL DEPENDS ${COBOT_TP_APP_TARGET}
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${DESTINATION_FILE_SHARE}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${DESTINATION_FILE_SHARE}
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_FILE_SHARE} ${DESTINATION_FILE_SHARE}
+
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${DESTINATION_FILE_BIN}
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${DESTINATION_FILE_BIN}
+
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${SOURCE_FILE_BIN}/osgPlugins-3.6.5 ${DESTINATION_FILE_BIN}/osgPlugins-3.6.5
+
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${DESTINATION_FILE_BIN}/libs
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${DESTINATION_FILE_BIN}/libs
+
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${DESTINATION_FILE_BIN}/plugins
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${DESTINATION_FILE_BIN}/plugins
+
+        COMMAND ${CMAKE_COMMAND} -DSOURCE_FILE_BIN=${SOURCE_FILE_BIN}
+        -DCOBOT_TP_APP_TARGET=${COBOT_TP_APP_TARGET}
+        -DDESTINATION_FILE_BIN=${DESTINATION_FILE_BIN}
+        -DLIB_ENABLED_LIST_ON_STR=${LIB_ENABLED_LIST_ON_STR}
+        -DBIN_LIB_DLL_DIFFERENCE_STR=${BIN_LIB_DLL_DIFFERENCE_STR}
+        -DPLUGIN_ENABLED_LIST_ON_STR=${PLUGIN_ENABLED_LIST_ON_STR}
+        -P ${CMAKE_SOURCE_DIR}/cmake/Target_Copy.cmake
+        COMMENT "Copy Target"
+    )
+add_dependencies(CreatTarget ${COBOT_TP_APP_TARGET})
+endif()

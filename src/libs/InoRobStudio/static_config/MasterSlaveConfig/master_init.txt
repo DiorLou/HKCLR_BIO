@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="utf-8"?><EtherCATConfig><Config><Master><SysHwCfg>1</SysHwCfg><cycleTime>2000</cycleTime><AliasMode>0</AliasMode><Info><Name><![CDATA[Card 0 ]]></Name></Info><ShiftTime>250</ShiftTime></Master>

@@ -1,0 +1,64 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "GlobalDataTypesGrpc.proto";
+package InoRobBusinessGrpc;
+
+// 当前工件是否为机器人夹持响应
+message WobjGrpc_currentIsRobotHold_Response
+{
+    bool ret = 1;    // 是否获取成功
+    bool result = 2; // 返回是否夹持结果
+}
+// 指定工件是否为机器人夹持响应
+message WobjGrpc_someoneIsRobotHold_Response
+{
+    bool ret = 1;    // 是否获取成功
+    bool result = 2; // 返回是否夹持结果
+}
+// 指定工件是否为固定响应
+message WobjGrpc_someoneIsFixed_Response
+{
+    bool ret = 1;    // 是否获取成功
+    bool result = 2; // 返回是否固定结果
+}
+// 获取当前的工件参数响应
+message WobjGrpc_GetCurrentWobjParam_Response
+{
+    bool ret = 1;               // 是否获取成功
+    WobjData_Grpc wobjData = 2; // 工件参数
+}
+// 读取工件参数响应
+message WobjGrpc_GetWobjParam_Response
+{
+    bool ret = 1;               // 是否获取成功
+    WobjData_Grpc wobjData = 2; // 工件参数
+}
+// 设置工件参数请求
+message WobjGrpc_SetWobjParam_Request
+{
+    uint32 wobjNo = 1;          // 工件号
+    WobjData_Grpc wobjData = 2; // 工件参数
+}
+
+// 工件
+service WobjGrpc {
+    // 获取当前工件号
+    rpc getCurrentId(google.protobuf.Empty) returns (google.protobuf.UInt32Value) {}
+    // 设定当前工件号
+    rpc SetCurrentId(google.protobuf.UInt32Value) returns (google.protobuf.BoolValue) {}
+
+    // 当前工件是否为机器人夹持
+    rpc currentIsRobotHold(google.protobuf.Empty) returns (WobjGrpc_currentIsRobotHold_Response) {}
+    // 指定工件是否为机器人夹持
+    rpc someoneIsRobotHold(google.protobuf.UInt32Value) returns (WobjGrpc_someoneIsRobotHold_Response) {}
+    // 指定工件是否为固定
+    rpc someoneIsFixed(google.protobuf.UInt32Value) returns (WobjGrpc_someoneIsFixed_Response) {}
+
+    // 获取当前的工件参数
+    rpc GetCurrentWobjParam(google.protobuf.Empty) returns (WobjGrpc_GetCurrentWobjParam_Response) {}
+    // 读取工件参数
+    rpc GetWobjParam(google.protobuf.UInt32Value) returns (WobjGrpc_GetWobjParam_Response) {}
+    // 设置工件参数
+    rpc SetWobjParam(WobjGrpc_SetWobjParam_Request) returns (google.protobuf.BoolValue) {}
+}

@@ -1,0 +1,170 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "GlobalDataTypesGrpc.proto";
+package InoRobBusinessGrpc;
+
+// 工程类型
+enum ExternalPropName_Grpc
+{
+    SV_TYPE = 0;                  // 伺服类型620N = 0,660N = 1(默认值660N)
+    OP_MODE = 1;                  // 伺服驱动模式  8-位置模式；9-速度模式;10-转矩模式 （待定）
+    AXIS_TYPE = 2;                // 电机轴属性 0-旋转轴;线性轴不开放（1-线性轴）
+    MOVE_TYPE = 3;                // 传动方向 0、转动-转动  1、转动-直线
+    PHY_TRANS_RATIO = 4;          // 物理传动化
+    ABS_ZERO_POINT = 5;           // 零点
+    POS_LMT = 6;                  // 正限位
+    NEG_LMT = 7;                  // 负限位
+    PARA_VEL = 8;                 // 示教速度
+    PARA_ACC = 9;                 // 示教加速度
+    MAX_SPEED = 10;               // 最大速度
+    MAX_ACC_SPEED = 11;           // 最大加速度
+    STOP_DEC_SPEED = 12;          // 停机减速度
+    FOLLOW_ERR = 13;              // 跟随误差
+    INPOS_ERR = 14;               // 到位误差
+    INPOS_TIME = 15;              // 到位时间
+    CURRENT_LIMIT = 16;           // 最大电流报警阈值
+    AVERAGE_LOAD_RATE_LIMIT = 17; // 平均负载率报警阈值
+    IS_SUPPORT_INDAXIS = 18;      // 是否支持独立轴: 0-不支持 1-支持
+    INDAXIS_NEGLIMIT = 19;        // 独立轴负限位
+    INDAXIS_POSLIMIT = 20;        // 独立轴正限位
+    SPEED_ARRIVAL_ERROR = 21;     // 速度到位误差
+    SPEED_ARRIVAL_TIME = 22;      // 速度到位时间
+    SPEED_TRACKING_ERROR = 23;    // 速度跟随误差阈值
+}
+
+// 标定方法
+enum MechUnitCalibMethod_Grpc
+{
+    MECH_UNIT_CALIB_METHOD_THREE_POINT_Grpc = 0;             // 三点法
+    MECH_UNIT_CALIB_METHOD_THREE_POINT_ROTATE_Grpc = 1;      // 三点旋转法
+    MECH_UNIT_CALIB_METHOD_KNOWN_ONE_POINT_ZX_Grpc = 2;      // 已知工具一点TCP+ZX
+    MECH_UNIT_CALIB_METHOD_UNKNOWN_THREE_POINT_ZX_Grpc = 3;  // 未知工具三点TCP+ZX
+    MECH_UNIT_CALIB_METHOD_SIX_POINT_Grpc = 4;               // 六点法
+    MECH_UNIT_CALIB_METHOD_NINE_POINT_Grpc = 5;              // 九点法
+};
+
+// 设置机器人独立轴属性请求
+message setRobotIndAxisAttribute_Request
+{
+    ExternalPropName_Grpc indAxisEnum = 1;  // 写入类型
+    string value = 2;                       // 写入数值
+}
+
+// 设置机械单元轴属性请求
+message setAxisAttributeValue_Request
+{
+    string mechUnitName = 1;                // 机械单元名称
+    int32 axisIndex = 2;                    // 轴号，从0开始为轴1
+    ExternalPropName_Grpc indAxisEnum = 3;  // 写入类型
+    string value = 4;                       // 写入数值
+}
+
+// 添加机械单元请求
+message AddMechUnit_Request
+{
+    MechUnitType_Grpc type = 1;     // 机械单元类型
+    string name = 2;                // 机械单元名称
+}
+
+// 机械单元的独立轴信息
+message MechUnitIsSupportIndAxisData_Grpc
+{
+    string mechName = 1;          // 机械单元名称
+    string axisIndexName = 2;     // 轴名称
+    string isSupportIndAxis = 3;  // 是否支持独立轴
+}
+
+// 机械单元的独立轴信息列表
+message MechUnitIsSupportIndList_Grpc
+{
+    repeated MechUnitIsSupportIndAxisData_Grpc mechUintIsSuppertIndList = 1;
+}
+
+// 取当前值作为零点请求
+message setCurValueAsHome_Request
+{
+    int32 guideIndex = 1;       // 机械单元名称
+    int32 curAxisIndex = 2;     // 轴号，从0开始为轴1
+}
+
+// 机械单元数据
+message MechUnitData_Grpc
+{
+    string name = 1;                    // 机械单元名称
+    MechUnitType_Grpc mechUnitType = 2; // 机械单元类型
+    int32 axisCount = 3;                // 轴数
+    int32 installType = 4;              // 安装类型（针对机器人）
+    string moveMechName = 5;            // 移动机械名称
+}
+
+// 获取所有机械单元列表响应
+message MechUnitGrpc_GetMechUnitList_Response
+{
+    bool ret = 1;
+    repeated MechUnitData_Grpc mechUnitData = 2; // 机械单元数据
+}
+
+// 设置机器人的安装类型及移动导轨名称请求
+message SetRobotInstallType_Request
+{
+    int32 installType = 1;      // 安装类型: 0-机器人在固定位置，1-机器人位于可移动的导轨上
+    string moveMechName = 2;    // 移动导轨名称
+}
+
+// 机械单元标定请求
+message MechUnitCalibrate_Request
+{
+    string name = 1;                            // 机械单元名称
+    MechUnitType_Grpc mechUnitType = 2;         // 机械单元类型
+    int32 axisNo = 3;                           // 轴号
+    MechUnitCalibMethod_Grpc calibMethod = 4;   // 标定方法
+    repeated RobPos_Grpc midPos = 5;            // 中间点数据
+    Pose_Grpc previousAxisPos = 6;              // 如果标定轴二, 先传入轴一标定数据
+}
+
+// 机械单元标定响应
+message MechUnitCalibrate_Response
+{
+    bool ret = 1;                        // 是否计算成功
+    repeated Pose_Grpc calibResult = 2;  // 标定计算结果
+}
+
+// 机械单元
+service MechUnitGrpc {
+    // 激活机械单元
+    rpc MechUnitActive(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
+	
+	// 删除robot以外的所有机械单元
+    // @return 0:成功 其他:错误码
+    rpc DelAllMechUnit(google.protobuf.Empty) returns (google.protobuf.Int32Value) {}
+
+    // 设置机器人机械单元轴属性
+    rpc setRobotIndAxisAttribute(setRobotIndAxisAttribute_Request) returns (google.protobuf.Int32Value) {}
+
+    // 添加机械单元
+    rpc addMechUnit(AddMechUnit_Request) returns (google.protobuf.BoolValue) {}
+
+    // 删除机械单元
+    rpc RemoveMechUnit(google.protobuf.StringValue) returns (google.protobuf.BoolValue) {}
+
+    // 获取所有机械单元的独立轴信息
+    rpc getAllMechUnitIsSupportIndAxisData(google.protobuf.Empty) returns (MechUnitIsSupportIndList_Grpc) {}
+
+    // 设置机械单元轴属性
+    rpc setAxisAttributeValue(setAxisAttributeValue_Request) returns (google.protobuf.Int32Value) {}
+
+    // 取当前值作为零点
+    // guideIndex 机械单元的索引号
+    // curAxisIndex 当前的轴号,0-轴1, 1-轴2, 2-轴3
+    rpc setCurValueAsHome(setCurValueAsHome_Request) returns (google.protobuf.Int32Value) {}
+
+    // 获取所有机械单元列表
+    rpc GetMechUnitList(google.protobuf.Empty) returns (MechUnitGrpc_GetMechUnitList_Response) {}
+
+    // 设置机器人的安装类型及移动导轨名称
+    rpc setRobotInstallType(SetRobotInstallType_Request) returns (google.protobuf.Int32Value) {}
+
+    // 机械单元标定
+    rpc calibrate(MechUnitCalibrate_Request) returns (MechUnitCalibrate_Response) {}
+}
