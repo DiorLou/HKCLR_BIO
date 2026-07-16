@@ -15,12 +15,14 @@
 #include <QFuture>
 #include "simulationform.h"
 #include "pileupinfo.h"
+#include "robotcontrolform.h"
 
 #define SIM_WIDTH 659
 #define SIM_HEIGHT 652
 
 static TeachContainerForm *s_instance = 0;
 static const int MAINWIDGET_TAB_TEACH_INDEX = 0;
+static const int MAINWIDGET_TAB_ROBOT_CONTROL_INDEX = 1;
 
 TeachContainerForm *TeachContainerForm::instance()
 {
@@ -74,6 +76,8 @@ TeachContainerForm::TeachContainerForm(QWidget *parent) :
     ui->wgt_teachcontroller->setJointBtnSize(QSize(105, 98));
 
     ui->cmb_movetype->setCurrentIndex(0);
+
+    m_robotControlForm = new RobotControlForm;
 }
 
 TeachContainerForm::~TeachContainerForm()
@@ -87,6 +91,13 @@ void TeachContainerForm::initialize()
         MainWidget::instance()->addTabWidget(
             MAINWIDGET_TAB_TEACH_INDEX, this, tr("Teaching"),
         QString(":/menu/image/menu/teaching.svg"));
+
+    m_iRobotControlTabIndex =
+        MainWidget::instance()->addTabWidget(
+            MAINWIDGET_TAB_ROBOT_CONTROL_INDEX,
+            m_robotControlForm,
+            tr("Robot Control"),
+            QString(":/mainwidget/image/mainwidget/robotbodypoweron.svg"));
 
     ui->layout_simulator->addWidget(SimulationForm::instance());
     SimulationForm::instance()->setSimulationFormSize(
@@ -112,6 +123,8 @@ void TeachContainerForm::getFunctionEnabledList(QList<QVariant> &retList)
 void TeachContainerForm::retranslateUi()
 {
     MainWidget::instance()->setTabText(MAINWIDGET_TAB_TEACH_INDEX,  QObject::tr("Teaching"));
+    if (m_iRobotControlTabIndex >= 0)
+        MainWidget::instance()->setTabText(m_iRobotControlTabIndex, tr("Robot Control"));
     ui->retranslateUi(this);
 }
 

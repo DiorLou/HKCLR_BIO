@@ -35,3 +35,8 @@ target_include_directories (TeachContainer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories (TeachContainer PUBLIC
   ${PROJECT_SOURCE_DIR}/src/plugins/simulation/simulationform
 )
+
+# Keep MinGW diagnostics visible in Qt Creator's Application Output pane.
+if(MINGW)
+  target_compile_options(TeachContainer PRIVATE -fdiagnostics-color=never)
+endif()

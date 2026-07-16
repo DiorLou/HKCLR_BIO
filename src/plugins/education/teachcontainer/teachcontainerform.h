@@ -7,6 +7,7 @@
 
 class CoordParam;
 class QGroupBox;
+class RobotControlForm;
 
 namespace Ui
 {
@@ -83,6 +84,8 @@ private:
     Ui::TeachContainerForm *ui;
 
     int m_iMainTabIndex = -1;
+    int m_iRobotControlTabIndex = -1;
+    RobotControlForm *m_robotControlForm = nullptr;
 
     QVector<InoRPointInfo> m_vecRPointInfos;
     QVector<InoJPointInfo> m_vecJPointInfos;
