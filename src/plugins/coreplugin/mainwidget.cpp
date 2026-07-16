@@ -42,8 +42,34 @@
 #include "flowwidgetmanager.h"
 #include "common.h"
 #include <QScreen>
+#include <atomic>
+#include <chrono>
+#include <cstdlib>
+#include <thread>
 #include "splashscreen.h"
 #include "pluginspec.h"
+
+namespace {
+void requestApplicationExit()
+{
+    static std::atomic_bool exitRequested{false};
+    if (exitRequested.exchange(true))
+        return;
+
+    // Let Qt, plugins and communication objects shut down normally first.
+    QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
+
+#if defined(Q_OS_WIN)
+    // Some legacy/prebuilt components can block indefinitely during shutdown.
+    // A detached watchdog guarantees that Windows releases the executable and
+    // DLL handles even when normal teardown does not finish.
+    std::thread([] {
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        std::_Exit(EXIT_SUCCESS);
+    }).detach();
+#endif
+}
+}
 #define TitleIconSize ResolutionUtils::getRatioSize(QSize(28, 28))
 static MainWidget *s_instance = 0;
 
@@ -280,7 +306,7 @@ void MainWidget::power(bool isNotConfirmShutdown)
     Q_UNUSED(isNotConfirmShutdown);
     // Exit through Qt's event loop. Killing our own executable with taskkill
     // bypasses normal thread/plugin cleanup and can leave the file locked.
-    QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
+    requestApplicationExit();
 #elif defined(Q_OS_ANDROID)
     QJniEnvironment env;
     QJniObject activity = QNativeInterface::QAndroidApplication::context();
@@ -741,15 +767,22 @@ void MainWidget::slot_controllerConnectionStatusChanged(
             } else {
                 const int V = versionMatch.captured(1).toInt();
                 const int R = versionMatch.captured(2).toInt();
+                constexpr int minimumMajorVersion = 4;
+                constexpr int minimumRevision = 24;
+                const bool isControllerVersionTooOld
+                    = V < minimumMajorVersion
+                      || (V == minimumMajorVersion
+                          && R < minimumRevision);
+
                 qInfo() << "Controller version:" << verName
                         << "parsed V" << V << "R" << R
-                        << "minimum supported: V4R26";
+                        << "minimum supported: V4R24";
 
-                if (V == 4 && R < 26) {
+                if (isControllerVersionTooOld) {
                 // 控制版本低于26，则断连
                     MessageBox::warning(
                         tr("The version of the teaching pendant does not match that of the controller. Please upgrade the controller")
-                        + QStringLiteral("\nController: %1\nMinimum: V4R26")
+                        + QStringLiteral("\nController: %1\nMinimum: V4R24")
                               .arg(verName));
                     if (Communication::instance()->isConnected()) {
                         CommunicationEngine::instance()->enqueueCmd(
@@ -1107,7 +1140,7 @@ void MainWidget::closeEvent(QCloseEvent *closeEvent)
         closeEvent->accept();
         // Queue quit so it is handled by the main application event loop
         // after this close event and the confirmation dialog have returned.
-        QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
+        requestApplicationExit();
     } else {
         closeEvent->ignore();
     }
