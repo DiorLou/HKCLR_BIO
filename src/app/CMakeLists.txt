@@ -86,6 +86,104 @@ if(TARGET ${COBOT_TP_APP_TARGET})
   )
 
   target_link_libraries(${COBOT_TP_APP_TARGET} PRIVATE ${_teach_demo_app_imports})
+
+  # Imported targets are link-time dependencies only; CMake does not copy their
+  # runtime DLLs beside the executable automatically.  Keep the deploy folder
+  # self-contained so packaged builds also run on machines without the source
+  # tree (for example, libAuthority.dll is required during process startup).
+  foreach(_runtime_target IN LISTS _teach_demo_app_imports)
+    if(TARGET "${_runtime_target}")
+      get_target_property(_is_imported "${_runtime_target}" IMPORTED)
+      if(_is_imported)
+        add_custom_command(TARGET ${COBOT_TP_APP_TARGET} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:${_runtime_target}>"
+            "$<TARGET_FILE_DIR:${COBOT_TP_APP_TARGET}>"
+          VERBATIM
+        )
+      endif()
+    else()
+      # Imported targets created in src/libs are directory-scoped and are not
+      # visible here.  Deploy their known runtime DLL without making the target
+      # GLOBAL, which would also propagate incompatible legacy include paths.
+      set(_runtime_dll "")
+      foreach(_runtime_root IN ITEMS
+          "${PROJECT_SOURCE_DIR}/prebuilt_demo/windows-mingw-x64/bin"
+          "${PROJECT_SOURCE_DIR}/prebuilt/windows-mingw-x64/bin")
+        if(EXISTS "${_runtime_root}/lib${_runtime_target}.dll")
+          set(_runtime_dll "${_runtime_root}/lib${_runtime_target}.dll")
+          break()
+        endif()
+      endforeach()
+      if(_runtime_dll)
+        add_custom_command(TARGET ${COBOT_TP_APP_TARGET} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${_runtime_dll}"
+            "$<TARGET_FILE_DIR:${COBOT_TP_APP_TARGET}>"
+          VERBATIM
+        )
+      endif()
+    endif()
+  endforeach()
+
+  # Qt SQL drivers are plugins loaded at runtime, so linking Qt::Sql does not
+  # copy them automatically.  Without qsqlite.dll QSQLITE is not listed in
+  # QSqlDatabase::drivers() and application database initialization fails.
+  set(_qt_sqlite_plugin "${Qt${QT_VERSION_MAJOR}_DIR}/../../../plugins/sqldrivers/qsqlite.dll")
+  get_filename_component(_qt_sqlite_plugin "${_qt_sqlite_plugin}" ABSOLUTE)
+  if(EXISTS "${_qt_sqlite_plugin}")
+    add_custom_command(TARGET ${COBOT_TP_APP_TARGET} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory
+        "$<TARGET_FILE_DIR:${COBOT_TP_APP_TARGET}>/sqldrivers"
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${_qt_sqlite_plugin}"
+        "$<TARGET_FILE_DIR:${COBOT_TP_APP_TARGET}>/sqldrivers/qsqlite.dll"
+      VERBATIM
+    )
+  else()
+    message(WARNING "Qt SQLite driver not found: ${_qt_sqlite_plugin}")
+  endif()
+
+  # Deploy the Qt runtime libraries and plugins required when launching the
+  # executable outside Qt Creator.  Qt Creator injects its Qt bin directory
+  # into PATH, which can otherwise hide missing deployment files.
+  set(_qt_deploy_tool "${Qt${QT_VERSION_MAJOR}_DIR}/../../../bin/windeployqt.exe")
+  get_filename_component(_qt_deploy_tool "${_qt_deploy_tool}" ABSOLUTE)
+  if(EXISTS "${_qt_deploy_tool}")
+    set(_qt_deploy_args --no-translations --no-compiler-runtime)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+      list(APPEND _qt_deploy_args --debug)
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+      list(APPEND _qt_deploy_args --release)
+    endif()
+    add_custom_command(TARGET ${COBOT_TP_APP_TARGET} POST_BUILD
+      COMMAND "${_qt_deploy_tool}" ${_qt_deploy_args}
+        "$<TARGET_FILE:${COBOT_TP_APP_TARGET}>"
+      VERBATIM
+    )
+  else()
+    message(WARNING "Qt deployment tool not found: ${_qt_deploy_tool}")
+  endif()
+
+  # windeployqt scans the executable and Qt plugins, but not every prebuilt
+  # business DLL beside it.  Those DLLs use these Qt modules indirectly, so
+  # deploy the complete module set requested by this project as well.
+  get_filename_component(_qt_runtime_dir
+    "${Qt${QT_VERSION_MAJOR}_DIR}/../../../bin" ABSOLUTE)
+  foreach(_qt_runtime_module IN ITEMS
+      Core Gui Widgets Network Sql Svg OpenGL OpenGLWidgets)
+    set(_qt_runtime_dll
+      "${_qt_runtime_dir}/Qt${QT_VERSION_MAJOR}${_qt_runtime_module}.dll")
+    if(EXISTS "${_qt_runtime_dll}")
+      add_custom_command(TARGET ${COBOT_TP_APP_TARGET} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          "${_qt_runtime_dll}"
+          "$<TARGET_FILE_DIR:${COBOT_TP_APP_TARGET}>"
+        VERBATIM
+      )
+    endif()
+  endforeach()
+
   target_compile_definitions(${COBOT_TP_APP_TARGET} PRIVATE
     COBOT_TP_ID="teachpendant"
     COBOT_TRANSLATION_PREFIX="cobottp"
