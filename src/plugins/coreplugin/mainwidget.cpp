@@ -5,6 +5,7 @@
 #include <QDateTime>
 #include <QMessageBox>
 #include <QCoreApplication>
+#include <QRegularExpression>
 #include <QIcon>
 #include <QTimer>
 #include "authoritymanager.h"
@@ -276,12 +277,10 @@ void MainWidget::requestRoadPoint(QObject *object, TakePointMode mode)
 void MainWidget::power(bool isNotConfirmShutdown)
 {
 #if defined(WIN32)
-    #if TPBox_Windows_x64 == 1
-    system("taskkill /F /IM TPBox.exe");
-    #endif
-    #if InoCobotTP_Windows_x64 == 1
-    system("taskkill /F /IM InoCobotTP.exe");
-    #endif
+    Q_UNUSED(isNotConfirmShutdown);
+    // Exit through Qt's event loop. Killing our own executable with taskkill
+    // bypasses normal thread/plugin cleanup and can leave the file locked.
+    QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
 #elif defined(Q_OS_ANDROID)
     QJniEnvironment env;
     QJniObject activity = QNativeInterface::QAndroidApplication::context();
@@ -728,20 +727,37 @@ void MainWidget::slot_controllerConnectionStatusChanged(
         DialogContainerForm::instance()->processRobotEventInfo(
             RobotEventInfo(RobotEventInfo::UserEvent_ConnectFinish));
 
-        QTimer::singleShot(500, [=](){
-            QString verName = QString::fromStdString(Communication::instance()->getRcVersionName());
-            int V = verName.mid(verName.indexOf("V")+1, verName.indexOf("R") - verName.indexOf("V") - 1).toInt();
-            int R = verName.mid(verName.indexOf("R")+1, verName.indexOf("C") - verName.indexOf("R") - 1).toInt();
-            qDebug() << "controllerVer << name" << verName << " v" << V << " r" << R;
-            if (V == 4 && R < 26) {
-                // 控制版本低于26，则断连
-                MessageBox::warning(tr("The version of the teaching pendant does not match that of the controller. Please upgrade the controller"));
-                if (Communication::instance()->isConnected()) {
-                    CommunicationEngine::instance()->enqueueCmd(
-                        this, AbstractCmd::CmdType_DisconnectController);
-                }
+        QTimer::singleShot(500, [this](){
+            const QString verName = QString::fromStdString(
+                Communication::instance()->getRcVersionName()).trimmed();
+            const QRegularExpression versionPattern(
+                QStringLiteral("V(\\d+)R(\\d+)"),
+                QRegularExpression::CaseInsensitiveOption);
+            const QRegularExpressionMatch versionMatch
+                = versionPattern.match(verName);
 
-                return;
+            if (!versionMatch.hasMatch()) {
+                qWarning() << "Cannot parse controller version:" << verName;
+            } else {
+                const int V = versionMatch.captured(1).toInt();
+                const int R = versionMatch.captured(2).toInt();
+                qInfo() << "Controller version:" << verName
+                        << "parsed V" << V << "R" << R
+                        << "minimum supported: V4R26";
+
+                if (V == 4 && R < 26) {
+                // 控制版本低于26，则断连
+                    MessageBox::warning(
+                        tr("The version of the teaching pendant does not match that of the controller. Please upgrade the controller")
+                        + QStringLiteral("\nController: %1\nMinimum: V4R26")
+                              .arg(verName));
+                    if (Communication::instance()->isConnected()) {
+                        CommunicationEngine::instance()->enqueueCmd(
+                            this, AbstractCmd::CmdType_DisconnectController);
+                    }
+
+                    return;
+                }
             }
 
             CommunicationEngine::instance()->enqueueCmd(this, AbstractCmd::CmdType_GetDragTeach_Status);
@@ -1075,14 +1091,29 @@ void MainWidget::hideEvent(QHideEvent *event)
 void MainWidget::closeEvent(QCloseEvent *closeEvent)
 {
 #ifndef Q_OS_ANDROID
-    closeEvent->ignore();
-#endif
-    if (!Instance::common()
-             ->property("isCloseDialogContainerForm")
-             .value<bool>())
-        power();
-    else
+    if (Instance::common()
+            ->property("isCloseDialogContainerForm")
+            .value<bool>()) {
         Instance::common()->setProperty("isCloseDialogContainerForm", false);
+        closeEvent->ignore();
+        return;
+    }
+
+    const QMessageBox::StandardButton result = QMessageBox::question(
+        this, QString(), tr("Are you sure you want to exit the app?"),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+    if (result == QMessageBox::Yes) {
+        closeEvent->accept();
+        // Queue quit so it is handled by the main application event loop
+        // after this close event and the confirmation dialog have returned.
+        QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
+    } else {
+        closeEvent->ignore();
+    }
+#else
+    closeEvent->accept();
+#endif
 }
 
 void MainWidget::resizeEvent(QResizeEvent* ev)
@@ -1718,17 +1749,8 @@ void MainWidget::on_pbn_poweroff_clicked()
 {
     // Custom MessageBox may only log to the info flow without a real modal dialog
     // (user sees "确定退出应用?" in the status bar but cannot answer Yes/No).
-    const QMessageBox::StandardButton result = QMessageBox::question(this,
-            QString(),
-            tr("Are you sure you want to exit the app?"),
-            QMessageBox::Yes | QMessageBox::No,
-            QMessageBox::No);
-
-    if (result == QMessageBox::Yes) {
-        // Desktop demo: exit immediately instead of waiting for controller
-        // disconnection and virtual-controller process cleanup.
-        QCoreApplication::exit(0);
-    }
+    // Reuse closeEvent so both exit controls share one graceful shutdown path.
+    close();
 }
 
 void MainWidget::slot_setdevicemode_result(

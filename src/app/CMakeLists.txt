@@ -184,6 +184,22 @@ if(TARGET ${COBOT_TP_APP_TARGET})
     endif()
   endforeach()
 
+  # Keep the version descriptor as a real deployment file as well as an
+  # embedded Qt resource.  This makes the package version auditable and avoids
+  # relying on a stale file left beside a previous installation.
+  set(_teachpad_version_file
+    "${PROJECT_SOURCE_DIR}/rc/share/studio/TeachPadVersion.ini")
+  if(EXISTS "${_teachpad_version_file}")
+    add_custom_command(TARGET ${COBOT_TP_APP_TARGET} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E make_directory
+        "${CMAKE_BINARY_DIR}/share/studio"
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${_teachpad_version_file}"
+        "${CMAKE_BINARY_DIR}/share/studio/TeachPadVersion.ini"
+      VERBATIM
+    )
+  endif()
+
   target_compile_definitions(${COBOT_TP_APP_TARGET} PRIVATE
     COBOT_TP_ID="teachpendant"
     COBOT_TRANSLATION_PREFIX="cobottp"
