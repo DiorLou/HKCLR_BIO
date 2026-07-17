@@ -311,6 +311,7 @@ int main(int argc, char *argv[])
         }
 
         int appRet = app.exec();
+        qInfo() << "Exit: application event loop returned" << appRet;
         ret = (0 == appRet);
     }
 

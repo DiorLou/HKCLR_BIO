@@ -42,32 +42,21 @@
 #include "flowwidgetmanager.h"
 #include "common.h"
 #include <QScreen>
-#include <atomic>
-#include <chrono>
-#include <cstdlib>
-#include <thread>
 #include "splashscreen.h"
 #include "pluginspec.h"
 
 namespace {
 void requestApplicationExit()
 {
-    static std::atomic_bool exitRequested{false};
-    if (exitRequested.exchange(true))
-        return;
-
-    // Let Qt, plugins and communication objects shut down normally first.
-    QMetaObject::invokeMethod(qApp, "quit", Qt::QueuedConnection);
-
-#if defined(Q_OS_WIN)
-    // Some legacy/prebuilt components can block indefinitely during shutdown.
-    // A detached watchdog guarantees that Windows releases the executable and
-    // DLL handles even when normal teardown does not finish.
-    std::thread([] {
-        std::this_thread::sleep_for(std::chrono::seconds(3));
-        std::_Exit(EXIT_SUCCESS);
-    }).detach();
-#endif
+    // Application owns the watchdog so it remains valid while plugin DLLs are
+    // being unloaded during shutdown. Invoke it immediately: this helper is
+    // called on the GUI thread, and a queued request could be left pending
+    // after the last visible window has already closed.
+    qInfo() << "Exit: invoking Application::requestExit";
+    if (!QMetaObject::invokeMethod(qApp, "requestExit", Qt::DirectConnection)) {
+        qWarning() << "Exit: requestExit is unavailable; falling back to quit";
+        QMetaObject::invokeMethod(qApp, "quit", Qt::DirectConnection);
+    }
 }
 }
 #define TitleIconSize ResolutionUtils::getRatioSize(QSize(28, 28))
@@ -1104,6 +1093,8 @@ void MainWidget::showEvent(QShowEvent *event)
 
 void MainWidget::hideEvent(QHideEvent *event)
 {
+    AbstractWidget<Ui::MainWidget>::hideEvent(event);
+
     disconnect(CommunicationEngine::instance(),
                &CommunicationEngine::signal_connectControllerInterface_result,
                this, &MainWidget::slot_connectControllerInterface_result);
@@ -1119,27 +1110,26 @@ void MainWidget::hideEvent(QHideEvent *event)
                this, &MainWidget::slot_tragteach_autorecordpos);
 
     FlowWidgetManager::instance()->setMainWidgetShow(false);
+
+#ifndef Q_OS_ANDROID
+    // MainWidget is the application's primary window. Some legacy title-bar
+    // paths hide it without reliably completing closeEvent(). Treat a real
+    // visible-to-hidden transition as an exit request as well, otherwise the
+    // process remains alive with no window because quit-on-last-window is off.
+    requestApplicationExit();
+#endif
 }
 
 void MainWidget::closeEvent(QCloseEvent *closeEvent)
 {
 #ifndef Q_OS_ANDROID
-    if (Instance::common()
-            ->property("isCloseDialogContainerForm")
-            .value<bool>()) {
-        Instance::common()->setProperty("isCloseDialogContainerForm", false);
-        closeEvent->ignore();
-        return;
-    }
-
     const QMessageBox::StandardButton result = QMessageBox::question(
         this, QString(), tr("Are you sure you want to exit the app?"),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
 
     if (result == QMessageBox::Yes) {
+        qInfo() << "Exit: main window close accepted";
         closeEvent->accept();
-        // Queue quit so it is handled by the main application event loop
-        // after this close event and the confirmation dialog have returned.
         requestApplicationExit();
     } else {
         closeEvent->ignore();

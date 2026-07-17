@@ -40,6 +40,10 @@
 #include "simcontainerform.h"
 #include <QClipboard>
 #include <QDateTime>
+#include <atomic>
+#include <chrono>
+#include <cstdlib>
+#include <thread>
 #include <QPlainTextEdit>
 #include <QTextEdit>
 #include "combobox.h"
@@ -57,6 +61,32 @@ const int DEFAULT_LOCK_SCREEN_TIMEOUT_SEC = 500;  // 500s
 Application *Application::instance()
 {
     return s_instance;
+}
+
+void Application::requestExit()
+{
+    static std::atomic_bool exitRequested{false};
+    if (exitRequested.exchange(true)) {
+        qInfo() << "Exit: duplicate request ignored";
+        return;
+    }
+
+    qInfo() << "Exit: Application::requestExit entered";
+
+#if defined(Q_OS_WIN)
+    // This watchdog lives in the executable, not a plugin DLL. It therefore
+    // remains valid even if plugin shutdown unloads libCore before cleanup
+    // finishes. Normal Qt shutdown gets three seconds before the fallback.
+    std::thread([] {
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        // Do not use Qt logging here: normal shutdown may already have
+        // destroyed the logging infrastructure.
+        std::_Exit(EXIT_SUCCESS);
+    }).detach();
+#endif
+
+    qInfo() << "Exit: leaving the Qt event loop";
+    quit();
 }
 
 
@@ -111,6 +141,15 @@ Application::Application(int &argc, char **argv) :
 
     qDebug() << "APPLICATION_DIR_PATH : " << APPLICATION_DIR_PATH;
     setQuitOnLastWindowClosed(false);
+
+#if !defined(Q_OS_ANDROID)
+    // The application intentionally does not quit automatically when the last
+    // window closes. Route that condition through our controlled exit path so
+    // closing the main window cannot leave a headless process behind, even if
+    // a plugin-side close handler fails to deliver its request.
+    connect(this, &QGuiApplication::lastWindowClosed,
+            this, &Application::requestExit, Qt::DirectConnection);
+#endif
 
     m_lockScreenTimer = new QTimer(this);
     m_lockScreenTimer->setInterval(

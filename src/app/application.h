@@ -25,6 +25,7 @@ public:
     bool isRunning();
 
     Q_INVOKABLE void updateLockScreenTime();
+    Q_INVOKABLE void requestExit();
 
 protected:
     bool notify(QObject *obj, QEvent *event) override;
