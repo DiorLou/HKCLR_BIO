@@ -70,6 +70,14 @@ void CorePlugin::extensionsInitialized()
 #endif
 
     MainWidget::instance()->showMainWidget();
+#if defined(PLATFORM_COBOT_TP_WINDOWS)
+    // Robot Control needs the complete available desktop area.  The custom
+    // title bar temporarily restores the window while it is being dragged and
+    // maximizes it again on release, including after moving to another screen.
+    QTimer::singleShot(0, MainWidget::instance(), [] {
+        MainWidget::instance()->showMaximized();
+    });
+#endif
     SplashScreen::instance()->hideDialog();
 
 #ifdef Q_OS_ANDROID

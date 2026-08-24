@@ -18,6 +18,7 @@ protected:
 
 private:
     QPointF m_startPos;
+    bool m_reMaximizeOnRelease = false;
 #endif
 };
 

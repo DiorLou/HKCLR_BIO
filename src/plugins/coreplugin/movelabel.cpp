@@ -25,6 +25,25 @@ void MoveLabel::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         QWidget *topLevel = window();
         if (topLevel) {
+            // QWidget::move() restores a maximized window to its old normal
+            // geometry.  Switch to normal state explicitly, but preserve the
+            // current on-screen size so the window can still be dragged
+            // without jumping back to the original design resolution.
+            if (topLevel->isMaximized()) {
+                m_reMaximizeOnRelease = true;
+                const QSize maximizedSize = topLevel->size();
+                const QPointF globalMousePos = event->globalPosition();
+                const qreal horizontalRatio = topLevel->width() > 0
+                    ? event->position().x() / topLevel->width()
+                    : 0.5;
+                const int titleOffsetY = qRound(event->position().y());
+
+                topLevel->showNormal();
+                topLevel->resize(maximizedSize);
+                topLevel->move(
+                    qRound(globalMousePos.x() - maximizedSize.width() * horizontalRatio),
+                    qRound(globalMousePos.y() - titleOffsetY));
+            }
             m_startPos = event->globalPosition() - topLevel->frameGeometry().topLeft();
             m_isMove = true;
             event->accept();
@@ -50,6 +69,11 @@ void MoveLabel::mouseMoveEvent(QMouseEvent *event)
 void MoveLabel::mouseReleaseEvent(QMouseEvent *event)
 {
     m_isMove = false;
+    if (m_reMaximizeOnRelease) {
+        m_reMaximizeOnRelease = false;
+        if (QWidget *topLevel = window())
+            topLevel->showMaximized();
+    }
     QLabel::mouseReleaseEvent(event);
 }
 #endif
