@@ -14,6 +14,17 @@
 #include "virtualkeyboard.h"
 static ModellessDialogContainerForm *s_instance = 0;
 
+namespace {
+QPoint globalMousePosition(const QMouseEvent *event)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return event->globalPosition().toPoint();
+#else
+    return event->globalPos();
+#endif
+}
+}
+
 static const QSet<QString> logicTreeOperationKeys {
     "pbn_startProject",
     "pbn_stopProject",
@@ -294,7 +305,7 @@ bool ModellessDialogContainerForm::eventFilter(QObject *obj, QEvent *event)
 void ModellessDialogContainerForm::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        m_dragPos = event->globalPos() - this->frameGeometry().topLeft();
+        m_dragPos = globalMousePosition(event) - this->frameGeometry().topLeft();
         m_isDragging = true;
     }
     QWidget::mouseMoveEvent(event);
@@ -303,7 +314,7 @@ void ModellessDialogContainerForm::mousePressEvent(QMouseEvent *event)
 void ModellessDialogContainerForm::mouseMoveEvent(QMouseEvent *event)
 {
     if (m_isDragging) {
-        QPoint newPos = event->globalPos() - m_dragPos;
+        QPoint newPos = globalMousePosition(event) - m_dragPos;
         this->move(newPos);
     }
     QWidget::mouseMoveEvent(event);
