@@ -1,4 +1,6 @@
 #include "robotcontrolform.h"
+#include "communication.h"
+#include "communicationengine.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -27,7 +29,7 @@ QLineEdit *valueEdit(const QString &text = QStringLiteral("0.00"), bool readOnly
 QPushButton *button(const QString &text)
 {
     auto *result = new QPushButton(text);
-    result->setMinimumHeight(30);
+    result->setMinimumHeight(26);
     return result;
 }
 
@@ -45,7 +47,7 @@ RobotControlForm::RobotControlForm(QWidget *parent) : QWidget(parent)
     setStyleSheet(QStringLiteral(
         "#robotControlForm { background:#f2f4f7; }"
         "#robotControlForm QGroupBox { background:white; border:1px solid #d9dee7;"
-        " border-radius:5px; margin-top:12px; padding-top:10px; font-weight:600; }"
+        " border-radius:5px; margin-top:9px; padding-top:7px; font-weight:600; }"
         "#robotControlForm QGroupBox::title { subcontrol-origin:margin; left:10px; padding:0 4px; }"
         "#robotControlForm QLineEdit[displayValue='true'], #robotControlForm QTextEdit {"
         " background:#eceff3; color:#333; }"
@@ -53,12 +55,14 @@ RobotControlForm::RobotControlForm(QWidget *parent) : QWidget(parent)
         "#emergencyStop { background:#d9363e; color:white; font-weight:700; }"));
 
     auto *columns = new QHBoxLayout(this);
-    columns->setContentsMargins(8, 8, 8, 8);
-    columns->setSpacing(8);
+    columns->setContentsMargins(5, 5, 5, 5);
+    columns->setSpacing(6);
     for (QWidget *panel : {createLeftPanel(), createRightPanel()}) {
         auto *scroll = new QScrollArea;
         scroll->setWidgetResizable(true);
         scroll->setFrameShape(QFrame::NoFrame);
+        scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         scroll->setWidget(panel);
         columns->addWidget(scroll, 1);
     }
@@ -68,6 +72,8 @@ QWidget *RobotControlForm::createLeftPanel()
 {
     auto *panel = new QWidget;
     auto *layout = new QVBoxLayout(panel);
+    layout->setContentsMargins(3, 3, 3, 3);
+    layout->setSpacing(4);
 
     auto *top = new QHBoxLayout;
     auto *jointLayout = new QVBoxLayout;
@@ -84,17 +90,61 @@ QWidget *RobotControlForm::createLeftPanel()
         row->addWidget(minus); row->addWidget(plus);
         jointLayout->addLayout(row);
     }
-    jointLayout->addWidget(button(tr("Initialize Joint Position")), 0, Qt::AlignCenter);
+    auto *initializeJointPosition = button(tr("Initialize Joint Position"));
+    initializeJointPosition->setToolTip(
+        tr("Move the robot to the initial posture stored in the controller"));
+    connect(initializeJointPosition, &QPushButton::clicked, this, [this] {
+        CommunicationEngine::instance()->enqueueCmd(
+            this, AbstractCmd::CmdType_RobotMoveJointToInitPosture);
+    });
+    jointLayout->addWidget(initializeJointPosition, 0, Qt::AlignCenter);
     top->addWidget(group(tr("Motor Fine-tuning Module (Forward Kinematics)"), jointLayout), 4);
 
     auto *speedLayout = new QVBoxLayout;
     auto *speed = new QSlider(Qt::Vertical);
     speed->setRange(1, 100); speed->setValue(1);
     speed->setTickPosition(QSlider::TicksBothSides);
-    speedLayout->addWidget(new QLabel(tr("Motion Speed: 0.01")), 0, Qt::AlignCenter);
+    speed->setTickInterval(10);
+    speed->setToolTip(tr("Controller speed override: 1% to 100%"));
+    auto *speedLabel = new QLabel(tr("Motion Speed: 0.01"));
+    speedLayout->addWidget(speedLabel, 0, Qt::AlignCenter);
     speedLayout->addWidget(speed, 1, Qt::AlignCenter);
     speedLayout->addWidget(new QLabel(tr("Current Motion Speed:")), 0, Qt::AlignCenter);
-    speedLayout->addWidget(valueEdit(QStringLiteral("0.00"), true), 0, Qt::AlignCenter);
+    auto *currentSpeed = valueEdit(QStringLiteral("0.00"), true);
+    currentSpeed->setFixedWidth(75);
+    speedLayout->addWidget(currentSpeed, 0, Qt::AlignCenter);
+
+    // The Python UI represents the override as 0.01 ... 1.00, while the
+    // controller SetSpeed API expects the exactly equivalent 1 ... 100 percent.
+    const auto updateSpeedDisplay = [speedLabel](int percent) {
+        speedLabel->setText(
+            QObject::tr("Motion Speed: %1").arg(percent / 100.0, 0, 'f', 2));
+    };
+    const auto updateCurrentSpeed = [speed, currentSpeed](int percent) {
+        const int boundedPercent = qBound(speed->minimum(), percent, speed->maximum());
+        speed->setValue(boundedPercent);
+        currentSpeed->setText(QString::number(boundedPercent / 100.0, 'f', 2));
+    };
+
+    connect(speed, &QSlider::valueChanged, this, updateSpeedDisplay);
+    connect(speed, &QSlider::sliderReleased, this, [this, speed] {
+        if (!Communication::instance()->isConnected())
+            return;
+
+        CommunicationEngine::instance()->enqueueCmd_setData(
+            this, AbstractCmd::CmdType_Control_SetSpeed, speed->value());
+    });
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_setspeed_result,
+            this, [updateCurrentSpeed](bool isSuccess, int percent) {
+                if (isSuccess)
+                    updateCurrentSpeed(percent);
+            });
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_speed_changed,
+            this, [updateCurrentSpeed](quint16 percent) {
+                updateCurrentSpeed(static_cast<int>(percent));
+            });
     top->addWidget(group(tr("Motion Speed"), speedLayout), 1);
     layout->addLayout(top);
 
@@ -168,6 +218,8 @@ QWidget *RobotControlForm::createRightPanel()
 {
     auto *panel = new QWidget;
     auto *layout = new QVBoxLayout(panel);
+    layout->setContentsMargins(3, 3, 3, 3);
+    layout->setSpacing(4);
 
     auto *device = new QGridLayout;
     const QStringList controls{tr("Power On"), tr("Enable"), tr("Initialize Controller"), tr("Reset"),
@@ -232,7 +284,7 @@ QWidget *RobotControlForm::createRightPanel()
     auto *status = new QLabel(tr("TCP Status: Disconnected")); status->setStyleSheet(QStringLiteral("color:#2468b4;"));
     communication->addWidget(status);
     communication->addWidget(new QLabel(tr("Received Messages:")));
-    auto *received = new QTextEdit; received->setReadOnly(true); received->setMinimumHeight(90);
+    auto *received = new QTextEdit; received->setReadOnly(true); received->setMinimumHeight(60);
     communication->addWidget(received);
     communication->addWidget(new QLabel(tr("Send Message:")));
     auto *sendRow = new QHBoxLayout;

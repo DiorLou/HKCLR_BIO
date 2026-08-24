@@ -7,6 +7,7 @@
 #include <QCoreApplication>
 #include <QRegularExpression>
 #include <QIcon>
+#include <QSizePolicy>
 #include <QTimer>
 #include "authoritymanager.h"
 #include "authoritytr.h"
@@ -1506,35 +1507,23 @@ void MainWidget::updateBottomWidgetHeight()
     ui->lbl_percent->setMinimumWidth(64);
     ui->lbl_percent->setMaximumWidth(64);
 #else
-    ui->edit_robotspeed->setMinimumWidth(36);
-    ui->edit_robotspeed->setMaximumWidth(36);
+    // The desktop toolbar has been replaced by the controls on Robot Control.
+    // A zero fixed height also removes its layout reservation, rather than only
+    // making its children invisible and leaving an empty strip behind.
+    ui->bottomWidget->setVisible(false);
+    ui->bottomWidget->setMinimumHeight(0);
+    ui->bottomWidget->setMaximumHeight(0);
 
-    ui->bottomWidget->setMinimumHeight(36);
-    ui->bottomWidget->setMaximumHeight(36);
+    // The desktop window can be larger than the original 1280 x 720 design
+    // resolution.  Keeping both bounds fixed here prevented every page in the
+    // tab widget (especially Robot Control) from using the extra screen space.
+    ui->contentWidget->setMinimumSize(0, 0);
+    ui->contentWidget->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    ui->contentWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    ui->pbn_initPose->setMaximumHeight(28);
-    ui->pbn_initPose->setMinimumHeight(28);
-
-    ui->pbn_zeroPose->setMaximumHeight(28);
-    ui->pbn_zeroPose->setMinimumHeight(28);
-
-    ui->pbn_showLogFlowForm->setMaximumHeight(28);
-    ui->pbn_showLogFlowForm->setMinimumHeight(28);
-
-    ui->pbn_cancel->setMinimumHeight(28);
-    ui->pbn_cancel->setMaximumHeight(28);
-
-    ui->pbn_setRoadPoint->setMinimumHeight(28);
-    ui->pbn_setRoadPoint->setMaximumHeight(28);
-
-    ui->hSlider_speed->setMinimumHeight(28);
-    ui->hSlider_speed->setMaximumHeight(28);
-
-    ui->contentWidget->setMinimumSize(1280, 720);
-    ui->contentWidget->setMaximumSize(1280, 720);
-
-    ui->tabWidget->setMinimumSize(1280, 720);
-    ui->tabWidget->setMaximumSize(1280, 720);
+    ui->tabWidget->setMinimumSize(0, 0);
+    ui->tabWidget->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
+    ui->tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     updateGeometry();
 
 #endif
