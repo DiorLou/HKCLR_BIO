@@ -53,3 +53,6 @@ $RECYCLE.BIN/
 # Private signing keys
 *.keystore
 *.jks
+
+# anther project
+/PROSTATEBIO/
