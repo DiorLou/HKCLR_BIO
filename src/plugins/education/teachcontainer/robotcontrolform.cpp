@@ -84,6 +84,29 @@ QWidget *RobotControlForm::createLeftPanel()
 
     auto *top = new QHBoxLayout;
     auto *jointLayout = new QVBoxLayout;
+    const auto connectJogButton = [this](QPushButton *jogButton, int axisId,
+                                         bool isPositive, RobotCoordType coordType) {
+        connect(jogButton, &QPushButton::pressed, this,
+                [this, axisId, isPositive, coordType] {
+            if (!Communication::instance()->isConnected())
+                return;
+
+            if (Communication::instance()->GetCurCoodType() != coordType) {
+                CommunicationEngine::instance()->enqueueCmd_setData(
+                    this, AbstractCmd::CmdType_Control_SetCoordType, coordType);
+            }
+            CommunicationEngine::instance()->enqueueCmd_axisMove(
+                this, axisId, isPositive, true);
+        });
+        connect(jogButton, &QPushButton::released, this,
+                [this, axisId, isPositive] {
+            if (!Communication::instance()->isConnected())
+                return;
+
+            CommunicationEngine::instance()->enqueueCmd_axisMove(
+                this, axisId, isPositive, false);
+        });
+    };
     for (int i = 0; i < 6; ++i) {
         auto *row = new QHBoxLayout;
         row->addWidget(new QLabel(tr("Joint %1 (q%1):").arg(i + 1)));
@@ -95,6 +118,8 @@ QWidget *RobotControlForm::createLeftPanel()
         auto *minus = button(QStringLiteral("−"));
         auto *plus = button(QStringLiteral("+"));
         minus->setFixedWidth(34); plus->setFixedWidth(34);
+        connectJogButton(minus, i, false, RobotCoordType_Joint);
+        connectJogButton(plus, i, true, RobotCoordType_Joint);
         row->addWidget(minus); row->addWidget(plus);
         jointLayout->addLayout(row);
     }
@@ -102,6 +127,9 @@ QWidget *RobotControlForm::createLeftPanel()
     initializeJointPosition->setToolTip(
         tr("Move the robot to the initial posture stored in the controller"));
     connect(initializeJointPosition, &QPushButton::clicked, this, [this] {
+        if (!Communication::instance()->isConnected())
+            return;
+
         CommunicationEngine::instance()->enqueueCmd(
             this, AbstractCmd::CmdType_RobotMoveJointToInitPosture);
     });
@@ -168,8 +196,12 @@ QWidget *RobotControlForm::createLeftPanel()
         m_tcpValueEdits[i] = edit;
         toolGrid->addWidget(edit, row, col + 1);
         auto *controls = new QHBoxLayout;
-        controls->addWidget(button(QStringLiteral("−")));
-        controls->addWidget(button(QStringLiteral("+")));
+        auto *minus = button(QStringLiteral("−"));
+        auto *plus = button(QStringLiteral("+"));
+        connectJogButton(minus, i, false, RobotCoordType_Tool);
+        connectJogButton(plus, i, true, RobotCoordType_Tool);
+        controls->addWidget(minus);
+        controls->addWidget(plus);
         toolGrid->addLayout(controls, row + 1, col, 1, 2);
     }
     toolGrid->addWidget(button(tr("Fine tune probe")), 4, 0, 1, 6, Qt::AlignCenter);
