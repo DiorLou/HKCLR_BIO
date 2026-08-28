@@ -9,10 +9,10 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSlider>
-#include <QTextEdit>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -285,15 +285,131 @@ QWidget *RobotControlForm::createRightPanel()
     layout->setSpacing(4);
 
     auto *device = new QGridLayout;
-    const QStringList controls{tr("Power On"), tr("Enable"), tr("Initialize Controller"), tr("Reset"),
-                               tr("Pause"), tr("Continue")};
-    for (int i = 0; i < controls.size(); ++i)
-        device->addWidget(button(controls[i]), i / 2, i % 2);
-    auto *stop = button(tr("Emergency Stop"));
-    stop->setObjectName(QStringLiteral("emergencyStop"));
-    stop->setEnabled(false);
-    device->addWidget(stop, 3, 0, 1, 2);
+    auto *power = button(tr("Power On"));
+    auto *enable = button(tr("Enable"));
+    auto *initialize = button(tr("Initialize Controller"));
+    auto *reset = button(tr("Reset Alarm"));
+    auto *pause = button(tr("Pause Program"));
+    auto *resume = button(tr("Continue Program"));
+    auto *stopProgram = button(tr("Stop Program"));
+    auto *emergencyStop = button(tr("Emergency Stop"));
+
+    power->setCheckable(true);
+    enable->setCheckable(true);
+    emergencyStop->setCheckable(true);
+    emergencyStop->setObjectName(QStringLiteral("emergencyStop"));
+    initialize->setEnabled(false);
+    initialize->setToolTip(tr(
+        "The Python StartMaster command has no equivalent public Communication API"));
+
+    device->addWidget(power, 0, 0);
+    device->addWidget(enable, 0, 1);
+    device->addWidget(initialize, 1, 0);
+    device->addWidget(reset, 1, 1);
+    device->addWidget(pause, 2, 0);
+    device->addWidget(resume, 2, 1);
+    device->addWidget(stopProgram, 3, 0, 1, 2);
+    device->addWidget(emergencyStop, 4, 0, 1, 2);
     layout->addWidget(group(tr("E05-L Pro Device Control"), device));
+
+    const QList<QPushButton *> controllerButtons{
+        power, enable, reset, pause, resume, stopProgram, emergencyStop
+    };
+    const auto setControllerButtonsEnabled = [controllerButtons](bool connected) {
+        for (QPushButton *control : controllerButtons)
+            control->setEnabled(connected);
+    };
+    setControllerButtonsEnabled(Communication::instance()->isConnected());
+
+    connect(power, &QPushButton::clicked, this, [this](bool checked) {
+        const QString question = checked
+            ? tr("Are you sure you want to power on the robot?")
+            : tr("Are you sure you want to power off the robot?");
+        if (QMessageBox::question(this, tr("Robot Power"), question)
+            != QMessageBox::Yes) {
+            auto *powerButton = qobject_cast<QPushButton *>(sender());
+            if (powerButton)
+                powerButton->setChecked(!checked);
+            return;
+        }
+
+        CommunicationEngine::instance()->enqueueCmd_setData(
+            this, AbstractCmd::CmdType_SetRobotBodyPowerState,
+            checked ? ROBOT_BODY_POWER_ON : ROBOT_BODY_POWER_OFF);
+    });
+    connect(enable, &QPushButton::clicked, this, [this](bool checked) {
+        CommunicationEngine::instance()->enqueueCmd_enableRobot(this, checked);
+    });
+    connect(reset, &QPushButton::clicked, this, [this] {
+        CommunicationEngine::instance()->enqueueCmd(
+            this, AbstractCmd::CmdType_ClearAlarm);
+    });
+    connect(pause, &QPushButton::clicked, this, [this] {
+        CommunicationEngine::instance()->enqueueCmd(
+            this, AbstractCmd::CmdType_ProgramPause);
+    });
+    connect(resume, &QPushButton::clicked, this, [this] {
+        CommunicationEngine::instance()->enqueueCmd(
+            this, AbstractCmd::CmdType_ProgramContinue);
+    });
+    connect(stopProgram, &QPushButton::clicked, this, [this] {
+        CommunicationEngine::instance()->enqueueCmd(
+            this, AbstractCmd::CmdType_ProgramStop);
+    });
+    connect(emergencyStop, &QPushButton::clicked, this, [this](bool checked) {
+        const InoCtrlAuthority authority
+            = Communication::instance()->GetCurCtrlAuthority();
+        const bool releaseForbidden
+            = !checked
+              && (authority == InoCtrlAuthority_IO
+                  || (authority == InoCtrlAuthority_IO_AUTO
+                      && Communication::instance()->GetCurDeviceMode()
+                             == MetaType::RobotDeviceMode_Auto));
+        if (releaseForbidden) {
+            auto *stopButton = qobject_cast<QPushButton *>(sender());
+            if (stopButton)
+                stopButton->setChecked(true);
+            QMessageBox::warning(
+                this, tr("Emergency Stop"),
+                tr("Emergency stop cannot be released in the current remote control mode."));
+            return;
+        }
+
+        CommunicationEngine::instance()->enqueueCmd_setEmergecy(this, checked);
+    });
+
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_enableStateChanged,
+            enable, [enable](bool enabled) {
+                enable->setChecked(enabled);
+                enable->setText(enabled ? QObject::tr("Disable") : QObject::tr("Enable"));
+            });
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_emergecyStateChanged,
+            emergencyStop, [emergencyStop](bool engaged) {
+                emergencyStop->setChecked(engaged);
+                emergencyStop->setText(engaged
+                    ? QObject::tr("Release Emergency Stop")
+                    : QObject::tr("Emergency Stop"));
+            });
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_robotBodyPowerStateChanged,
+            power, [power](InoCoRobotBodyPowerState state) {
+                const bool powered = state == ROBOT_BODY_POWER_ON;
+                const bool transitioning
+                    = state == ROBOT_BODY_POWERING_ON_IN_PROCESS
+                      || state == ROBOT_BODY_POWER_OFF_IN_PROCESS;
+                power->setChecked(powered);
+                power->setEnabled(
+                    Communication::instance()->isConnected() && !transitioning);
+                power->setText(
+                    state == ROBOT_BODY_POWERING_ON_IN_PROCESS
+                        ? QObject::tr("Powering On...")
+                        : state == ROBOT_BODY_POWER_OFF_IN_PROCESS
+                            ? QObject::tr("Powering Off...")
+                            : powered ? QObject::tr("Power Off")
+                                      : QObject::tr("Power On"));
+            });
 
     auto *teach = new QHBoxLayout;
     teach->addWidget(new QCheckBox(tr("Teach Mode On")));
@@ -334,28 +450,66 @@ QWidget *RobotControlForm::createRightPanel()
 
     auto *communication = new QVBoxLayout;
     auto *endpoint = new QHBoxLayout;
-    endpoint->addWidget(new QLabel(tr("Remote IP:")));
-    endpoint->addWidget(new QLineEdit(QStringLiteral("192.168.10.10")));
+    endpoint->addWidget(new QLabel(tr("Controller IP:")));
+    auto *ip = new QLineEdit(Communication::instance()->getIP());
+    endpoint->addWidget(ip);
     endpoint->addWidget(new QLabel(tr("Port:")));
-    endpoint->addWidget(new QLineEdit(QStringLiteral("10003")));
+    auto *port = new QLineEdit(QString::number(Communication::instance()->getPort()));
+    endpoint->addWidget(port);
     communication->addLayout(endpoint);
     auto *connection = new QHBoxLayout;
-    connection->addWidget(button(tr("Connect")));
+    auto *connectController = button(tr("Connect"));
+    connection->addWidget(connectController);
     auto *disconnect = button(tr("Disconnect")); disconnect->setEnabled(false);
     connection->addWidget(disconnect);
     communication->addLayout(connection);
-    auto *status = new QLabel(tr("TCP Status: Disconnected")); status->setStyleSheet(QStringLiteral("color:#2468b4;"));
+    auto *status = new QLabel(tr("Controller Status: Disconnected"));
+    status->setStyleSheet(QStringLiteral("color:#2468b4;"));
     communication->addWidget(status);
-    communication->addWidget(new QLabel(tr("Received Messages:")));
-    auto *received = new QTextEdit; received->setReadOnly(true); received->setMinimumHeight(60);
-    communication->addWidget(received);
-    communication->addWidget(new QLabel(tr("Send Message:")));
-    auto *sendRow = new QHBoxLayout;
-    auto *message = new QLineEdit; message->setEnabled(false);
-    auto *send = button(tr("Send")); send->setEnabled(false);
-    sendRow->addWidget(message); sendRow->addWidget(send);
-    communication->addLayout(sendRow);
-    layout->addWidget(group(tr("TCP Communication Module"), communication));
+
+    const auto updateConnectionUi = [=](ControllerConnectionState state) {
+        const bool connected = state == ControllerConnectionState_Connected;
+        const bool connecting = state == ControllerConnectionState_Connecting;
+        connectController->setEnabled(!connected && !connecting);
+        disconnect->setEnabled(connected);
+        ip->setEnabled(!connected && !connecting);
+        port->setEnabled(!connected && !connecting);
+        status->setText(connecting
+            ? QObject::tr("Controller Status: Connecting...")
+            : connected
+                ? QObject::tr("Controller Status: Connected")
+                : QObject::tr("Controller Status: Disconnected"));
+        setControllerButtonsEnabled(connected);
+    };
+    updateConnectionUi(Communication::instance()->isConnected()
+        ? ControllerConnectionState_Connected
+        : ControllerConnectionState_Closed);
+
+    connect(connectController, &QPushButton::clicked, this, [=] {
+        bool portOk = false;
+        const int controllerPort = port->text().toInt(&portOk);
+        if (ip->text().trimmed().isEmpty() || !portOk || controllerPort <= 0)
+            return;
+
+        CommunicationEngine::instance()->enqueueCmd_connectController(
+            this, ip->text().trimmed(), controllerPort);
+    });
+    connect(disconnect, &QPushButton::clicked, this, [this] {
+        if (QMessageBox::question(
+                this, tr("Disconnect Controller"),
+                tr("Are you sure you want to disconnect from the controller?"))
+            != QMessageBox::Yes) {
+            return;
+        }
+
+        CommunicationEngine::instance()->enqueueCmd(
+            this, AbstractCmd::CmdType_DisconnectController);
+    });
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_controllerConnectionStatusChanged,
+            this, updateConnectionUi);
+
+    layout->addWidget(group(tr("Controller Communication"), communication));
     layout->addStretch();
     return panel;
 }
