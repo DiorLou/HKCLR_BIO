@@ -13,6 +13,7 @@
 #include <QScrollArea>
 #include <QSlider>
 #include <QTextEdit>
+#include <QTimer>
 #include <QVBoxLayout>
 
 namespace {
@@ -66,6 +67,12 @@ RobotControlForm::RobotControlForm(QWidget *parent) : QWidget(parent)
         scroll->setWidget(panel);
         columns->addWidget(scroll, 1);
     }
+
+    auto *realtimeTimer = new QTimer(this);
+    realtimeTimer->setInterval(100);
+    connect(realtimeTimer, &QTimer::timeout,
+            this, &RobotControlForm::updateRealtimeStatus);
+    realtimeTimer->start();
 }
 
 QWidget *RobotControlForm::createLeftPanel()
@@ -81,6 +88,7 @@ QWidget *RobotControlForm::createLeftPanel()
         auto *row = new QHBoxLayout;
         row->addWidget(new QLabel(tr("Joint %1 (q%1):").arg(i + 1)));
         auto *edit = valueEdit(QStringLiteral("0.00"), true);
+        m_jointValueEdits[i] = edit;
         edit->setMaximumWidth(75);
         row->addWidget(edit);
         row->addStretch();
@@ -156,7 +164,9 @@ QWidget *RobotControlForm::createLeftPanel()
         const int col = (i % 3) * 2;
         const int row = (i / 3) * 2;
         toolGrid->addWidget(new QLabel(poses[i]), row, col);
-        toolGrid->addWidget(valueEdit(QStringLiteral("0.00"), true), row, col + 1);
+        auto *edit = valueEdit(QStringLiteral("0.00"), true);
+        m_tcpValueEdits[i] = edit;
+        toolGrid->addWidget(edit, row, col + 1);
         auto *controls = new QHBoxLayout;
         controls->addWidget(button(QStringLiteral("−")));
         controls->addWidget(button(QStringLiteral("+")));
@@ -194,6 +204,27 @@ QWidget *RobotControlForm::createLeftPanel()
     layout->addWidget(group(tr("Save Current Data"), save));
     layout->addStretch();
     return panel;
+}
+
+void RobotControlForm::updateRealtimeStatus()
+{
+    if (!Communication::instance()->isConnected())
+        return;
+
+    const RoadPoint point = Communication::instance()->GetRealTimePt();
+    for (int i = 0; i < static_cast<int>(m_jointValueEdits.size()); ++i)
+        m_jointValueEdits[i]->setText(QString::number(point.m_jointAngle[i], 'f', 3));
+
+    const std::array<double, 6> tcpValues{
+        point.m_position.m_x,
+        point.m_position.m_y,
+        point.m_position.m_z,
+        point.m_orientation.m_rx,
+        point.m_orientation.m_ry,
+        point.m_orientation.m_rz
+    };
+    for (int i = 0; i < static_cast<int>(m_tcpValueEdits.size()); ++i)
+        m_tcpValueEdits[i]->setText(QString::number(tcpValues[i], 'f', 3));
 }
 
 void RobotControlForm::addPoseEditor(QVBoxLayout *layout, const QString &title,
