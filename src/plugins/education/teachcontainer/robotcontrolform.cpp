@@ -7,6 +7,11 @@
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QFile>
+#include <QFileDialog>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMessageBox>
@@ -208,7 +213,7 @@ QWidget *RobotControlForm::createLeftPanel()
     layout->addWidget(group(tr("Robot Tool Real-time Status"), toolGrid));
 
     auto *points = new QVBoxLayout;
-    addPoseEditor(points, tr("A Point"), QStringLiteral("A"), tr("History (Empty)"));
+    addPoseEditor(points, tr("A Point"), QStringLiteral("A"), tr("Get A Point Position"));
     addPoseEditor(points, tr("O Point"), QStringLiteral("O"), tr("Get O Point Position"));
     addPoseEditor(points, tr("End-Effect"), QStringLiteral("E"), tr("Get End-Effect Position"));
     points->addWidget(button(tr("Rotate the ultrasound plane to pass through the puncture point")));
@@ -232,7 +237,13 @@ QWidget *RobotControlForm::createLeftPanel()
     layout->addWidget(group(tr("Lesion B Point Localization"), lesion));
 
     auto *save = new QHBoxLayout;
-    save->addStretch(); save->addWidget(button(tr("Save"))); save->addWidget(button(tr("Load"))); save->addStretch();
+    auto *saveButton = button(tr("Save"));
+    auto *loadButton = button(tr("Load"));
+    connect(saveButton, &QPushButton::clicked,
+            this, &RobotControlForm::savePointData);
+    connect(loadButton, &QPushButton::clicked,
+            this, &RobotControlForm::loadPointData);
+    save->addStretch(); save->addWidget(saveButton); save->addWidget(loadButton); save->addStretch();
     layout->addWidget(group(tr("Save Current Data"), save));
     layout->addStretch();
     return panel;
@@ -263,18 +274,186 @@ void RobotControlForm::addPoseEditor(QVBoxLayout *layout, const QString &title,
                                      const QString &prefix, const QString &buttonText)
 {
     auto *row = new QHBoxLayout;
+    std::array<QLineEdit *, 3> *pointEdits = nullptr;
+    if (prefix == QStringLiteral("A"))
+        pointEdits = &m_aPointEdits;
+    else if (prefix == QStringLiteral("O"))
+        pointEdits = &m_oPointEdits;
+    else if (prefix == QStringLiteral("E"))
+        pointEdits = &m_ePointEdits;
+
+    int axisIndex = 0;
     for (const QString &axis : {QStringLiteral("x"), QStringLiteral("y"), QStringLiteral("z")}) {
         row->addWidget(new QLabel(QStringLiteral("%1_%2:").arg(prefix, axis)));
-        row->addWidget(valueEdit());
+        auto *edit = valueEdit();
+        if (pointEdits)
+            (*pointEdits)[axisIndex++] = edit;
+        row->addWidget(edit);
     }
+    auto *capture = button(buttonText);
+    const QString toolName = prefix == QStringLiteral("E")
+        ? QStringLiteral("TCP_E") : QStringLiteral("TCP_tip");
+    connect(capture, &QPushButton::clicked, this,
+            [this, prefix, toolName] { capturePoint(prefix, toolName); });
     if (prefix == QStringLiteral("A")) {
-        auto *history = new QComboBox;
-        history->addItem(buttonText);
-        row->addWidget(history);
+        row->addWidget(capture);
+        m_aHistoryCombo = new QComboBox;
+        m_aHistoryCombo->setPlaceholderText(tr("History (Empty)"));
+        connect(m_aHistoryCombo, &QComboBox::currentIndexChanged,
+                this, [this](int index) {
+            if (index < 0 || index >= m_aPointHistory.size())
+                return;
+            const auto &point = m_aPointHistory[index];
+            for (int i = 0; i < static_cast<int>(point.size()); ++i)
+                m_aPointEdits[i]->setText(QString::number(point[i], 'f', 3));
+        });
+        row->addWidget(m_aHistoryCombo);
     } else {
-        row->addWidget(button(buttonText));
+        row->addWidget(capture);
     }
     layout->addWidget(group(title, row));
+}
+
+void RobotControlForm::capturePoint(const QString &prefix, const QString &toolName)
+{
+    if (!Communication::instance()->isConnected())
+        return;
+
+    const QStringList toolNames = Communication::instance()->getCurToolNames();
+    int toolId = -1;
+    for (int i = 0; i < toolNames.size(); ++i) {
+        if (toolNames[i].compare(toolName, Qt::CaseInsensitive) == 0) {
+            toolId = i;
+            break;
+        }
+    }
+    if (toolId < 0) {
+        QMessageBox::warning(
+            this, tr("Point Capture"),
+            tr("Tool '%1' does not exist in the controller.").arg(toolName));
+        return;
+    }
+
+    const RoadPoint point
+        = Communication::instance()->GetCurRoadPoint(static_cast<quint16>(toolId), true);
+    const std::array<double, 3> position{
+        point.m_position.m_x, point.m_position.m_y, point.m_position.m_z
+    };
+    std::array<QLineEdit *, 3> *edits = prefix == QStringLiteral("A")
+        ? &m_aPointEdits
+        : prefix == QStringLiteral("O") ? &m_oPointEdits : &m_ePointEdits;
+    for (int i = 0; i < static_cast<int>(position.size()); ++i)
+        (*edits)[i]->setText(QString::number(position[i], 'f', 3));
+
+    if (prefix == QStringLiteral("A") && m_aHistoryCombo) {
+        m_aPointHistory.append(position);
+        m_aHistoryCombo->addItem(
+            tr("A%1: (%2, %3, %4)")
+                .arg(m_aPointHistory.size())
+                .arg(position[0], 0, 'f', 2)
+                .arg(position[1], 0, 'f', 2)
+                .arg(position[2], 0, 'f', 2));
+        m_aHistoryCombo->setCurrentIndex(m_aPointHistory.size() - 1);
+    }
+}
+
+void RobotControlForm::savePointData()
+{
+    const QString fileName = QFileDialog::getSaveFileName(
+        this, tr("Save Robot Control Data"), QStringLiteral("robot_control_data.json"),
+        tr("JSON files (*.json)"));
+    if (fileName.isEmpty())
+        return;
+
+    const auto editsToArray = [](const auto &edits) {
+        QJsonArray values;
+        for (QLineEdit *edit : edits)
+            values.append(edit->text().toDouble());
+        return values;
+    };
+    QJsonArray history;
+    for (const auto &point : m_aPointHistory) {
+        QJsonArray value;
+        for (double coordinate : point)
+            value.append(coordinate);
+        history.append(value);
+    }
+
+    QJsonObject data{
+        {QStringLiteral("formatVersion"), 1},
+        {QStringLiteral("aPoint"), editsToArray(m_aPointEdits)},
+        {QStringLiteral("oPoint"), editsToArray(m_oPointEdits)},
+        {QStringLiteral("endEffectPoint"), editsToArray(m_ePointEdits)},
+        {QStringLiteral("aPointHistory"), history},
+        {QStringLiteral("targetToolTcp"), editsToArray(m_targetToolEdits)}
+    };
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)
+        || file.write(QJsonDocument(data).toJson(QJsonDocument::Indented)) < 0) {
+        QMessageBox::critical(this, tr("Save Data"), tr("Failed to write the data file."));
+        return;
+    }
+    QMessageBox::information(this, tr("Save Data"), tr("Robot control data saved."));
+}
+
+void RobotControlForm::loadPointData()
+{
+    const QString fileName = QFileDialog::getOpenFileName(
+        this, tr("Load Robot Control Data"), QString(), tr("JSON files (*.json)"));
+    if (fileName.isEmpty())
+        return;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::critical(this, tr("Load Data"), tr("Failed to open the data file."));
+        return;
+    }
+    QJsonParseError error;
+    const QJsonDocument document = QJsonDocument::fromJson(file.readAll(), &error);
+    if (error.error != QJsonParseError::NoError || !document.isObject()) {
+        QMessageBox::critical(this, tr("Load Data"), tr("The selected JSON file is invalid."));
+        return;
+    }
+
+    const QJsonObject data = document.object();
+    const auto restoreEdits = [](const QJsonValue &value, const auto &edits) {
+        const QJsonArray values = value.toArray();
+        if (values.size() != static_cast<int>(edits.size()))
+            return false;
+        for (int i = 0; i < values.size(); ++i) {
+            if (!values[i].isDouble())
+                return false;
+            edits[i]->setText(QString::number(values[i].toDouble(), 'f', 3));
+        }
+        return true;
+    };
+    if (!restoreEdits(data.value(QStringLiteral("aPoint")), m_aPointEdits)
+        || !restoreEdits(data.value(QStringLiteral("oPoint")), m_oPointEdits)
+        || !restoreEdits(data.value(QStringLiteral("endEffectPoint")), m_ePointEdits)
+        || !restoreEdits(data.value(QStringLiteral("targetToolTcp")), m_targetToolEdits)) {
+        QMessageBox::critical(this, tr("Load Data"), tr("The data file has an unsupported format."));
+        return;
+    }
+
+    m_aPointHistory.clear();
+    m_aHistoryCombo->clear();
+    const QJsonArray history = data.value(QStringLiteral("aPointHistory")).toArray();
+    for (const QJsonValue &entry : history) {
+        const QJsonArray values = entry.toArray();
+        if (values.size() != 3)
+            continue;
+        const std::array<double, 3> point{
+            values[0].toDouble(), values[1].toDouble(), values[2].toDouble()
+        };
+        m_aPointHistory.append(point);
+        m_aHistoryCombo->addItem(
+            tr("A%1: (%2, %3, %4)")
+                .arg(m_aPointHistory.size())
+                .arg(point[0], 0, 'f', 2)
+                .arg(point[1], 0, 'f', 2)
+                .arg(point[2], 0, 'f', 2));
+    }
+    QMessageBox::information(this, tr("Load Data"), tr("Robot control data loaded."));
 }
 
 QWidget *RobotControlForm::createRightPanel()
