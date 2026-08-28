@@ -422,15 +422,43 @@ QWidget *RobotControlForm::createRightPanel()
                               QStringLiteral("Tar_Tcp_Rx"), QStringLiteral("Tar_Tcp_Ry"), QStringLiteral("Tar_Tcp_Rz")};
     for (int i = 0; i < tcpAxes.size(); ++i) {
         tcpGrid->addWidget(new QLabel(tcpAxes[i] + QStringLiteral(":")), i / 3, (i % 3) * 2);
-        tcpGrid->addWidget(valueEdit(), i / 3, (i % 3) * 2 + 1);
+        m_targetToolEdits[i] = valueEdit();
+        tcpGrid->addWidget(m_targetToolEdits[i], i / 3, (i % 3) * 2 + 1);
     }
     tcpSettings->addLayout(tcpGrid);
     auto *switches = new QHBoxLayout;
+    const auto findToolId = [](const QString &toolName) {
+        const QStringList toolNames = Communication::instance()->getCurToolNames();
+        for (int i = 0; i < toolNames.size(); ++i) {
+            if (toolNames[i].compare(toolName, Qt::CaseInsensitive) == 0)
+                return i;
+        }
+        return -1;
+    };
+    const auto requestTool = [this, findToolId](const QString &toolName) {
+        if (!Communication::instance()->isConnected())
+            return;
+
+        const int toolId = findToolId(toolName);
+        if (toolId < 0) {
+            QMessageBox::warning(
+                this, tr("Tool TCP"),
+                tr("Tool '%1' does not exist in the controller.").arg(toolName));
+            return;
+        }
+        CommunicationEngine::instance()->enqueueCmd_setData(
+            this, AbstractCmd::CmdType_Control_SetToolId, toolId);
+    };
     for (const QString &name : {QStringLiteral("TCP_O"), QStringLiteral("TCP_P"), QStringLiteral("TCP_U"),
-                                QStringLiteral("TCP_E"), QStringLiteral("TCP_tip")})
-        switches->addWidget(button(tr("Switch to %1").arg(name)));
+                                QStringLiteral("TCP_E"), QStringLiteral("TCP_tip")}) {
+        auto *switchTool = button(tr("Switch to %1").arg(name));
+        connect(switchTool, &QPushButton::clicked, this,
+                [requestTool, name] { requestTool(name); });
+        switches->addWidget(switchTool);
+    }
     tcpSettings->addLayout(switches);
-    tcpSettings->addWidget(button(tr("Set Cur TCP")));
+    auto *saveCurrentTool = button(tr("Set Cur TCP"));
+    tcpSettings->addWidget(saveCurrentTool);
     layout->addWidget(group(tr("Tool Coordinate System Settings (TCP)"), tcpSettings));
 
     auto *current = new QVBoxLayout;
@@ -439,14 +467,118 @@ QWidget *RobotControlForm::createRightPanel()
         QString label = tcpAxes[i];
         label.replace(QStringLiteral("Tar_"), QStringLiteral("Cur_"));
         currentGrid->addWidget(new QLabel(label + QStringLiteral(":")), i / 3, (i % 3) * 2);
-        currentGrid->addWidget(valueEdit(QStringLiteral("0.00"), true), i / 3, (i % 3) * 2 + 1);
+        m_currentToolEdits[i] = valueEdit(QStringLiteral("0.00"), true);
+        currentGrid->addWidget(m_currentToolEdits[i], i / 3, (i % 3) * 2 + 1);
     }
     current->addLayout(currentGrid);
     auto *reads = new QHBoxLayout;
-    for (const QString &text : {tr("Read Cur TCP"), tr("Read TCP_O"), tr("Read TCP_tip"), tr("Read TCP_U")})
-        reads->addWidget(button(text));
+    const auto requestToolParams = [this, findToolId](const QString &toolName) {
+        if (!Communication::instance()->isConnected())
+            return;
+
+        const int toolId = toolName.isEmpty()
+            ? Communication::instance()->GetCurToolId()
+            : findToolId(toolName);
+        if (toolId < 0) {
+            QMessageBox::warning(
+                this, tr("Tool TCP"),
+                tr("Tool '%1' does not exist in the controller.").arg(toolName));
+            return;
+        }
+        m_requestedToolId = toolId;
+        CommunicationEngine::instance()->enqueueCmd_handleToolCalibrate(
+            this, AbstractCmd::CmdType_Tool_Refresh, toolId);
+    };
+    const QList<QPair<QString, QString>> readTools{
+        {tr("Read Cur TCP"), QString()},
+        {tr("Read TCP_O"), QStringLiteral("TCP_O")},
+        {tr("Read TCP_tip"), QStringLiteral("TCP_tip")},
+        {tr("Read TCP_U"), QStringLiteral("TCP_U")}
+    };
+    for (const auto &readTool : readTools) {
+        auto *read = button(readTool.first);
+        connect(read, &QPushButton::clicked, this,
+                [requestToolParams, toolName = readTool.second] {
+                    requestToolParams(toolName);
+                });
+        reads->addWidget(read);
+    }
     current->addLayout(reads);
     layout->addWidget(group(tr("Current TCP Settings"), current));
+
+    m_selectedToolId = Communication::instance()->GetCurToolId();
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_settool_result,
+            this, [this](QObject *object, bool success, int toolId) {
+                if (object != this)
+                    return;
+                if (success) {
+                    m_selectedToolId = toolId;
+                } else {
+                    QMessageBox::warning(
+                        this, tr("Tool TCP"), tr("Failed to switch the controller tool."));
+                }
+            });
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_tool_Refresh_result,
+            this, [this](QObject *object, bool success, const ToolParams &params) {
+                if (object != this)
+                    return;
+                if (!success) {
+                    QMessageBox::warning(
+                        this, tr("Tool TCP"), tr("Failed to read the tool parameters."));
+                    return;
+                }
+
+                const std::array<double, 6> values{
+                    params.pos.m_x, params.pos.m_y, params.pos.m_z,
+                    params.ori.m_rx, params.ori.m_ry, params.ori.m_rz
+                };
+                for (int i = 0; i < static_cast<int>(values.size()); ++i)
+                    m_currentToolEdits[i]->setText(QString::number(values[i], 'f', 3));
+                m_selectedToolId = m_requestedToolId;
+            });
+    connect(saveCurrentTool, &QPushButton::clicked, this, [this] {
+        if (!Communication::instance()->isConnected())
+            return;
+
+        const int toolId = m_selectedToolId >= 0
+            ? m_selectedToolId
+            : Communication::instance()->GetCurToolId();
+        ToolParams params;
+        Communication::instance()->GetCurToolParams(toolId, params);
+
+        std::array<double, 6> values{};
+        for (int i = 0; i < static_cast<int>(values.size()); ++i) {
+            bool ok = false;
+            values[i] = m_targetToolEdits[i]->text().toDouble(&ok);
+            if (!ok) {
+                QMessageBox::warning(
+                    this, tr("Tool TCP"), tr("All TCP parameters must be valid numbers."));
+                return;
+            }
+        }
+        params.pos.m_x = values[0];
+        params.pos.m_y = values[1];
+        params.pos.m_z = values[2];
+        params.ori.m_rx = values[3];
+        params.ori.m_ry = values[4];
+        params.ori.m_rz = values[5];
+        CommunicationEngine::instance()->enqueueCmd_ToolSave(
+            this, static_cast<quint16>(toolId), params, true);
+    });
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_tool_Save_result,
+            this, [this, requestTool](QObject *object, bool success) {
+                if (object != this)
+                    return;
+                if (!success) {
+                    QMessageBox::warning(
+                        this, tr("Tool TCP"), tr("Failed to save the tool parameters."));
+                    return;
+                }
+                requestTool(QStringLiteral("TCP_E"));
+            });
 
     auto *communication = new QVBoxLayout;
     auto *endpoint = new QHBoxLayout;

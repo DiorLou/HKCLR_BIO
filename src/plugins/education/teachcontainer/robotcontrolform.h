@@ -21,4 +21,8 @@ private:
 
     std::array<QLineEdit *, 6> m_jointValueEdits{};
     std::array<QLineEdit *, 6> m_tcpValueEdits{};
+    std::array<QLineEdit *, 6> m_targetToolEdits{};
+    std::array<QLineEdit *, 6> m_currentToolEdits{};
+    int m_selectedToolId = -1;
+    int m_requestedToolId = -1;
 };
