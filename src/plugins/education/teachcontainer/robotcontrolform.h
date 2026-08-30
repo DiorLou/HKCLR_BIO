@@ -33,6 +33,4 @@ private:
     std::array<QLineEdit *, 3> m_ePointEdits{};
     QComboBox *m_aHistoryCombo = nullptr;
     QVector<std::array<double, 3>> m_aPointHistory;
-    int m_selectedToolId = -1;
-    int m_requestedToolId = -1;
 };

@@ -209,14 +209,23 @@ QWidget *RobotControlForm::createLeftPanel()
         controls->addWidget(plus);
         toolGrid->addLayout(controls, row + 1, col, 1, 2);
     }
-    toolGrid->addWidget(button(tr("Fine tune probe")), 4, 0, 1, 6, Qt::AlignCenter);
+    auto *fineTuneProbe = button(tr("Fine tune probe"));
+    fineTuneProbe->setEnabled(false);
+    fineTuneProbe->setToolTip(tr(
+        "Requires the ultrasound alignment and navigation calculation module"));
+    toolGrid->addWidget(fineTuneProbe, 4, 0, 1, 6, Qt::AlignCenter);
     layout->addWidget(group(tr("Robot Tool Real-time Status"), toolGrid));
 
     auto *points = new QVBoxLayout;
     addPoseEditor(points, tr("A Point"), QStringLiteral("A"), tr("Get A Point Position"));
     addPoseEditor(points, tr("O Point"), QStringLiteral("O"), tr("Get O Point Position"));
     addPoseEditor(points, tr("End-Effect"), QStringLiteral("E"), tr("Get End-Effect Position"));
-    points->addWidget(button(tr("Rotate the ultrasound plane to pass through the puncture point")));
+    auto *rotateToPuncture = button(
+        tr("Rotate the ultrasound plane to pass through the puncture point"));
+    rotateToPuncture->setEnabled(false);
+    rotateToPuncture->setToolTip(tr(
+        "Requires the Python ultrasound alignment and navigation calculation module"));
+    points->addWidget(rotateToPuncture);
     layout->addWidget(group(tr("Robot A, O, and End-Effect Positions"), points));
 
     auto *lesion = new QVBoxLayout;
@@ -227,13 +236,25 @@ QWidget *RobotControlForm::createLeftPanel()
     }
     auto *bPoints = new QComboBox;
     bPoints->addItem(tr("Please read TXT file first"));
+    bPoints->setEnabled(false);
     bRow->addWidget(bPoints);
     lesion->addLayout(bRow);
     auto *loadRow = new QHBoxLayout;
-    loadRow->addWidget(button(tr("Read A Points (Volume) from Replan File")));
-    loadRow->addWidget(button(tr("Read B Points (Volume) from Replan File")));
+    auto *readReplanA = button(tr("Read A Points (Volume) from Replan File"));
+    auto *readReplanB = button(tr("Read B Points (Volume) from Replan File"));
+    readReplanA->setEnabled(false);
+    readReplanB->setEnabled(false);
+    readReplanA->setToolTip(tr("Replan coordinate conversion is not implemented yet"));
+    readReplanB->setToolTip(tr("Replan coordinate conversion is not implemented yet"));
+    loadRow->addWidget(readReplanA);
+    loadRow->addWidget(readReplanB);
     lesion->addLayout(loadRow);
-    lesion->addWidget(button(tr("Rotate the ultrasound plane to pass through the biopsy point")));
+    auto *rotateToBiopsy = button(
+        tr("Rotate the ultrasound plane to pass through the biopsy point"));
+    rotateToBiopsy->setEnabled(false);
+    rotateToBiopsy->setToolTip(tr(
+        "Requires the biopsy planning and navigation calculation module"));
+    lesion->addWidget(rotateToBiopsy);
     layout->addWidget(group(tr("Lesion B Point Localization"), lesion));
 
     auto *save = new QHBoxLayout;
@@ -591,7 +612,11 @@ QWidget *RobotControlForm::createRightPanel()
             });
 
     auto *teach = new QHBoxLayout;
-    teach->addWidget(new QCheckBox(tr("Teach Mode On")));
+    auto *teachMode = new QCheckBox(tr("Teach Mode On"));
+    teachMode->setEnabled(false);
+    teachMode->setToolTip(tr(
+        "The controller exposes drag-teach status, but no matching public set API"));
+    teach->addWidget(teachMode);
     teach->addStretch();
     layout->addWidget(group(tr("Teach Mode"), teach));
 
@@ -664,7 +689,6 @@ QWidget *RobotControlForm::createRightPanel()
                 tr("Tool '%1' does not exist in the controller.").arg(toolName));
             return;
         }
-        m_requestedToolId = toolId;
         CommunicationEngine::instance()->enqueueCmd_handleToolCalibrate(
             this, AbstractCmd::CmdType_Tool_Refresh, toolId);
     };
@@ -685,15 +709,12 @@ QWidget *RobotControlForm::createRightPanel()
     current->addLayout(reads);
     layout->addWidget(group(tr("Current TCP Settings"), current));
 
-    m_selectedToolId = Communication::instance()->GetCurToolId();
     connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_settool_result,
             this, [this](QObject *object, bool success, int toolId) {
                 if (object != this)
                     return;
-                if (success) {
-                    m_selectedToolId = toolId;
-                } else {
+                if (!success) {
                     QMessageBox::warning(
                         this, tr("Tool TCP"), tr("Failed to switch the controller tool."));
                 }
@@ -715,15 +736,12 @@ QWidget *RobotControlForm::createRightPanel()
                 };
                 for (int i = 0; i < static_cast<int>(values.size()); ++i)
                     m_currentToolEdits[i]->setText(QString::number(values[i], 'f', 3));
-                m_selectedToolId = m_requestedToolId;
             });
     connect(saveCurrentTool, &QPushButton::clicked, this, [this] {
         if (!Communication::instance()->isConnected())
             return;
 
-        const int toolId = m_selectedToolId >= 0
-            ? m_selectedToolId
-            : Communication::instance()->GetCurToolId();
+        const int toolId = Communication::instance()->GetCurToolId();
         ToolParams params;
         Communication::instance()->GetCurToolParams(toolId, params);
 
