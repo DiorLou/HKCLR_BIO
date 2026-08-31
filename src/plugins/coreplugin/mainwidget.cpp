@@ -1175,6 +1175,14 @@ void MainWidget::slot_connectSuccess()
         = Communication::instance()->getRobotBodyPowerState();
     emit CommunicationEngine::instance()
         ->signal_robotBodyPowerStateChanged(powerState);
+    emit CommunicationEngine::instance()
+        ->signal_enableStateChanged(Communication::instance()->IsEnable());
+    emit CommunicationEngine::instance()
+        ->signal_emergecyStateChanged(Communication::instance()->IsEmergency());
+    emit CommunicationEngine::instance()
+        ->signal_speed_changed(Communication::instance()->GetSpeed());
+    emit CommunicationEngine::instance()
+        ->signal_ToolChanged(Communication::instance()->GetCurToolId());
 
     MetaType::RobotDeviceMode mode
         = Communication::instance()->GetCurDeviceMode();

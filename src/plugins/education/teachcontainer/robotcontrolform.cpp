@@ -7,6 +7,7 @@
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
+#include <QHash>
 #include <QFile>
 #include <QFileDialog>
 #include <QJsonArray>
@@ -653,15 +654,20 @@ QWidget *RobotControlForm::createRightPanel()
         CommunicationEngine::instance()->enqueueCmd_setData(
             this, AbstractCmd::CmdType_Control_SetToolId, toolId);
     };
+    QHash<QString, QPushButton *> switchToolButtons;
     for (const QString &name : {QStringLiteral("TCP_O"), QStringLiteral("TCP_P"), QStringLiteral("TCP_U"),
                                 QStringLiteral("TCP_E"), QStringLiteral("TCP_tip")}) {
         auto *switchTool = button(tr("Switch to %1").arg(name));
+        switchTool->setCheckable(true);
         connect(switchTool, &QPushButton::clicked, this,
                 [requestTool, name] { requestTool(name); });
+        switchToolButtons.insert(name, switchTool);
         switches->addWidget(switchTool);
     }
     tcpSettings->addLayout(switches);
-    auto *saveCurrentTool = button(tr("Set Cur TCP"));
+    auto *saveCurrentTool = button(tr("Save Parameters to Active TCP"));
+    saveCurrentTool->setToolTip(tr(
+        "Save the six values above to the tool currently active in the controller"));
     tcpSettings->addWidget(saveCurrentTool);
     layout->addWidget(group(tr("Tool Coordinate System Settings (TCP)"), tcpSettings));
 
@@ -693,17 +699,25 @@ QWidget *RobotControlForm::createRightPanel()
             this, AbstractCmd::CmdType_Tool_Refresh, toolId);
     };
     const QList<QPair<QString, QString>> readTools{
-        {tr("Read Cur TCP"), QString()},
+        {tr("Read Active TCP"), QString()},
         {tr("Read TCP_O"), QStringLiteral("TCP_O")},
+        {tr("Read TCP_P"), QStringLiteral("TCP_P")},
+        {tr("Read TCP_U"), QStringLiteral("TCP_U")},
+        {tr("Read TCP_E"), QStringLiteral("TCP_E")},
         {tr("Read TCP_tip"), QStringLiteral("TCP_tip")},
-        {tr("Read TCP_U"), QStringLiteral("TCP_U")}
     };
+    QPushButton *readActiveTool = nullptr;
+    QHash<QString, QPushButton *> readToolButtons;
     for (const auto &readTool : readTools) {
         auto *read = button(readTool.first);
         connect(read, &QPushButton::clicked, this,
                 [requestToolParams, toolName = readTool.second] {
                     requestToolParams(toolName);
                 });
+        if (readTool.second.isEmpty())
+            readActiveTool = read;
+        else
+            readToolButtons.insert(readTool.second, read);
         reads->addWidget(read);
     }
     current->addLayout(reads);
@@ -777,6 +791,41 @@ QWidget *RobotControlForm::createRightPanel()
                 requestTool(QStringLiteral("TCP_E"));
             });
 
+    const auto refreshToolButtons = [=] {
+        const bool connected = Communication::instance()->isConnected();
+        const QStringList names = Communication::instance()->getCurToolNames();
+        const int activeToolId = Communication::instance()->GetCurToolId();
+        const QString activeToolName
+            = activeToolId >= 0 && activeToolId < names.size()
+                ? names[activeToolId] : QString();
+
+        for (auto it = switchToolButtons.cbegin(); it != switchToolButtons.cend(); ++it) {
+            const bool exists = findToolId(it.key()) >= 0;
+            it.value()->setEnabled(connected && exists);
+            it.value()->setChecked(
+                connected && activeToolName.compare(it.key(), Qt::CaseInsensitive) == 0);
+            it.value()->setToolTip(exists
+                ? QObject::tr("Activate controller tool '%1'").arg(it.key())
+                : QObject::tr("Tool '%1' does not exist in the controller").arg(it.key()));
+        }
+        for (auto it = readToolButtons.cbegin(); it != readToolButtons.cend(); ++it) {
+            const bool exists = findToolId(it.key()) >= 0;
+            it.value()->setEnabled(connected && exists);
+            it.value()->setToolTip(exists
+                ? QObject::tr("Read controller tool '%1'").arg(it.key())
+                : QObject::tr("Tool '%1' does not exist in the controller").arg(it.key()));
+        }
+        readActiveTool->setEnabled(connected && !activeToolName.isEmpty());
+        saveCurrentTool->setEnabled(connected && !activeToolName.isEmpty());
+    };
+    refreshToolButtons();
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_connectSuccess,
+            this, refreshToolButtons);
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_ToolChanged,
+            this, [refreshToolButtons](int) { refreshToolButtons(); });
+
     auto *communication = new QVBoxLayout;
     auto *endpoint = new QHBoxLayout;
     endpoint->addWidget(new QLabel(tr("Controller IP:")));
@@ -809,6 +858,7 @@ QWidget *RobotControlForm::createRightPanel()
                 ? QObject::tr("Controller Status: Connected")
                 : QObject::tr("Controller Status: Disconnected"));
         setControllerButtonsEnabled(connected);
+        refreshToolButtons();
     };
     updateConnectionUi(Communication::instance()->isConnected()
         ? ControllerConnectionState_Connected
