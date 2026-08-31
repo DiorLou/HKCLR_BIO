@@ -1171,6 +1171,11 @@ bool MainWidget::eventFilter(QObject *watched, QEvent *event)
 
 void MainWidget::slot_connectSuccess()
 {
+    const InoCoRobotBodyPowerState powerState
+        = Communication::instance()->getRobotBodyPowerState();
+    emit CommunicationEngine::instance()
+        ->signal_robotBodyPowerStateChanged(powerState);
+
     MetaType::RobotDeviceMode mode
         = Communication::instance()->GetCurDeviceMode();
     UpdateDeviceModeStatus(mode);
