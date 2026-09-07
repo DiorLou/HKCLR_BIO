@@ -514,7 +514,7 @@ QWidget *RobotControlForm::createRightPanel()
     layout->addWidget(group(tr("E05-L Pro Device Control"), device));
 
     const QList<QPushButton *> controllerButtons{
-        power, enable, reset, pause, resume, stopProgram, emergencyStop
+        reset, pause, resume, stopProgram, emergencyStop
     };
     const auto setControllerButtonsEnabled = [controllerButtons](bool connected) {
         for (QPushButton *control : controllerButtons)
@@ -522,23 +522,70 @@ QWidget *RobotControlForm::createRightPanel()
     };
     setControllerButtonsEnabled(Communication::instance()->isConnected());
 
-    connect(power, &QPushButton::clicked, this, [this](bool checked) {
-        const QString question = checked
+    const auto updatePowerUi = [power, enable](InoCoRobotBodyPowerState state) {
+        power->setProperty("robotBodyPowerState", static_cast<int>(state));
+        const bool powered = state == ROBOT_BODY_POWER_ON;
+        const bool transitioning
+            = state == ROBOT_BODY_POWERING_ON_IN_PROCESS
+              || state == ROBOT_BODY_POWER_OFF_IN_PROCESS;
+        power->setChecked(powered);
+        power->setEnabled(Communication::instance()->isConnected()
+                          && !transitioning && !enable->isChecked());
+        power->setText(
+            state == ROBOT_BODY_POWERING_ON_IN_PROCESS
+                ? QObject::tr("Powering On...")
+                : state == ROBOT_BODY_POWER_OFF_IN_PROCESS
+                    ? QObject::tr("Powering Off...")
+                    : powered ? QObject::tr("Power Off")
+                              : QObject::tr("Power On"));
+        enable->setEnabled(Communication::instance()->isConnected()
+                           && (powered || enable->isChecked()));
+    };
+    const auto updateEnableUi = [power, enable](bool enabled) {
+        enable->setChecked(enabled);
+        enable->setText(enabled ? QObject::tr("Disable")
+                                : QObject::tr("Enable"));
+        const auto powerState = static_cast<InoCoRobotBodyPowerState>(
+            power->property("robotBodyPowerState").toInt());
+        enable->setEnabled(Communication::instance()->isConnected()
+                           && (powerState == ROBOT_BODY_POWER_ON || enabled));
+        const bool transitioning
+            = powerState == ROBOT_BODY_POWERING_ON_IN_PROCESS
+              || powerState == ROBOT_BODY_POWER_OFF_IN_PROCESS;
+        power->setEnabled(Communication::instance()->isConnected()
+                          && !transitioning && !enabled);
+    };
+
+    connect(power, &QPushButton::clicked, this, [this, power](bool) {
+        const auto currentState = static_cast<InoCoRobotBodyPowerState>(
+            power->property("robotBodyPowerState").toInt());
+        const bool requestPowerOn = currentState != ROBOT_BODY_POWER_ON;
+        // A click is only a request. Keep showing the controller's actual state
+        // until its monitoring signal confirms that the state has changed.
+        power->setChecked(currentState == ROBOT_BODY_POWER_ON);
+        const QString question = requestPowerOn
             ? tr("Are you sure you want to power on the robot?")
             : tr("Are you sure you want to power off the robot?");
         if (QMessageBox::question(this, tr("Robot Power"), question)
             != QMessageBox::Yes) {
-            auto *powerButton = qobject_cast<QPushButton *>(sender());
-            if (powerButton)
-                powerButton->setChecked(!checked);
             return;
         }
 
         CommunicationEngine::instance()->enqueueCmd_setData(
             this, AbstractCmd::CmdType_SetRobotBodyPowerState,
-            checked ? ROBOT_BODY_POWER_ON : ROBOT_BODY_POWER_OFF);
+            requestPowerOn ? ROBOT_BODY_POWER_ON : ROBOT_BODY_POWER_OFF);
     });
-    connect(enable, &QPushButton::clicked, this, [this](bool checked) {
+    connect(enable, &QPushButton::clicked, this, [this, power, enable](bool checked) {
+        const bool actualEnabled = !checked;
+        enable->setChecked(actualEnabled);
+        const auto powerState = static_cast<InoCoRobotBodyPowerState>(
+            power->property("robotBodyPowerState").toInt());
+        if (checked && powerState != ROBOT_BODY_POWER_ON) {
+            QMessageBox::warning(
+                this, tr("Enable Robot"),
+                tr("The robot body is not powered on. Please power on the robot first."));
+            return;
+        }
         CommunicationEngine::instance()->enqueueCmd_enableRobot(this, checked);
     });
     connect(reset, &QPushButton::clicked, this, [this] {
@@ -581,10 +628,7 @@ QWidget *RobotControlForm::createRightPanel()
 
     connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_enableStateChanged,
-            enable, [enable](bool enabled) {
-                enable->setChecked(enabled);
-                enable->setText(enabled ? QObject::tr("Disable") : QObject::tr("Enable"));
-            });
+            enable, updateEnableUi);
     connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_emergecyStateChanged,
             emergencyStop, [emergencyStop](bool engaged) {
@@ -595,22 +639,16 @@ QWidget *RobotControlForm::createRightPanel()
             });
     connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_robotBodyPowerStateChanged,
-            power, [power](InoCoRobotBodyPowerState state) {
-                const bool powered = state == ROBOT_BODY_POWER_ON;
-                const bool transitioning
-                    = state == ROBOT_BODY_POWERING_ON_IN_PROCESS
-                      || state == ROBOT_BODY_POWER_OFF_IN_PROCESS;
-                power->setChecked(powered);
-                power->setEnabled(
-                    Communication::instance()->isConnected() && !transitioning);
-                power->setText(
-                    state == ROBOT_BODY_POWERING_ON_IN_PROCESS
-                        ? QObject::tr("Powering On...")
-                        : state == ROBOT_BODY_POWER_OFF_IN_PROCESS
-                            ? QObject::tr("Powering Off...")
-                            : powered ? QObject::tr("Power Off")
-                                      : QObject::tr("Power On"));
-            });
+            power, updatePowerUi);
+
+    const auto refreshControllerState = [updatePowerUi, updateEnableUi] {
+        updatePowerUi(Communication::instance()->getRobotBodyPowerState());
+        updateEnableUi(Communication::instance()->IsEnable());
+    };
+    refreshControllerState();
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_connectSuccess,
+            this, refreshControllerState);
 
     auto *teach = new QHBoxLayout;
     auto *teachMode = new QCheckBox(tr("Teach Mode On"));
@@ -858,6 +896,12 @@ QWidget *RobotControlForm::createRightPanel()
                 ? QObject::tr("Controller Status: Connected")
                 : QObject::tr("Controller Status: Disconnected"));
         setControllerButtonsEnabled(connected);
+        if (connected) {
+            refreshControllerState();
+        } else {
+            updatePowerUi(ROBOT_BODY_DISCONNECTED_STATE);
+            updateEnableUi(false);
+        }
         refreshToolButtons();
     };
     updateConnectionUi(Communication::instance()->isConnected()
