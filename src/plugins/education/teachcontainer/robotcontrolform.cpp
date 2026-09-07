@@ -642,6 +642,14 @@ QWidget *RobotControlForm::createRightPanel()
             power, updatePowerUi);
 
     const auto refreshControllerState = [updatePowerUi, updateEnableUi] {
+        // The monitor backend is not ready while functional modules are being
+        // constructed. Query it only after the controller connection succeeds;
+        // an early query can block application startup on the splash screen.
+        if (!Communication::instance()->isConnected()) {
+            updatePowerUi(ROBOT_BODY_DISCONNECTED_STATE);
+            updateEnableUi(false);
+            return;
+        }
         updatePowerUi(Communication::instance()->getRobotBodyPowerState());
         updateEnableUi(Communication::instance()->IsEnable());
     };
