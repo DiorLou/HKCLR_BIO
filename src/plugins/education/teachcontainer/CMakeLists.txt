@@ -14,19 +14,12 @@ fun_add_cobot_tp_plugin(TeachContainer
     TEACHCONTAINER_LIBRARY
   DEPENDS
     PluginEngine
-    Authority
     Utils
     Metatype
     Instance
     Communication
-    CobotLog
-    GeneralTools
-    TeachController
-    Simulator
-    CustomComponent
   PLUGIN_DEPENDS
     Core
-    SimulationForm
   SOURCES
     ${SOURCE}
 )
