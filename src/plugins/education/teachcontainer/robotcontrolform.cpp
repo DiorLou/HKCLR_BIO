@@ -496,6 +496,9 @@ QWidget *RobotControlForm::createRightPanel()
     auto *emergencyStop = button(tr("Emergency Stop"));
 
     power->setCheckable(true);
+    power->setEnabled(false);
+    power->setToolTip(tr(
+        "Robot body power is managed by the robot platform. This control is display-only."));
     enable->setCheckable(true);
     emergencyStop->setCheckable(true);
     emergencyStop->setObjectName(QStringLiteral("emergencyStop"));
@@ -525,12 +528,8 @@ QWidget *RobotControlForm::createRightPanel()
     const auto updatePowerUi = [power, enable](InoCoRobotBodyPowerState state) {
         power->setProperty("robotBodyPowerState", static_cast<int>(state));
         const bool powered = state == ROBOT_BODY_POWER_ON;
-        const bool transitioning
-            = state == ROBOT_BODY_POWERING_ON_IN_PROCESS
-              || state == ROBOT_BODY_POWER_OFF_IN_PROCESS;
         power->setChecked(powered);
-        power->setEnabled(Communication::instance()->isConnected()
-                          && !transitioning && !enable->isChecked());
+        power->setEnabled(false);
         power->setText(
             state == ROBOT_BODY_POWERING_ON_IN_PROCESS
                 ? QObject::tr("Powering On...")
@@ -538,22 +537,17 @@ QWidget *RobotControlForm::createRightPanel()
                     ? QObject::tr("Powering Off...")
                     : powered ? QObject::tr("Power Off")
                               : QObject::tr("Power On"));
-        enable->setEnabled(Communication::instance()->isConnected()
-                           && (powered || enable->isChecked()));
+        // Some controller versions do not report ROBOT_BODY_POWER_ON even
+        // though the cabinet is powered.  Keep Enable available while
+        // connected and let the controller API validate the request.
+        enable->setEnabled(Communication::instance()->isConnected());
     };
     const auto updateEnableUi = [power, enable](bool enabled) {
         enable->setChecked(enabled);
         enable->setText(enabled ? QObject::tr("Disable")
                                 : QObject::tr("Enable"));
-        const auto powerState = static_cast<InoCoRobotBodyPowerState>(
-            power->property("robotBodyPowerState").toInt());
-        enable->setEnabled(Communication::instance()->isConnected()
-                           && (powerState == ROBOT_BODY_POWER_ON || enabled));
-        const bool transitioning
-            = powerState == ROBOT_BODY_POWERING_ON_IN_PROCESS
-              || powerState == ROBOT_BODY_POWER_OFF_IN_PROCESS;
-        power->setEnabled(Communication::instance()->isConnected()
-                          && !transitioning && !enabled);
+        enable->setEnabled(Communication::instance()->isConnected());
+        power->setEnabled(false);
     };
 
     connect(power, &QPushButton::clicked, this, [this, power](bool) {
@@ -591,12 +585,6 @@ QWidget *RobotControlForm::createRightPanel()
         updatePowerUi(powerState);
         updateEnableUi(actualEnabled);
 
-        if (requestedEnabled && powerState != ROBOT_BODY_POWER_ON) {
-            QMessageBox::warning(
-                this, tr("Enable Robot"),
-                tr("The robot body is not powered on. Please power on the robot first."));
-            return;
-        }
         CommunicationEngine::instance()->enqueueCmd_enableRobot(
             this, requestedEnabled);
     });
