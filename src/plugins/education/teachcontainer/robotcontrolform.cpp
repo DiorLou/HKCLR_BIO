@@ -773,7 +773,7 @@ QWidget *RobotControlForm::createRightPanel()
             return;
 
         const int toolId = toolName.isEmpty()
-            ? Communication::instance()->GetCurToolId()
+            ? m_confirmedActiveToolId
             : findToolId(toolName);
         if (toolId < 0) {
             QMessageBox::warning(
@@ -811,16 +811,6 @@ QWidget *RobotControlForm::createRightPanel()
     layout->addWidget(group(tr("Current TCP Settings"), current));
 
     connect(CommunicationEngine::instance(),
-            &CommunicationEngine::signal_settool_result,
-            this, [this](QObject *object, bool success, int toolId) {
-                if (object != this)
-                    return;
-                if (!success) {
-                    QMessageBox::warning(
-                        this, tr("Tool TCP"), tr("Failed to switch the controller tool."));
-                }
-            });
-    connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_tool_Refresh_result,
             this, [this](QObject *object, bool success, const ToolParams &params) {
                 if (object != this)
@@ -842,7 +832,12 @@ QWidget *RobotControlForm::createRightPanel()
         if (!Communication::instance()->isConnected())
             return;
 
-        const int toolId = Communication::instance()->GetCurToolId();
+        const int toolId = m_confirmedActiveToolId;
+        if (toolId < 0) {
+            QMessageBox::warning(
+                this, tr("Tool TCP"), tr("No active controller tool is confirmed."));
+            return;
+        }
         ToolParams params;
         Communication::instance()->GetCurToolParams(toolId, params);
 
@@ -881,10 +876,9 @@ QWidget *RobotControlForm::createRightPanel()
     const auto refreshToolButtons = [=] {
         const bool connected = Communication::instance()->isConnected();
         const QStringList names = Communication::instance()->getCurToolNames();
-        const int activeToolId = Communication::instance()->GetCurToolId();
         const QString activeToolName
-            = activeToolId >= 0 && activeToolId < names.size()
-                ? names[activeToolId] : QString();
+            = m_confirmedActiveToolId >= 0 && m_confirmedActiveToolId < names.size()
+                ? names[m_confirmedActiveToolId] : QString();
 
         for (auto it = switchToolButtons.cbegin(); it != switchToolButtons.cend(); ++it) {
             const bool exists = findToolId(it.key()) >= 0;
@@ -913,11 +907,34 @@ QWidget *RobotControlForm::createRightPanel()
     };
     refreshToolButtons();
     connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_settool_result,
+            this, [this, refreshToolButtons](QObject *object, bool success, int toolId) {
+                if (object != this)
+                    return;
+                if (!success) {
+                    QMessageBox::warning(
+                        this, tr("Tool TCP"), tr("Failed to switch the controller tool."));
+                    return;
+                }
+
+                // Some controller versions do not emit toolIdChanged after
+                // SetCurrentId. Remember the tool acknowledged by the API so
+                // that an immediate save cannot fall back to stale Tool0.
+                m_confirmedActiveToolId = toolId;
+                refreshToolButtons();
+            });
+    connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_connectSuccess,
-            this, refreshToolButtons);
+            this, [this, refreshToolButtons] {
+                m_confirmedActiveToolId = Communication::instance()->GetCurToolId();
+                refreshToolButtons();
+            });
     connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_ToolChanged,
-            this, [refreshToolButtons](int) { refreshToolButtons(); });
+            this, [this, refreshToolButtons](int toolId) {
+                m_confirmedActiveToolId = toolId;
+                refreshToolButtons();
+            });
 
     auto *communication = new QVBoxLayout;
     auto *endpoint = new QHBoxLayout;
