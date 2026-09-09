@@ -575,18 +575,30 @@ QWidget *RobotControlForm::createRightPanel()
             this, AbstractCmd::CmdType_SetRobotBodyPowerState,
             requestPowerOn ? ROBOT_BODY_POWER_ON : ROBOT_BODY_POWER_OFF);
     });
-    connect(enable, &QPushButton::clicked, this, [this, power, enable](bool checked) {
-        const bool actualEnabled = !checked;
-        enable->setChecked(actualEnabled);
-        const auto powerState = static_cast<InoCoRobotBodyPowerState>(
-            power->property("robotBodyPowerState").toInt());
-        if (checked && powerState != ROBOT_BODY_POWER_ON) {
+    connect(enable, &QPushButton::clicked, this,
+            [this, power, enable, updatePowerUi, updateEnableUi](bool) {
+        if (!Communication::instance()->isConnected()) {
+            updatePowerUi(ROBOT_BODY_DISCONNECTED_STATE);
+            updateEnableUi(false);
+            QMessageBox::warning(
+                this, tr("Enable Robot"), tr("Controller not connected!"));
+            return;
+        }
+
+        const auto powerState = Communication::instance()->getRobotBodyPowerState();
+        const bool actualEnabled = Communication::instance()->IsEnable();
+        const bool requestedEnabled = !actualEnabled;
+        updatePowerUi(powerState);
+        updateEnableUi(actualEnabled);
+
+        if (requestedEnabled && powerState != ROBOT_BODY_POWER_ON) {
             QMessageBox::warning(
                 this, tr("Enable Robot"),
                 tr("The robot body is not powered on. Please power on the robot first."));
             return;
         }
-        CommunicationEngine::instance()->enqueueCmd_enableRobot(this, checked);
+        CommunicationEngine::instance()->enqueueCmd_enableRobot(
+            this, requestedEnabled);
     });
     connect(reset, &QPushButton::clicked, this, [this] {
         CommunicationEngine::instance()->enqueueCmd(
@@ -629,6 +641,24 @@ QWidget *RobotControlForm::createRightPanel()
     connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_enableStateChanged,
             enable, updateEnableUi);
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_enableRobotInterface_result,
+            this,
+            [this, updatePowerUi, updateEnableUi](QObject *object, bool success) {
+        if (object != this)
+            return;
+
+        if (!success) {
+            QMessageBox::warning(
+                this, tr("Enable Robot"),
+                tr("The controller failed to change the robot enable state."));
+        }
+
+        if (Communication::instance()->isConnected()) {
+            updatePowerUi(Communication::instance()->getRobotBodyPowerState());
+            updateEnableUi(Communication::instance()->IsEnable());
+        }
+    });
     connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_emergecyStateChanged,
             emergencyStop, [emergencyStop](bool engaged) {
