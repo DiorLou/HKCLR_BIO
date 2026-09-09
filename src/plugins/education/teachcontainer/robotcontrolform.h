@@ -1,12 +1,14 @@
 #pragma once
 
 #include <QWidget>
+#include <QStringList>
 #include <QVector>
 
 #include <array>
 
 class QLineEdit;
 class QComboBox;
+class QTextBrowser;
 class QVBoxLayout;
 
 class RobotControlForm : public QWidget
@@ -23,6 +25,7 @@ private:
     void capturePoint(const QString &prefix, const QString &toolName);
     void savePointData();
     void loadPointData();
+    void requestAlarmHistory();
 
     std::array<QLineEdit *, 6> m_jointValueEdits{};
     std::array<QLineEdit *, 6> m_tcpValueEdits{};
@@ -32,6 +35,8 @@ private:
     std::array<QLineEdit *, 3> m_oPointEdits{};
     std::array<QLineEdit *, 3> m_ePointEdits{};
     QComboBox *m_aHistoryCombo = nullptr;
+    QTextBrowser *m_alarmHistoryView = nullptr;
+    QStringList m_alarmHistory;
     QVector<std::array<double, 3>> m_aPointHistory;
     int m_confirmedActiveToolId = -1;
 };

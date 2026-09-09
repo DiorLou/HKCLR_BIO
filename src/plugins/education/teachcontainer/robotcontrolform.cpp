@@ -19,6 +19,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSlider>
+#include <QTextBrowser>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -94,6 +95,15 @@ RobotControlForm::RobotControlForm(QWidget *parent) : QWidget(parent)
     connect(realtimeTimer, &QTimer::timeout,
             this, &RobotControlForm::updateRealtimeStatus);
     realtimeTimer->start();
+}
+
+void RobotControlForm::requestAlarmHistory()
+{
+    if (!Communication::instance()->isConnected())
+        return;
+
+    CommunicationEngine::instance()->enqueueCmd(
+        this, AbstractCmd::CmdType_GetHistoryAlarm, m_alarmHistory);
 }
 
 QWidget *RobotControlForm::createLeftPanel()
@@ -914,6 +924,9 @@ QWidget *RobotControlForm::createRightPanel()
                 if (!success) {
                     QMessageBox::warning(
                         this, tr("Tool TCP"), tr("Failed to switch the controller tool."));
+                    // The controller may publish the detailed alarm shortly after
+                    // rejecting SetCurrentId. Refresh once after that update arrives.
+                    QTimer::singleShot(250, this, [this] { requestAlarmHistory(); });
                     return;
                 }
 
@@ -955,6 +968,43 @@ QWidget *RobotControlForm::createRightPanel()
     status->setStyleSheet(QStringLiteral("color:#2468b4;"));
     communication->addWidget(status);
 
+    auto *alarmHeader = new QHBoxLayout;
+    alarmHeader->addWidget(new QLabel(tr("Controller Alarm Log")));
+    alarmHeader->addStretch();
+    auto *refreshAlarms = button(tr("Refresh"));
+    alarmHeader->addWidget(refreshAlarms);
+    communication->addLayout(alarmHeader);
+
+    m_alarmHistoryView = new QTextBrowser;
+    m_alarmHistoryView->setReadOnly(true);
+    m_alarmHistoryView->setMinimumHeight(150);
+    m_alarmHistoryView->setPlaceholderText(
+        tr("Controller alarm history will appear here (newest first)."));
+    m_alarmHistoryView->document()->setMaximumBlockCount(300);
+    communication->addWidget(m_alarmHistoryView, 1);
+
+    connect(refreshAlarms, &QPushButton::clicked,
+            this, &RobotControlForm::requestAlarmHistory);
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_getHistoryAlarmRes,
+            this, [this](QObject *object, const QStringList &alarms) {
+                if (object != this)
+                    return;
+
+                m_alarmHistory = alarms;
+                m_alarmHistoryView->setPlainText(alarms.join(QLatin1Char('\n')));
+                if (alarms.isEmpty()) {
+                    m_alarmHistoryView->setPlaceholderText(
+                        tr("No controller alarm history was returned."));
+                }
+            });
+
+    auto *alarmTimer = new QTimer(this);
+    alarmTimer->setInterval(1500);
+    connect(alarmTimer, &QTimer::timeout,
+            this, &RobotControlForm::requestAlarmHistory);
+    alarmTimer->start();
+
     const auto updateConnectionUi = [=](ControllerConnectionState state) {
         const bool connected = state == ControllerConnectionState_Connected;
         const bool connecting = state == ControllerConnectionState_Connecting;
@@ -970,6 +1020,7 @@ QWidget *RobotControlForm::createRightPanel()
         setControllerButtonsEnabled(connected);
         if (connected) {
             refreshControllerState();
+            QTimer::singleShot(0, this, [this] { requestAlarmHistory(); });
         } else {
             updatePowerUi(ROBOT_BODY_DISCONNECTED_STATE);
             updateEnableUi(false);
@@ -1004,7 +1055,6 @@ QWidget *RobotControlForm::createRightPanel()
             &CommunicationEngine::signal_controllerConnectionStatusChanged,
             this, updateConnectionUi);
 
-    layout->addWidget(group(tr("Controller Communication"), communication));
-    layout->addStretch();
+    layout->addWidget(group(tr("Controller Communication"), communication), 1);
     return panel;
 }
