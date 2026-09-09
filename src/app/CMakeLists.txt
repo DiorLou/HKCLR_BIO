@@ -87,6 +87,28 @@ if(TARGET ${COBOT_TP_APP_TARGET})
 
   target_link_libraries(${COBOT_TP_APP_TARGET} PRIVATE ${_teach_demo_app_imports})
 
+  # windeployqt is invoked with --no-compiler-runtime below, so deploy the
+  # MinGW runtime explicitly.  A clean build must also run on machines that do
+  # not have Qt Creator or MinGW added to PATH.
+  if(MINGW)
+    get_filename_component(_mingw_runtime_dir "${CMAKE_CXX_COMPILER}" DIRECTORY)
+    foreach(_mingw_runtime IN ITEMS
+        libwinpthread-1.dll
+        libgcc_s_seh-1.dll
+        libstdc++-6.dll)
+      if(EXISTS "${_mingw_runtime_dir}/${_mingw_runtime}")
+        add_custom_command(TARGET ${COBOT_TP_APP_TARGET} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${_mingw_runtime_dir}/${_mingw_runtime}"
+            "$<TARGET_FILE_DIR:${COBOT_TP_APP_TARGET}>"
+          VERBATIM
+        )
+      else()
+        message(FATAL_ERROR "Required MinGW runtime not found: ${_mingw_runtime_dir}/${_mingw_runtime}")
+      endif()
+    endforeach()
+  endif()
+
   # Imported targets are link-time dependencies only; CMake does not copy their
   # runtime DLLs beside the executable automatically.  Keep the deploy folder
   # self-contained so packaged builds also run on machines without the source
