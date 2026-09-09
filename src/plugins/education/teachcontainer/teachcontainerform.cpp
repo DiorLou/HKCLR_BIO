@@ -41,6 +41,11 @@ TeachContainerForm::TeachContainerForm(QWidget *parent) :
     setupUi(this);
 #endif
 
+    // This legacy form is retained only as a runtime host.  Keep its QWidget
+    // lifecycle active for controller/simulation initialization without ever
+    // compositing the old Teaching page over Robot Control.
+    setAttribute(Qt::WA_DontShowOnScreen, true);
+
     s_instance = this;
     Instance::setEducationContainerForm(this);
 
@@ -99,6 +104,10 @@ void TeachContainerForm::initialize()
     ui->layout_simulator->addWidget(SimulationForm::instance());
     SimulationForm::instance()->setSimulationFormSize(
         ResolutionUtils::getRatioSize(QSize(SIM_WIDTH,SIM_HEIGHT)));
+
+    // Trigger the historical show-time initialization off-screen.  Calling
+    // hide() here would also suppress showEvent() and break background setup.
+    show();
 }
 
 void TeachContainerForm::delayInitialized()
