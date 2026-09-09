@@ -46,6 +46,21 @@ QGroupBox *group(const QString &title, QLayout *layout)
     result->setLayout(layout);
     return result;
 }
+
+QString controllerToolName(const QString &legacyTcpName)
+{
+    if (legacyTcpName.compare(QStringLiteral("TCP_E"), Qt::CaseInsensitive) == 0)
+        return QStringLiteral("Tool0");
+    if (legacyTcpName.compare(QStringLiteral("TCP_tip"), Qt::CaseInsensitive) == 0)
+        return QStringLiteral("Tool1");
+    if (legacyTcpName.compare(QStringLiteral("TCP_O"), Qt::CaseInsensitive) == 0)
+        return QStringLiteral("Tool2");
+    if (legacyTcpName.compare(QStringLiteral("TCP_U"), Qt::CaseInsensitive) == 0)
+        return QStringLiteral("Tool3");
+    if (legacyTcpName.compare(QStringLiteral("TCP_P"), Qt::CaseInsensitive) == 0)
+        return QStringLiteral("Tool4");
+    return legacyTcpName;
+}
 }
 
 RobotControlForm::RobotControlForm(QWidget *parent) : QWidget(parent)
@@ -344,10 +359,11 @@ void RobotControlForm::capturePoint(const QString &prefix, const QString &toolNa
     if (!Communication::instance()->isConnected())
         return;
 
+    const QString controllerName = controllerToolName(toolName);
     const QStringList toolNames = Communication::instance()->getCurToolNames();
     int toolId = -1;
     for (int i = 0; i < toolNames.size(); ++i) {
-        if (toolNames[i].compare(toolName, Qt::CaseInsensitive) == 0) {
+        if (toolNames[i].compare(controllerName, Qt::CaseInsensitive) == 0) {
             toolId = i;
             break;
         }
@@ -355,7 +371,8 @@ void RobotControlForm::capturePoint(const QString &prefix, const QString &toolNa
     if (toolId < 0) {
         QMessageBox::warning(
             this, tr("Point Capture"),
-            tr("Tool '%1' does not exist in the controller.").arg(toolName));
+            tr("Controller tool '%1' (mapped from '%2') does not exist.")
+                .arg(controllerName, toolName));
         return;
     }
 
@@ -700,9 +717,10 @@ QWidget *RobotControlForm::createRightPanel()
     tcpSettings->addLayout(tcpGrid);
     auto *switches = new QHBoxLayout;
     const auto findToolId = [](const QString &toolName) {
+        const QString controllerName = controllerToolName(toolName);
         const QStringList toolNames = Communication::instance()->getCurToolNames();
         for (int i = 0; i < toolNames.size(); ++i) {
-            if (toolNames[i].compare(toolName, Qt::CaseInsensitive) == 0)
+            if (toolNames[i].compare(controllerName, Qt::CaseInsensitive) == 0)
                 return i;
         }
         return -1;
@@ -715,7 +733,8 @@ QWidget *RobotControlForm::createRightPanel()
         if (toolId < 0) {
             QMessageBox::warning(
                 this, tr("Tool TCP"),
-                tr("Tool '%1' does not exist in the controller.").arg(toolName));
+                tr("Controller tool '%1' (mapped from '%2') does not exist.")
+                    .arg(controllerToolName(toolName), toolName));
             return;
         }
         CommunicationEngine::instance()->enqueueCmd_setData(
@@ -759,7 +778,8 @@ QWidget *RobotControlForm::createRightPanel()
         if (toolId < 0) {
             QMessageBox::warning(
                 this, tr("Tool TCP"),
-                tr("Tool '%1' does not exist in the controller.").arg(toolName));
+                tr("Controller tool '%1' (mapped from '%2') does not exist.")
+                    .arg(controllerToolName(toolName), toolName));
             return;
         }
         CommunicationEngine::instance()->enqueueCmd_handleToolCalibrate(
@@ -870,17 +890,23 @@ QWidget *RobotControlForm::createRightPanel()
             const bool exists = findToolId(it.key()) >= 0;
             it.value()->setEnabled(connected && exists);
             it.value()->setChecked(
-                connected && activeToolName.compare(it.key(), Qt::CaseInsensitive) == 0);
+                connected
+                && activeToolName.compare(controllerToolName(it.key()),
+                                          Qt::CaseInsensitive) == 0);
             it.value()->setToolTip(exists
-                ? QObject::tr("Activate controller tool '%1'").arg(it.key())
-                : QObject::tr("Tool '%1' does not exist in the controller").arg(it.key()));
+                ? QObject::tr("Activate %1 (%2 on this controller)")
+                      .arg(it.key(), controllerToolName(it.key()))
+                : QObject::tr("Controller tool '%1' for %2 does not exist")
+                      .arg(controllerToolName(it.key()), it.key()));
         }
         for (auto it = readToolButtons.cbegin(); it != readToolButtons.cend(); ++it) {
             const bool exists = findToolId(it.key()) >= 0;
             it.value()->setEnabled(connected && exists);
             it.value()->setToolTip(exists
-                ? QObject::tr("Read controller tool '%1'").arg(it.key())
-                : QObject::tr("Tool '%1' does not exist in the controller").arg(it.key()));
+                ? QObject::tr("Read %1 (%2 on this controller)")
+                      .arg(it.key(), controllerToolName(it.key()))
+                : QObject::tr("Controller tool '%1' for %2 does not exist")
+                      .arg(controllerToolName(it.key()), it.key()));
         }
         readActiveTool->setEnabled(connected && !activeToolName.isEmpty());
         saveCurrentTool->setEnabled(connected && !activeToolName.isEmpty());
