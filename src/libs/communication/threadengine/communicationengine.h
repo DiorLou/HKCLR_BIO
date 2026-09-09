@@ -163,7 +163,7 @@ public:
     /**
      * @brief enqueueCmd_axisMove
      * @param object
-     * @param axisId 对于关节运动axisId为轴号，0-5对应关节轴1-6;对于直线运动axisId为移动或旋转方向，0-5对应为X、Y、Z、RX、RY、RZ
+     * @param axisId 对于关节运动axisId为轴号，1-6对应关节轴1-6;对于直线运动axisId为移动或旋转方向，0-5对应为X、Y、Z、RX、RY、RZ
      * @param isPositive true:正方向 false:负方向
      * @param isPressd true:启动 false:停止
      */

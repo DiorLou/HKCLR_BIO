@@ -124,8 +124,11 @@ QWidget *RobotControlForm::createLeftPanel()
         auto *minus = button(QStringLiteral("−"));
         auto *plus = button(QStringLiteral("+"));
         minus->setFixedWidth(34); plus->setFixedWidth(34);
-        connectJogButton(minus, i, false, RobotCoordType_Joint);
-        connectJogButton(plus, i, true, RobotCoordType_Joint);
+        // The controller AxisMove API numbers joints from 1 to 6, while the
+        // widget/value arrays use the usual zero-based C++ index.
+        const int controllerAxisId = i + 1;
+        connectJogButton(minus, controllerAxisId, false, RobotCoordType_Joint);
+        connectJogButton(plus, controllerAxisId, true, RobotCoordType_Joint);
         row->addWidget(minus); row->addWidget(plus);
         jointLayout->addLayout(row);
     }
