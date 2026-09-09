@@ -2,7 +2,6 @@
 
 #include "abstractwidget.h"
 #include "teachcontainer_global.h"
-#include "simcontainerform.h"
 #include "commandinfo.h"
 
 class CoordParam;
@@ -74,8 +73,6 @@ private slots:
 
 private:
     void updateUI();
-
-    void updateSimForm();
 
     void updateRoadPointData();
     void updateMoveTypeOptions();

@@ -7,18 +7,13 @@
 #include "communicationengine.h"
 #include "messagebox.h"
 #include "communication.h"
-#include "simcontainerform.h"
 #include "propertydefine.h"
 #include "cobotlog.h"
 #include "dialogcontainerform.h"
 #include "roboteventinfo.h"
 #include <QFuture>
-#include "simulationform.h"
 #include "pileupinfo.h"
 #include "robotcontrolform.h"
-
-#define SIM_WIDTH 659
-#define SIM_HEIGHT 652
 
 static TeachContainerForm *s_instance = 0;
 static const int MAINWIDGET_TAB_ROBOT_CONTROL_INDEX = 0;
@@ -101,10 +96,6 @@ void TeachContainerForm::initialize()
             tr("Robot Control"),
             QString(":/mainwidget/image/mainwidget/robotbodypoweron.svg"));
 
-    ui->layout_simulator->addWidget(SimulationForm::instance());
-    SimulationForm::instance()->setSimulationFormSize(
-        ResolutionUtils::getRatioSize(QSize(SIM_WIDTH,SIM_HEIGHT)));
-
     // Trigger the historical show-time initialization once, then explicitly
     // hide this child widget.  WA_DontShowOnScreen alone is not sufficient for
     // a child of MainWidget on Windows: it may still participate in parent
@@ -165,15 +156,12 @@ void TeachContainerForm::slot_mechLockStateChanged(bool enable)
 
 void TeachContainerForm::showEvent(QShowEvent *)
 {
-    updateSimForm();
     connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_control_setcurrent_result,
             this, &TeachContainerForm::slot_control_setcurrent_result);
 
     updateUI();
 
-    qDebug() << "@@@@ ui->widget_simulator->size : "
-             << ui->widget_simulator->size();
 }
 
 void TeachContainerForm::hideEvent(QHideEvent *)
@@ -307,22 +295,6 @@ void TeachContainerForm::updateUI()
     if (!isProjectLoad) return;
 
     CommunicationEngine::instance()->enqueueCmd(this, AbstractCmd::CmdType_Control_Move2Point_GetFileList);
-}
-
-void TeachContainerForm::updateSimForm()
-{
-    ui->layout_simulator->addWidget(SimulationForm::instance());
-    SimulationForm::instance()->setCurrentIndex(SimContainerForm::SimStackIndex_Sim3D);
-    SimulationForm::instance()->setSimulationFormSize(
-        ResolutionUtils::getRatioSize(QSize(SIM_WIDTH,SIM_HEIGHT)));
-    SimulationForm::instance()->enableDrawTrack(false);
-    SimulationForm::instance()->enableDrawTargetRoadPoint(false);
-    SimulationForm::instance()->enableDrawRealTimeRoadPoint(true);
-    SimulationForm::instance()->enableDrawGroundModel(true);
-    SimulationForm::instance()->enableInstallationMode(false);
-    SimulationForm::instance()->enableDrawInstallationReferenceLocationModel(false);
-    SimulationForm::instance()->enableDrawInstallationRealLocationModel(false);
-    SimulationForm::instance()->enableDrawInstallationGroundModel(false);
 }
 
 void TeachContainerForm::updateRoadPointData()
