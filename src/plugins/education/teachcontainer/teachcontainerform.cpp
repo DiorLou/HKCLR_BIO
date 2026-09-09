@@ -105,9 +105,12 @@ void TeachContainerForm::initialize()
     SimulationForm::instance()->setSimulationFormSize(
         ResolutionUtils::getRatioSize(QSize(SIM_WIDTH,SIM_HEIGHT)));
 
-    // Trigger the historical show-time initialization off-screen.  Calling
-    // hide() here would also suppress showEvent() and break background setup.
+    // Trigger the historical show-time initialization once, then explicitly
+    // hide this child widget.  WA_DontShowOnScreen alone is not sufficient for
+    // a child of MainWidget on Windows: it may still participate in parent
+    // composition when the parent is shown.  An explicit hide state persists.
     show();
+    hide();
 }
 
 void TeachContainerForm::delayInitialized()
