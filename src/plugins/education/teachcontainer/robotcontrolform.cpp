@@ -102,8 +102,13 @@ void RobotControlForm::requestAlarmHistory()
     if (!Communication::instance()->isConnected())
         return;
 
+    QStringList comparison = m_alarmHistory;
+    // Force one response after every connection, including when the
+    // controller has no alarm history, so an empty baseline is still valid.
+    if (!m_alarmBaselineCaptured)
+        comparison.append(QStringLiteral("__ROBOT_CONTROL_ALARM_BASELINE__"));
     CommunicationEngine::instance()->enqueueCmd(
-        this, AbstractCmd::CmdType_GetHistoryAlarm, m_alarmHistory);
+        this, AbstractCmd::CmdType_GetHistoryAlarm, comparison);
 }
 
 QWidget *RobotControlForm::createLeftPanel()
@@ -969,7 +974,7 @@ QWidget *RobotControlForm::createRightPanel()
     communication->addWidget(status);
 
     auto *alarmHeader = new QHBoxLayout;
-    alarmHeader->addWidget(new QLabel(tr("Controller Alarm Log")));
+    alarmHeader->addWidget(new QLabel(tr("Current Session Alarm Log")));
     alarmHeader->addStretch();
     auto *refreshAlarms = button(tr("Refresh"));
     alarmHeader->addWidget(refreshAlarms);
@@ -979,7 +984,7 @@ QWidget *RobotControlForm::createRightPanel()
     m_alarmHistoryView->setReadOnly(true);
     m_alarmHistoryView->setMinimumHeight(150);
     m_alarmHistoryView->setPlaceholderText(
-        tr("Controller alarm history will appear here (newest first)."));
+        tr("New controller alarms since this connection will appear here (newest first)."));
     m_alarmHistoryView->document()->setMaximumBlockCount(300);
     communication->addWidget(m_alarmHistoryView, 1);
 
@@ -992,11 +997,27 @@ QWidget *RobotControlForm::createRightPanel()
                     return;
 
                 m_alarmHistory = alarms;
-                m_alarmHistoryView->setPlainText(alarms.join(QLatin1Char('\n')));
-                if (alarms.isEmpty()) {
+                if (!m_alarmBaselineCaptured) {
+                    m_alarmBaseline.clear();
+                    for (const QString &alarm : alarms)
+                        m_alarmBaseline.insert(alarm);
+                    m_alarmBaselineCaptured = true;
+                    m_alarmHistoryView->clear();
                     m_alarmHistoryView->setPlaceholderText(
-                        tr("No controller alarm history was returned."));
+                        tr("No new controller alarms since this connection."));
+                    return;
                 }
+
+                QStringList currentSessionAlarms;
+                for (const QString &alarm : alarms) {
+                    if (!m_alarmBaseline.contains(alarm))
+                        currentSessionAlarms.append(alarm);
+                }
+                m_alarmHistoryView->setPlainText(
+                    currentSessionAlarms.join(QLatin1Char('\n')));
+                if (currentSessionAlarms.isEmpty())
+                    m_alarmHistoryView->setPlaceholderText(
+                        tr("No new controller alarms since this connection."));
             });
 
     auto *alarmTimer = new QTimer(this);
@@ -1022,6 +1043,12 @@ QWidget *RobotControlForm::createRightPanel()
             refreshControllerState();
             QTimer::singleShot(0, this, [this] { requestAlarmHistory(); });
         } else {
+            m_alarmHistory.clear();
+            m_alarmBaseline.clear();
+            m_alarmBaselineCaptured = false;
+            m_alarmHistoryView->clear();
+            m_alarmHistoryView->setPlaceholderText(
+                tr("Connect to the controller to monitor new alarms."));
             updatePowerUi(ROBOT_BODY_DISCONNECTED_STATE);
             updateEnableUi(false);
         }

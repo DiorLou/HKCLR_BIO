@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QSet>
 #include <QStringList>
 #include <QVector>
 
@@ -37,6 +38,8 @@ private:
     QComboBox *m_aHistoryCombo = nullptr;
     QTextBrowser *m_alarmHistoryView = nullptr;
     QStringList m_alarmHistory;
+    QSet<QString> m_alarmBaseline;
+    bool m_alarmBaselineCaptured = false;
     QVector<std::array<double, 3>> m_aPointHistory;
     int m_confirmedActiveToolId = -1;
 };
