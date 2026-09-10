@@ -51,15 +51,15 @@ QGroupBox *group(const QString &title, QLayout *layout)
 QString controllerToolName(const QString &legacyTcpName)
 {
     if (legacyTcpName.compare(QStringLiteral("TCP_E"), Qt::CaseInsensitive) == 0)
-        return QStringLiteral("Tool0");
-    if (legacyTcpName.compare(QStringLiteral("TCP_tip"), Qt::CaseInsensitive) == 0)
         return QStringLiteral("Tool1");
-    if (legacyTcpName.compare(QStringLiteral("TCP_O"), Qt::CaseInsensitive) == 0)
+    if (legacyTcpName.compare(QStringLiteral("TCP_tip"), Qt::CaseInsensitive) == 0)
         return QStringLiteral("Tool2");
-    if (legacyTcpName.compare(QStringLiteral("TCP_U"), Qt::CaseInsensitive) == 0)
+    if (legacyTcpName.compare(QStringLiteral("TCP_O"), Qt::CaseInsensitive) == 0)
         return QStringLiteral("Tool3");
-    if (legacyTcpName.compare(QStringLiteral("TCP_P"), Qt::CaseInsensitive) == 0)
+    if (legacyTcpName.compare(QStringLiteral("TCP_U"), Qt::CaseInsensitive) == 0)
         return QStringLiteral("Tool4");
+    if (legacyTcpName.compare(QStringLiteral("TCP_P"), Qt::CaseInsensitive) == 0)
+        return QStringLiteral("Tool5");
     return legacyTcpName;
 }
 }
@@ -932,7 +932,7 @@ QWidget *RobotControlForm::createRightPanel()
 
                 // Some controller versions do not emit toolIdChanged after
                 // SetCurrentId. Remember the tool acknowledged by the API so
-                // that an immediate save cannot fall back to stale Tool0.
+                // that an immediate save cannot fall back to a stale tool ID.
                 m_confirmedActiveToolId = toolId;
                 refreshToolButtons();
             });
