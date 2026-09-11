@@ -516,6 +516,10 @@ void RobotControlForm::addPoseEditor(QVBoxLayout *layout, const QString &title,
             [this, prefix, toolName] { capturePoint(prefix, toolName); });
     if (prefix == QStringLiteral("A")) {
         row->addWidget(capture);
+        // Keep the A-point capture code for dependent workflows, but match
+        // PROSTATEBIO's production UI: A points are produced by the guided
+        // workflow rather than captured manually from this row.
+        capture->setVisible(false);
         m_aHistoryCombo = new QComboBox;
         m_aHistoryCombo->setPlaceholderText(tr("History (Empty)"));
         connect(m_aHistoryCombo, &QComboBox::currentIndexChanged,
