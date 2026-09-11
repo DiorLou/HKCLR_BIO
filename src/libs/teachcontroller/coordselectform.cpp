@@ -17,6 +17,14 @@ CoordSelectForm::CoordSelectForm(QWidget *parent) :
     setupUi(this);
 #endif
 
+    ui->cmb_toolNo->setEnabled(false);
+    ui->cmb_toolNo->setToolTip(
+        tr("Use the Robot Control TCP buttons to select Tool1 through Tool5"));
+    ui->cmb_wobjNo->setEnabled(false);
+    ui->cmb_wobjNo->setToolTip(tr("Fixed to Wobj0 by this application"));
+    ui->cmb_LoadNo->setEnabled(false);
+    ui->cmb_LoadNo->setToolTip(tr("Fixed to Load0 by this application"));
+
     updateUI();
 }
 

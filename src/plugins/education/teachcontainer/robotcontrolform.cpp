@@ -1026,6 +1026,57 @@ QWidget *RobotControlForm::createRightPanel()
             this, &RobotControlForm::requestAlarmHistory);
     alarmTimer->start();
 
+    const auto enforceMechanicalSelection = [this] {
+        if (!Communication::instance()->isConnected())
+            return;
+        // Changing coordinate/load selections while a program is running is
+        // rejected by the controller. Wait for a stopped state instead of
+        // producing a new controller alarm.
+        if (Communication::instance()->getCurRunStatus()
+            == MetaType::COBOT_CONTROLLER_RUN_STATUS_START) {
+            return;
+        }
+        const int toolId = Communication::instance()->GetCurToolId();
+        if (toolId < 1 || toolId > 5) {
+            // Tool1 is TCP_E and is the safe application default. Tool0 is
+            // the unloaded flange record and is intentionally not used.
+            CommunicationEngine::instance()->enqueueCmd_setData(
+                this, AbstractCmd::CmdType_Control_SetToolId, 1);
+        }
+        if (Communication::instance()->GetCurWObjId() != 0) {
+            CommunicationEngine::instance()->enqueueCmd_setData(
+                this, AbstractCmd::CmdType_Control_SetWObjId, 0);
+        }
+        if (Communication::instance()->GetCurLoadId() != 0) {
+            CommunicationEngine::instance()->enqueueCmd_setData(
+                this, AbstractCmd::CmdType_Control_SetLoadId, 0);
+        }
+    };
+
+    // If an external program changes either selection while running, restore
+    // the fixed values as soon as the controller returns to a stopped state.
+    connect(alarmTimer, &QTimer::timeout, this, enforceMechanicalSelection);
+
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_ToolChanged,
+            this, [enforceMechanicalSelection](int toolId) {
+                if (toolId < 1 || toolId > 5)
+                    enforceMechanicalSelection();
+            });
+
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_WobjChanged,
+            this, [enforceMechanicalSelection](int wobjId) {
+                if (wobjId != 0)
+                    enforceMechanicalSelection();
+            });
+    connect(CommunicationEngine::instance(),
+            &CommunicationEngine::signal_LoadChanged,
+            this, [enforceMechanicalSelection](int loadId) {
+                if (loadId != 0)
+                    enforceMechanicalSelection();
+            });
+
     const auto updateConnectionUi = [=](ControllerConnectionState state) {
         const bool connected = state == ControllerConnectionState_Connected;
         const bool connecting = state == ControllerConnectionState_Connecting;
@@ -1041,6 +1092,7 @@ QWidget *RobotControlForm::createRightPanel()
         setControllerButtonsEnabled(connected);
         if (connected) {
             refreshControllerState();
+            enforceMechanicalSelection();
             QTimer::singleShot(0, this, [this] { requestAlarmHistory(); });
         } else {
             m_alarmHistory.clear();
