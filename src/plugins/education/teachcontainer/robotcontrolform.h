@@ -9,6 +9,7 @@
 
 class QLineEdit;
 class QComboBox;
+class QPushButton;
 class QTextBrowser;
 class QVBoxLayout;
 
@@ -27,6 +28,11 @@ private:
     void savePointData();
     void loadPointData();
     void requestAlarmHistory();
+    void startFineTuneProbe();
+    void finishFineTuneProbeSwitch(bool success, int toolId);
+    void finishFineTuneProbeSave(bool success);
+    void setFineTuneProbeActive(bool active);
+    void updateFineTuneProbeAvailability();
 
     std::array<QLineEdit *, 6> m_jointValueEdits{};
     std::array<QLineEdit *, 6> m_tcpValueEdits{};
@@ -42,4 +48,8 @@ private:
     bool m_alarmBaselineCaptured = false;
     QVector<std::array<double, 3>> m_aPointHistory;
     int m_confirmedActiveToolId = -1;
+    QPushButton *m_fineTuneProbeButton = nullptr;
+    QVector<QPushButton *> m_toolJogButtons;
+    int m_fineTuneStep = 0;
+    bool m_fineTuneProbeActive = false;
 };

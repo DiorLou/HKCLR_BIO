@@ -1,4 +1,5 @@
 #include "robotcontrolform.h"
+#include "authoritymanager.h"
 #include "communication.h"
 #include "communicationengine.h"
 
@@ -15,10 +16,12 @@
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
+#include <QtMath>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSlider>
+#include <QStyle>
 #include <QTextBrowser>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -75,6 +78,10 @@ RobotControlForm::RobotControlForm(QWidget *parent) : QWidget(parent)
         "#robotControlForm QLineEdit[displayValue='true'], #robotControlForm QTextEdit {"
         " background:#eceff3; color:#333; }"
         "#robotControlForm QPushButton { padding:4px 8px; }"
+        "#robotControlForm QPushButton[activeTcp='true'] {"
+        " background:#2eae67; border:1px solid #238c52; color:white; font-weight:600; }"
+        "#robotControlForm QPushButton[fineTuneActive='true'] {"
+        " background:#2eae67; border:1px solid #238c52; color:white; font-weight:600; }"
         "#emergencyStop { background:#d9363e; color:white; font-weight:700; }"));
 
     auto *columns = new QHBoxLayout(this);
@@ -237,17 +244,23 @@ QWidget *RobotControlForm::createLeftPanel()
         auto *controls = new QHBoxLayout;
         auto *minus = button(QStringLiteral("−"));
         auto *plus = button(QStringLiteral("+"));
+        minus->setEnabled(false);
+        plus->setEnabled(false);
+        m_toolJogButtons.append(minus);
+        m_toolJogButtons.append(plus);
         connectJogButton(minus, i, false, RobotCoordType_Tool);
         connectJogButton(plus, i, true, RobotCoordType_Tool);
         controls->addWidget(minus);
         controls->addWidget(plus);
         toolGrid->addLayout(controls, row + 1, col, 1, 2);
     }
-    auto *fineTuneProbe = button(tr("Fine tune probe"));
-    fineTuneProbe->setEnabled(false);
-    fineTuneProbe->setToolTip(tr(
-        "Requires the ultrasound alignment and navigation calculation module"));
-    toolGrid->addWidget(fineTuneProbe, 4, 0, 1, 6, Qt::AlignCenter);
+    m_fineTuneProbeButton = button(tr("Fine tune probe"));
+    m_fineTuneProbeButton->setProperty("fineTuneActive", false);
+    m_fineTuneProbeButton->setToolTip(tr(
+        "Project O onto the TCP_E Z axis, update TCP_O, then enable tool-coordinate jogging"));
+    connect(m_fineTuneProbeButton, &QPushButton::clicked,
+            this, &RobotControlForm::startFineTuneProbe);
+    toolGrid->addWidget(m_fineTuneProbeButton, 4, 0, 1, 6, Qt::AlignCenter);
     layout->addWidget(group(tr("Robot Tool Real-time Status"), toolGrid));
 
     auto *points = new QVBoxLayout;
@@ -306,6 +319,7 @@ QWidget *RobotControlForm::createLeftPanel()
 
 void RobotControlForm::updateRealtimeStatus()
 {
+    updateFineTuneProbeAvailability();
     if (!Communication::instance()->isConnected())
         return;
 
@@ -323,6 +337,156 @@ void RobotControlForm::updateRealtimeStatus()
     };
     for (int i = 0; i < static_cast<int>(m_tcpValueEdits.size()); ++i)
         m_tcpValueEdits[i]->setText(QString::number(tcpValues[i], 'f', 3));
+}
+
+void RobotControlForm::updateFineTuneProbeAvailability()
+{
+    const bool connected = Communication::instance()->isConnected();
+    if (!connected && (m_fineTuneProbeActive || m_fineTuneStep != 0)) {
+        m_fineTuneStep = 0;
+        setFineTuneProbeActive(false);
+    }
+    if (m_fineTuneProbeButton)
+        m_fineTuneProbeButton->setEnabled(connected && m_fineTuneStep == 0);
+    for (QPushButton *jogButton : m_toolJogButtons)
+        jogButton->setEnabled(connected && m_fineTuneProbeActive && m_fineTuneStep == 0);
+}
+
+void RobotControlForm::setFineTuneProbeActive(bool active)
+{
+    m_fineTuneProbeActive = active;
+    if (m_fineTuneProbeButton) {
+        m_fineTuneProbeButton->setProperty("fineTuneActive", active);
+        m_fineTuneProbeButton->setText(active
+            ? tr("Finish fine tune probe") : tr("Fine tune probe"));
+        m_fineTuneProbeButton->style()->unpolish(m_fineTuneProbeButton);
+        m_fineTuneProbeButton->style()->polish(m_fineTuneProbeButton);
+    }
+    updateFineTuneProbeAvailability();
+}
+
+void RobotControlForm::startFineTuneProbe()
+{
+    if (!Communication::instance()->isConnected() || m_fineTuneStep != 0)
+        return;
+    if (m_fineTuneProbeActive) {
+        m_fineTuneStep = 4;
+        updateFineTuneProbeAvailability();
+        CommunicationEngine::instance()->enqueueCmd_setData(
+            this, AbstractCmd::CmdType_Control_SetToolId, 1);
+        return;
+    }
+
+    bool anyNonZero = false;
+    for (QLineEdit *edit : m_oPointEdits) {
+        bool ok = false;
+        const double value = edit->text().toDouble(&ok);
+        if (!ok) {
+            QMessageBox::warning(this, tr("Fine Tune Probe"), tr("O point contains an invalid value."));
+            return;
+        }
+        anyNonZero = anyNonZero || !qFuzzyIsNull(value);
+    }
+    if (!anyNonZero) {
+        QMessageBox::warning(this, tr("Fine Tune Probe"),
+                             tr("Please capture the O point (or load saved data) before fine tuning."));
+        return;
+    }
+    if (!Communication::instance()->IsEnable()) {
+        QMessageBox::warning(this, tr("Fine Tune Probe"), tr("Please enable the robot before fine tuning."));
+        return;
+    }
+    if (Communication::instance()->getCurRunStatus()
+        == MetaType::COBOT_CONTROLLER_RUN_STATUS_START) {
+        QMessageBox::warning(this, tr("Fine Tune Probe"), tr("Stop the running program before fine tuning."));
+        return;
+    }
+
+    m_fineTuneStep = 1;
+    updateFineTuneProbeAvailability();
+    CommunicationEngine::instance()->enqueueCmd_setData(
+        this, AbstractCmd::CmdType_Control_SetToolId, 1);
+}
+
+void RobotControlForm::finishFineTuneProbeSwitch(bool success, int toolId)
+{
+    if (m_fineTuneStep == 0)
+        return;
+    if (!success) {
+        m_fineTuneStep = 0;
+        updateFineTuneProbeAvailability();
+        QMessageBox::warning(this, tr("Fine Tune Probe"), tr("Failed to switch the required TCP."));
+        return;
+    }
+    if (m_fineTuneStep == 4 && toolId == 1) {
+        m_fineTuneStep = 0;
+        setFineTuneProbeActive(false);
+        QMessageBox::information(this, tr("Fine Tune Probe"), tr("Fine tuning is off. TCP_E is active."));
+        return;
+    }
+    if (m_fineTuneStep == 3 && toolId == 3) {
+        m_fineTuneStep = 0;
+        setFineTuneProbeActive(true);
+        QMessageBox::information(this, tr("Fine Tune Probe"), tr("Fine tuning is ready. TCP_O is active."));
+        return;
+    }
+    if (m_fineTuneStep != 1 || toolId != 1)
+        return;
+
+    QTimer::singleShot(300, this, [this] {
+        if (m_fineTuneStep != 1 || !Communication::instance()->isConnected())
+            return;
+        const RoadPoint pose = Communication::instance()->GetRealTimePt();
+        const double rx = qDegreesToRadians(pose.m_orientation.m_rx);
+        const double ry = qDegreesToRadians(pose.m_orientation.m_ry);
+        const double rz = qDegreesToRadians(pose.m_orientation.m_rz);
+        const std::array<double, 3> zAxis{
+            qCos(rz) * qSin(ry) * qCos(rx) + qSin(rz) * qSin(rx),
+            qSin(rz) * qSin(ry) * qCos(rx) - qCos(rz) * qSin(rx),
+            qCos(ry) * qCos(rx)
+        };
+        const std::array<double, 3> ePoint{
+            pose.m_position.m_x, pose.m_position.m_y, pose.m_position.m_z
+        };
+        std::array<double, 3> oPoint{};
+        for (int i = 0; i < 3; ++i) {
+            oPoint[i] = m_oPointEdits[i]->text().toDouble();
+            m_ePointEdits[i]->setText(QString::number(ePoint[i], 'f', 3));
+        }
+        double distance = 0.0;
+        for (int i = 0; i < 3; ++i)
+            distance += (oPoint[i] - ePoint[i]) * zAxis[i];
+        for (int i = 0; i < 3; ++i)
+            m_oPointEdits[i]->setText(QString::number(ePoint[i] + distance * zAxis[i], 'f', 3));
+
+        ToolParams params;
+        Communication::instance()->GetCurToolParams(3, params);
+        params.pos.m_x = 0.0;
+        params.pos.m_y = 0.0;
+        params.pos.m_z = distance;
+        // New-arm TCP_O orientation. Only Z is recalculated from the
+        // captured O-point projection; the remaining frame values are fixed.
+        params.ori.m_rx = 157.5;
+        params.ori.m_ry = 22.5;
+        params.ori.m_rz = 135.0;
+        m_fineTuneStep = 2;
+        CommunicationEngine::instance()->enqueueCmd_ToolSave(this, 3, params, true);
+    });
+}
+
+void RobotControlForm::finishFineTuneProbeSave(bool success)
+{
+    if (m_fineTuneStep != 2)
+        return;
+    if (!success) {
+        m_fineTuneStep = 0;
+        updateFineTuneProbeAvailability();
+        QMessageBox::warning(this, tr("Fine Tune Probe"), tr("Failed to update TCP_O parameters."));
+        return;
+    }
+    m_fineTuneStep = 3;
+    CommunicationEngine::instance()->enqueueCmd_setData(
+        this, AbstractCmd::CmdType_Control_SetToolId, 3);
 }
 
 void RobotControlForm::addPoseEditor(QVBoxLayout *layout, const QString &title,
@@ -759,7 +923,7 @@ QWidget *RobotControlForm::createRightPanel()
     for (const QString &name : {QStringLiteral("TCP_O"), QStringLiteral("TCP_P"), QStringLiteral("TCP_U"),
                                 QStringLiteral("TCP_E"), QStringLiteral("TCP_tip")}) {
         auto *switchTool = button(tr("Switch to %1").arg(name));
-        switchTool->setCheckable(true);
+        switchTool->setProperty("activeTcp", false);
         connect(switchTool, &QPushButton::clicked, this,
                 [requestTool, name] { requestTool(name); });
         switchToolButtons.insert(name, switchTool);
@@ -768,7 +932,7 @@ QWidget *RobotControlForm::createRightPanel()
     tcpSettings->addLayout(switches);
     auto *saveCurrentTool = button(tr("Save Parameters to Active TCP"));
     saveCurrentTool->setToolTip(tr(
-        "Save the six values above to the tool currently active in the controller"));
+        "Switch from User mode to Manage mode to save the six values to the active TCP"));
     tcpSettings->addWidget(saveCurrentTool);
     layout->addWidget(group(tr("Tool Coordinate System Settings (TCP)"), tcpSettings));
 
@@ -846,6 +1010,12 @@ QWidget *RobotControlForm::createRightPanel()
     connect(saveCurrentTool, &QPushButton::clicked, this, [this] {
         if (!Communication::instance()->isConnected())
             return;
+        if (!AuthorityManager::instance()->isCurrentManageAuthority()) {
+            QMessageBox::warning(
+                this, tr("Tool TCP"),
+                tr("Switch from User mode to Manage mode before saving TCP parameters."));
+            return;
+        }
 
         const int toolId = m_confirmedActiveToolId;
         if (toolId < 0) {
@@ -880,6 +1050,10 @@ QWidget *RobotControlForm::createRightPanel()
             this, [this, requestTool](QObject *object, bool success) {
                 if (object != this)
                     return;
+                if (m_fineTuneStep == 2) {
+                    finishFineTuneProbeSave(success);
+                    return;
+                }
                 if (!success) {
                     QMessageBox::warning(
                         this, tr("Tool TCP"), tr("Failed to save the tool parameters."));
@@ -898,10 +1072,16 @@ QWidget *RobotControlForm::createRightPanel()
         for (auto it = switchToolButtons.cbegin(); it != switchToolButtons.cend(); ++it) {
             const bool exists = findToolId(it.key()) >= 0;
             it.value()->setEnabled(connected && exists);
-            it.value()->setChecked(
-                connected
-                && activeToolName.compare(controllerToolName(it.key()),
-                                          Qt::CaseInsensitive) == 0);
+            const bool active
+                = connected
+                  && activeToolName.compare(controllerToolName(it.key()),
+                                            Qt::CaseInsensitive) == 0;
+            if (it.value()->property("activeTcp").toBool() != active) {
+                it.value()->setProperty("activeTcp", active);
+                it.value()->style()->unpolish(it.value());
+                it.value()->style()->polish(it.value());
+                it.value()->update();
+            }
             it.value()->setToolTip(exists
                 ? QObject::tr("Activate %1 (%2 on this controller)")
                       .arg(it.key(), controllerToolName(it.key()))
@@ -918,7 +1098,13 @@ QWidget *RobotControlForm::createRightPanel()
                       .arg(controllerToolName(it.key()), it.key()));
         }
         readActiveTool->setEnabled(connected && !activeToolName.isEmpty());
-        saveCurrentTool->setEnabled(connected && !activeToolName.isEmpty());
+        const bool manageMode
+            = AuthorityManager::instance()->isCurrentManageAuthority();
+        saveCurrentTool->setEnabled(
+            connected && !activeToolName.isEmpty() && manageMode);
+        saveCurrentTool->setToolTip(manageMode
+            ? QObject::tr("Save the six values above to the tool currently active in the controller")
+            : QObject::tr("Switch from User mode to Manage mode to save TCP parameters"));
     };
     refreshToolButtons();
     connect(CommunicationEngine::instance(),
@@ -926,7 +1112,13 @@ QWidget *RobotControlForm::createRightPanel()
             this, [this, refreshToolButtons](QObject *object, bool success, int toolId) {
                 if (object != this)
                     return;
+                const bool fineTuneSwitch = m_fineTuneStep != 0;
                 if (!success) {
+                    if (fineTuneSwitch) {
+                        finishFineTuneProbeSwitch(false, toolId);
+                        QTimer::singleShot(250, this, [this] { requestAlarmHistory(); });
+                        return;
+                    }
                     QMessageBox::warning(
                         this, tr("Tool TCP"), tr("Failed to switch the controller tool."));
                     // The controller may publish the detailed alarm shortly after
@@ -940,6 +1132,8 @@ QWidget *RobotControlForm::createRightPanel()
                 // that an immediate save cannot fall back to a stale tool ID.
                 m_confirmedActiveToolId = toolId;
                 refreshToolButtons();
+                if (fineTuneSwitch)
+                    finishFineTuneProbeSwitch(true, toolId);
             });
     connect(CommunicationEngine::instance(),
             &CommunicationEngine::signal_connectSuccess,
@@ -951,6 +1145,13 @@ QWidget *RobotControlForm::createRightPanel()
             &CommunicationEngine::signal_ToolChanged,
             this, [this, refreshToolButtons](int toolId) {
                 m_confirmedActiveToolId = toolId;
+                if (m_fineTuneProbeActive && m_fineTuneStep == 0 && toolId != 3)
+                    setFineTuneProbeActive(false);
+                refreshToolButtons();
+            });
+    connect(AuthorityManager::instance(),
+            &AuthorityManager::signal_changeAuthoritySuccess,
+            this, [refreshToolButtons](const QString &, bool) {
                 refreshToolButtons();
             });
 
